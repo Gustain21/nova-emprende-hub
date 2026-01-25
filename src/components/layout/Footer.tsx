@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Rocket, Mail, Instagram, Linkedin, Youtube } from "lucide-react";
+import { Mail, Instagram, Linkedin, Youtube } from "lucide-react";
+import logoNovaEmprende from "@/assets/logo-nova-emprende.png";
 
 const Footer = () => {
   return (
@@ -8,14 +9,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-orange to-brand-gold flex items-center justify-center">
-                <Rocket className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <span className="text-lg font-bold text-foreground">Nova</span>
-                <span className="text-lg font-bold text-brand-orange">Emprende</span>
-              </div>
+            <Link to="/" className="flex items-center group">
+              <img 
+                src={logoNovaEmprende} 
+                alt="Nova Emprende" 
+                className="h-12 w-auto group-hover:scale-105 transition-transform duration-300"
+              />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Transformamos ideas en negocios rentables. Herramientas prácticas para emprendedores que quieren pasar de la teoría a la acción.
@@ -83,15 +82,15 @@ const Footer = () => {
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted-foreground">
-            © 2024 Editorial Nova Emprende. Todos los derechos reservados.
+            © 2026 Editorial Nova Emprende. Todos los derechos reservados.
           </p>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/privacidad" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               Política de Privacidad
-            </a>
-            <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            </Link>
+            <Link to="/terminos" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               Términos y Condiciones
-            </a>
+            </Link>
           </div>
         </div>
       </div>
