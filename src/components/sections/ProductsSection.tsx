@@ -115,18 +115,18 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className={`brand-card brand-card-hover bg-gradient-to-br ${typeStyles[product.type]} ${
-        product.featured ? "lg:col-span-2 lg:row-span-2" : ""
+        product.featured ? "md:col-span-2 lg:col-span-3" : ""
       }`}
     >
-      <div className={`flex flex-col h-full ${product.featured ? "lg:flex-row lg:gap-8" : ""}`}>
+      <div className={`flex flex-col h-full ${product.featured ? "md:flex-row md:gap-8 md:items-center" : ""}`}>
         {/* Image */}
-        <div className={`relative mb-4 ${product.featured ? "lg:mb-0 lg:w-1/2" : ""}`}>
+        <div className={`relative mb-4 ${product.featured ? "md:mb-0 md:w-2/5 lg:w-1/3" : ""}`}>
           <div className="overflow-hidden rounded-xl">
             <img
               src={product.image}
               alt={product.title}
               className={`w-full object-cover transition-transform duration-500 hover:scale-105 ${
-                product.featured ? "h-64 lg:h-full" : "h-48"
+                product.featured ? "h-72 md:h-80 lg:h-96" : "h-48"
               }`}
             />
           </div>
@@ -136,23 +136,23 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
         </div>
 
         {/* Content */}
-        <div className={`flex flex-col flex-1 ${product.featured ? "lg:w-1/2 lg:justify-center" : ""}`}>
+        <div className={`flex flex-col flex-1 ${product.featured ? "md:w-3/5 lg:w-2/3 md:py-4" : ""}`}>
           <div className="flex items-center gap-2 text-brand-sand mb-2">
             {product.icon}
             <span className="text-sm font-medium">{product.subtitle}</span>
           </div>
 
-          <h3 className={`font-bold text-foreground mb-3 ${product.featured ? "text-2xl lg:text-3xl" : "text-xl"}`}>
+          <h3 className={`font-bold text-foreground mb-3 leading-tight ${product.featured ? "text-2xl md:text-3xl lg:text-4xl" : "text-lg"}`}>
             {product.title}
           </h3>
 
-          <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
+          <p className={`text-muted-foreground leading-relaxed mb-6 flex-1 ${product.featured ? "text-base md:text-lg" : "text-sm"}`}>
             {product.description}
           </p>
 
           <div className="flex items-center justify-between">
             <div>
-              <span className={`font-bold text-brand-orange ${product.featured ? "text-3xl" : "text-2xl"}`}>
+              <span className={`font-bold text-brand-orange ${product.featured ? "text-3xl md:text-4xl" : "text-2xl"}`}>
                 €{product.price.toFixed(2)}
               </span>
             </div>
