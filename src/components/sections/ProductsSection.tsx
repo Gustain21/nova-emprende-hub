@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, FileSpreadsheet, BookOpen, Lightbulb, PieChart, Calendar, FileText } from "lucide-react";
+import { ExternalLink, FileSpreadsheet, BookOpen, Lightbulb, PieChart, Calendar, Clock } from "lucide-react";
 import ebookCover from "@/assets/ebook-cover.jpg";
 import workbookCover from "@/assets/workbook-cover.png";
 import promptsCover from "@/assets/prompts-cover.png";
@@ -15,10 +15,12 @@ interface Product {
   subtitle: string;
   description: string;
   price: number;
+  originalPrice?: number;
   image: string;
   type: "ebook" | "app" | "excel";
   icon: React.ReactNode;
   featured?: boolean;
+  offerEndDate?: string;
 }
 
 const products: Product[] = [
@@ -27,11 +29,13 @@ const products: Product[] = [
     title: "El Big Bang de los Negocios",
     subtitle: "Ebook Principal",
     description: "Guía práctica para transformar tus ideas en negocios rentables. 15 capítulos con metodología paso a paso.",
+    originalPrice: 28.56,
     price: 19.99,
     image: ebookCover,
     type: "ebook",
     icon: <BookOpen className="w-5 h-5" />,
     featured: true,
+    offerEndDate: "31/03",
   },
   {
     id: "bitacora",
@@ -150,11 +154,26 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
             {product.description}
           </p>
 
+          {/* Offer Badge */}
+          {product.offerEndDate && (
+            <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/40">
+              <Clock className="w-4 h-4 text-red-400" />
+              <span className="text-sm font-bold text-red-400">
+                ¡Oferta hasta el {product.offerEndDate}! -30%
+              </span>
+            </div>
+          )}
+
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex items-baseline gap-2">
               <span className={`font-bold text-brand-orange ${product.featured ? "text-3xl md:text-4xl" : "text-2xl"}`}>
                 €{product.price.toFixed(2)}
               </span>
+              {product.originalPrice && (
+                <span className="text-lg text-muted-foreground line-through">
+                  €{product.originalPrice.toFixed(2)}
+                </span>
+              )}
             </div>
             <Button variant={product.featured ? "hero" : "cta"} size={product.featured ? "lg" : "default"}>
               Comprar
