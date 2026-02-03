@@ -121,12 +121,12 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
       <div className={`flex flex-col h-full ${product.featured ? "md:flex-row md:gap-8 md:items-center" : ""}`}>
         {/* Image */}
         <div className={`relative mb-4 ${product.featured ? "md:mb-0 md:w-2/5 lg:w-1/3" : ""}`}>
-          <div className="overflow-hidden rounded-xl">
+          <div className="overflow-hidden rounded-xl bg-brand-dark-elevated">
             <img
               src={product.image}
               alt={product.title}
-              className={`w-full object-cover transition-transform duration-500 hover:scale-105 ${
-                product.featured ? "h-72 md:h-80 lg:h-96" : "h-48"
+              className={`w-full object-contain transition-transform duration-500 hover:scale-105 ${
+                product.featured ? "h-72 md:h-80 lg:h-96" : "h-56"
               }`}
             />
           </div>
