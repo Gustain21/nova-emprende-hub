@@ -19,8 +19,8 @@ const packs: Pack[] = [
     id: "starter",
     name: "Pack Starter",
     description: "Perfecto para comenzar tu viaje emprendedor con los fundamentos esenciales.",
-    originalPrice: 34.98,
-    price: 27.99,
+    originalPrice: 39.98,
+    price: 31.99,
     products: [
       "El Big Bang de los Negocios (Ebook)",
       "La Bitácora del Capitán (Workbook)",
@@ -31,8 +31,8 @@ const packs: Pack[] = [
     id: "pro",
     name: "Pack Pro",
     description: "La combinación perfecta de teoría, práctica y herramientas digitales.",
-    originalPrice: 69.96,
-    price: 49.99,
+    originalPrice: 77.96,
+    price: 55.99,
     products: [
       "El Big Bang de los Negocios (Ebook)",
       "La Bitácora del Capitán (Workbook)",
@@ -47,8 +47,8 @@ const packs: Pack[] = [
     id: "complete",
     name: "Pack Completo",
     description: "Todo el ecosistema Nova Emprende. Acceso a todos los productos sin excepción.",
-    originalPrice: 109.94,
-    price: 79.99,
+    originalPrice: 124.93,
+    price: 89.99,
     products: [
       "El Big Bang de los Negocios (Ebook)",
       "La Bitácora del Capitán (Workbook)",
