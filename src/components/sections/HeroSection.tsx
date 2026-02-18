@@ -97,23 +97,6 @@ const HeroSection = () => {
                   className="relative w-full max-w-md rounded-2xl shadow-2xl animate-float"
                 />
                 
-                {/* Floating Badge */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8 }}
-                  className="absolute -right-4 top-1/4 bg-card/90 backdrop-blur-sm border border-border rounded-xl p-4 shadow-xl"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-brand-orange to-brand-gold flex items-center justify-center">
-                      <Rocket className="w-5 h-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-foreground">Por Gustavo</div>
-                      <div className="text-xs text-muted-foreground">Stainnekker</div>
-                    </div>
-                  </div>
-                </motion.div>
               </div>
             </div>
           </motion.div>
