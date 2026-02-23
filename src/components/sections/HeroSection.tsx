@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, BookOpen, Rocket } from "lucide-react";
+import { ArrowRight, Sparkles, BookOpen, Rocket, Clock, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 import ebookCover from "@/assets/ebook-cover.jpg";
 
 const HeroSection = () => {
@@ -60,19 +61,31 @@ const HeroSection = () => {
               </div>
             </div>
 
+            {/* Price & Offer */}
+            <div className="flex flex-wrap items-center gap-4 justify-center lg:justify-start mb-6">
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-black text-brand-orange">€19,99</span>
+                <span className="text-xl text-muted-foreground line-through">€28,56</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/40">
+                <Clock className="w-4 h-4 text-red-400" />
+                <span className="text-sm font-bold text-red-400">¡Oferta hasta el 31/03! -30%</span>
+              </div>
+            </div>
+
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <a href="#productos">
+              <Link to="/producto/ebook">
                 <Button variant="hero" size="xl" className="w-full sm:w-auto">
                   <BookOpen className="w-5 h-5" />
-                  Explorar Productos
-                  <ArrowRight className="w-5 h-5" />
+                  Ver más
+                  <ExternalLink className="w-5 h-5" />
                 </Button>
-              </a>
-              <a href="#packs">
+              </Link>
+              <a href="#productos">
                 <Button variant="heroOutline" size="xl" className="w-full sm:w-auto">
                   <Rocket className="w-5 h-5" />
-                  Ver Packs
+                  Explorar Productos
                 </Button>
               </a>
             </div>

@@ -25,35 +25,36 @@ export interface Product {
   whatYouGet: string[];
 }
 
+export const ebookProduct: Product = {
+  id: "ebook",
+  title: "El Big Bang de los Negocios",
+  subtitle: "Ebook Principal",
+  description: "Guía práctica para transformar tus ideas en negocios rentables. 15 capítulos con metodología paso a paso.",
+  longDescription: "El Big Bang de los Negocios es la guía definitiva para emprendedores que quieren pasar de la idea al negocio rentable. A lo largo de 15 capítulos, descubrirás una metodología probada que te llevará paso a paso desde la concepción de tu idea hasta la puesta en marcha de tu negocio. Escrito con un enfoque práctico y directo, sin teoría innecesaria.",
+  originalPrice: 28.56,
+  price: 19.99,
+  image: ebookCover,
+  type: "ebook",
+  iconName: "BookOpen",
+  featured: true,
+  offerEndDate: "31/03",
+  benefits: [
+    "Metodología paso a paso para validar tu idea de negocio",
+    "15 capítulos con ejercicios prácticos aplicables desde el día 1",
+    "Estrategias de monetización probadas en negocios reales",
+    "Herramientas para definir tu propuesta de valor única",
+    "Frameworks para analizar tu mercado y competencia",
+    "Plantillas de modelo de negocio incluidas",
+  ],
+  whatYouGet: [
+    "Ebook en formato PDF (descarga inmediata)",
+    "15 capítulos con metodología completa",
+    "Ejercicios prácticos en cada capítulo",
+    "Acceso de por vida al contenido",
+  ],
+};
+
 export const products: Product[] = [
-  {
-    id: "ebook",
-    title: "El Big Bang de los Negocios",
-    subtitle: "Ebook Principal",
-    description: "Guía práctica para transformar tus ideas en negocios rentables. 15 capítulos con metodología paso a paso.",
-    longDescription: "El Big Bang de los Negocios es la guía definitiva para emprendedores que quieren pasar de la idea al negocio rentable. A lo largo de 15 capítulos, descubrirás una metodología probada que te llevará paso a paso desde la concepción de tu idea hasta la puesta en marcha de tu negocio. Escrito con un enfoque práctico y directo, sin teoría innecesaria.",
-    originalPrice: 28.56,
-    price: 19.99,
-    image: ebookCover,
-    type: "ebook",
-    iconName: "BookOpen",
-    featured: true,
-    offerEndDate: "31/03",
-    benefits: [
-      "Metodología paso a paso para validar tu idea de negocio",
-      "15 capítulos con ejercicios prácticos aplicables desde el día 1",
-      "Estrategias de monetización probadas en negocios reales",
-      "Herramientas para definir tu propuesta de valor única",
-      "Frameworks para analizar tu mercado y competencia",
-      "Plantillas de modelo de negocio incluidas",
-    ],
-    whatYouGet: [
-      "Ebook en formato PDF (descarga inmediata)",
-      "15 capítulos con metodología completa",
-      "Ejercicios prácticos en cada capítulo",
-      "Acceso de por vida al contenido",
-    ],
-  },
   {
     id: "bitacora",
     title: "La Bitácora del Capitán",
@@ -206,4 +207,6 @@ export const products: Product[] = [
   },
 ];
 
-export const getProductById = (id: string) => products.find((p) => p.id === id);
+export const allProducts: Product[] = [ebookProduct, ...products];
+
+export const getProductById = (id: string) => allProducts.find((p) => p.id === id);
