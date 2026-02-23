@@ -61,17 +61,6 @@ const HeroSection = () => {
               </div>
             </div>
 
-            {/* Price & Offer */}
-            <div className="flex flex-wrap items-center gap-4 justify-center lg:justify-start mb-6">
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-black text-brand-orange">€19,99</span>
-                <span className="text-xl text-muted-foreground line-through">€28,56</span>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/40">
-                <Clock className="w-4 h-4 text-red-400" />
-                <span className="text-sm font-bold text-red-400">¡Oferta hasta el 31/03! -30%</span>
-              </div>
-            </div>
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -109,7 +98,18 @@ const HeroSection = () => {
                   alt="El Big Bang de los Negocios - Ebook"
                   className="relative w-full max-w-md rounded-2xl shadow-2xl animate-float"
                 />
-                
+              </div>
+
+              {/* Price & Offer below cover */}
+              <div className="flex flex-col items-center gap-3 mt-6">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-black text-brand-orange">€19,99</span>
+                  <span className="text-xl text-muted-foreground line-through">€28,56</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/40">
+                  <Clock className="w-4 h-4 text-red-400" />
+                  <span className="text-sm font-bold text-red-400">¡Oferta hasta el 31/03! -30%</span>
+                </div>
               </div>
             </div>
           </motion.div>
