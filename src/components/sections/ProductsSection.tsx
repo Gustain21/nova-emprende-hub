@@ -20,9 +20,9 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
   };
 
   const typeBadge = {
-    ebook: { label: "PDF", color: "bg-brand-gold/20 text-brand-gold" },
-    app: { label: "APP WEB", color: "bg-brand-orange/20 text-brand-orange" },
-    excel: { label: "EXCEL", color: "bg-green-500/20 text-green-400" },
+    ebook: { label: "PDF", color: "bg-brand-gold/40 text-brand-gold font-black" },
+    app: { label: "APP WEB", color: "bg-brand-orange/40 text-brand-orange font-black" },
+    excel: { label: "EXCEL", color: "bg-green-500/40 text-green-400 font-black" },
   };
 
   return (
@@ -32,20 +32,16 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: index * 0.1 }}
-        className={`brand-card brand-card-hover bg-gradient-to-br cursor-pointer ${typeStyles[product.type]} ${
-          product.featured ? "md:col-span-2 lg:col-span-3" : ""
-        }`}
+        className={`brand-card brand-card-hover bg-gradient-to-br cursor-pointer ${typeStyles[product.type]}`}
       >
-        <div className={`flex flex-col h-full ${product.featured ? "md:flex-row md:gap-8 md:items-center" : ""}`}>
+        <div className="flex flex-col h-full">
           {/* Image */}
-          <div className={`relative mb-4 ${product.featured ? "md:mb-0 md:w-2/5 lg:w-1/3" : ""}`}>
+          <div className="relative mb-4">
             <div className="overflow-hidden rounded-xl bg-brand-dark-elevated">
               <img
                 src={product.image}
                 alt={product.title}
-                className={`w-full object-contain transition-transform duration-500 hover:scale-105 ${
-                  product.featured ? "h-72 md:h-80 lg:h-96" : "h-56"
-                }`}
+                className="w-full h-56 object-contain transition-transform duration-500 hover:scale-105"
               />
             </div>
             <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold ${typeBadge[product.type].color}`}>
@@ -54,17 +50,17 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
           </div>
 
           {/* Content */}
-          <div className={`flex flex-col flex-1 ${product.featured ? "md:w-3/5 lg:w-2/3 md:py-4" : ""}`}>
+          <div className="flex flex-col flex-1">
             <div className="flex items-center gap-2 text-brand-sand mb-2">
               {iconMap[product.iconName]}
               <span className="text-sm font-medium">{product.subtitle}</span>
             </div>
 
-            <h3 className={`font-bold text-foreground mb-3 leading-tight ${product.featured ? "text-2xl md:text-3xl lg:text-4xl" : "text-lg"}`}>
+            <h3 className="font-bold text-foreground mb-3 leading-tight text-lg">
               {product.title}
             </h3>
 
-            <p className={`text-muted-foreground leading-relaxed mb-6 flex-1 ${product.featured ? "text-base md:text-lg" : "text-sm"}`}>
+            <p className="text-muted-foreground leading-relaxed mb-6 flex-1 text-sm">
               {product.description}
             </p>
 
@@ -80,7 +76,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
 
             <div className="flex items-center justify-between">
               <div className="flex items-baseline gap-2">
-                <span className={`font-bold text-brand-orange ${product.featured ? "text-3xl md:text-4xl" : "text-2xl"}`}>
+                <span className="font-bold text-brand-orange text-2xl">
                   €{product.price.toFixed(2)}
                 </span>
                 {product.originalPrice && (
@@ -89,7 +85,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                   </span>
                 )}
               </div>
-              <Button variant={product.featured ? "hero" : "cta"} size={product.featured ? "lg" : "default"}>
+              <Button variant="cta" size="default">
                 Ver más
                 <ExternalLink className="w-4 h-4" />
               </Button>
