@@ -15,9 +15,9 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 const typeBadge: Record<string, { label: string; color: string }> = {
-  ebook: { label: "PDF", color: "bg-brand-gold/40 text-brand-gold font-black" },
-  app: { label: "APP WEB", color: "bg-brand-orange/40 text-brand-orange font-black" },
-  excel: { label: "EXCEL", color: "bg-green-500/40 text-green-400 font-black" },
+  ebook: { label: "PDF", color: "bg-brand-gold/20 text-brand-gold" },
+  app: { label: "APP WEB", color: "bg-brand-orange/20 text-brand-orange" },
+  excel: { label: "EXCEL", color: "bg-green-500/20 text-green-400" },
 };
 
 const Producto = () => {
