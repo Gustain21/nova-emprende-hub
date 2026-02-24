@@ -4,7 +4,7 @@ import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, MessageSquare, Send, MapPin, Phone } from "lucide-react";
+import { Mail, MessageSquare, Send } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -199,25 +199,6 @@ const Contacto = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-brand-dark-elevated flex items-center justify-center shrink-0">
-                      <Phone className="w-5 h-5 text-brand-sand" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-1">Teléfono</h3>
-                      <p className="text-muted-foreground">+34 600 000 000</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-brand-dark-elevated flex items-center justify-center shrink-0">
-                      <MapPin className="w-5 h-5 text-brand-gold" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-1">Ubicación</h3>
-                      <p className="text-muted-foreground">España</p>
-                    </div>
-                  </div>
                 </div>
 
                 {/* FAQ Teaser */}
