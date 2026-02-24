@@ -20,9 +20,9 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
   };
 
   const typeBadge = {
-    ebook: { label: "PDF", color: "bg-brand-gold/20 text-brand-gold" },
-    app: { label: "APP WEB", color: "bg-brand-orange/20 text-brand-orange" },
-    excel: { label: "EXCEL", color: "bg-green-500/20 text-green-400" },
+    ebook: { label: "PDF", color: "bg-brand-gold/30 text-brand-gold border border-brand-gold/50" },
+    app: { label: "APP WEB", color: "bg-brand-orange/40 text-brand-orange border border-brand-orange/60" },
+    excel: { label: "EXCEL", color: "bg-green-500/40 text-green-400 border border-green-500/60" },
   };
 
   return (
@@ -43,9 +43,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
               <img
                 src={product.image}
                 alt={product.title}
-                className={`w-full object-contain transition-transform duration-500 hover:scale-105 ${
-                  product.featured ? "h-72 md:h-80 lg:h-96" : "h-56"
-                }`}
+                className="w-full object-contain transition-transform duration-500 hover:scale-105 h-48"
               />
             </div>
             <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold ${typeBadge[product.type].color}`}>
