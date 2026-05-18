@@ -1,82 +1,47 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Rocket, ArrowRight, Sparkles } from "lucide-react";
+import { BookOpen, Package, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CTASection = () => {
   return (
-    <section className="brand-section bg-card relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-orange/10 rounded-full blur-[150px]" />
-      </div>
-
-      <div className="brand-container relative z-10">
+    <section className="brand-section bg-background">
+      <div className="brand-container">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.97 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="relative p-8 md:p-12 lg:p-16 rounded-3xl bg-gradient-to-br from-brand-dark-elevated to-brand-dark border border-border overflow-hidden"
+          className="relative rounded-3xl border border-border bg-gradient-to-br from-brand-dark-card to-brand-dark p-10 md:p-16 overflow-hidden text-center"
         >
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-brand-orange/20 to-transparent rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-brand-gold/20 to-transparent rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 w-80 h-80 bg-brand-orange/15 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-brand-gold/10 rounded-full blur-3xl" />
 
-          <div className="relative z-10 text-center max-w-3xl mx-auto">
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-orange/20 border border-brand-orange/40 mb-6"
-            >
-              <Sparkles className="w-4 h-4 text-brand-orange" />
-              <span className="text-sm font-medium text-brand-orange">Comienza tu transformación hoy</span>
-            </motion.div>
-
-            {/* Title */}
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground mb-6"
-            >
-              ¿Listo para convertir tu idea en un{" "}
-              <span className="brand-gradient-text">negocio rentable</span>?
-            </motion.h2>
-
-            {/* Description */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto"
-            >
-              Únete a cientos de emprendedores que ya están transformando sus ideas en negocios exitosos con el ecosistema Nova Emprende.
-            </motion.p>
-
-            {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
-              <a href="#productos">
-                <Button variant="hero" size="xl" className="w-full sm:w-auto animate-glow-pulse">
-                  <Rocket className="w-5 h-5" />
-                  Explorar Productos
+          <div className="relative z-10 max-w-3xl mx-auto">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-brand-orange/15 border border-brand-orange/40 text-xs font-bold text-brand-orange mb-6">
+              Último empuje comercial
+            </span>
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
+              Entra por el libro o acelera con el{" "}
+              <span className="brand-gradient-text">ecosistema completo</span>
+            </h2>
+            <p className="text-base md:text-lg text-muted-foreground mb-10 leading-relaxed">
+              La decisión está pensada para ser simple. Si quieres entender primero el método, empieza por El Big Bang de los Negocios. Si ya buscas una solución más amplia, entra por packs y gana profundidad desde el primer paso.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/producto/ebook">
+                <Button variant="cta" size="xl" className="w-full sm:w-auto">
+                  <BookOpen className="w-5 h-5" />
+                  Comprar El Big Bang
                   <ArrowRight className="w-5 h-5" />
                 </Button>
-              </a>
+              </Link>
               <a href="#packs">
                 <Button variant="heroOutline" size="xl" className="w-full sm:w-auto">
-                  Ver Packs con Descuento
+                  <Package className="w-5 h-5" />
+                  Ver packs
                 </Button>
               </a>
-            </motion.div>
+            </div>
           </div>
         </motion.div>
       </div>

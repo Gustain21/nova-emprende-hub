@@ -9,10 +9,11 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
-    { label: "Inicio", href: "/" },
-    { label: "Productos", href: "/#productos" },
+    { label: "Inicio", href: "/#inicio" },
+    { label: "Ebook", href: "/#ebook" },
+    { label: "Ecosistema", href: "/#ecosistema" },
     { label: "Packs", href: "/#packs" },
-    { label: "Testimonios", href: "/testimonios" },
+    { label: "Testimonios", href: "/#testimonios" },
     { label: "Contacto", href: "/contacto" },
   ];
 
@@ -20,44 +21,37 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
       <div className="brand-container">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
           <Link to="/" className="flex items-center group">
-            <img 
-              src={logoNovaEmprende} 
-              alt="Nova Emprende" 
-              className="h-12 md:h-14 w-auto group-hover:scale-105 transition-transform duration-300"
+            <img
+              src={logoNovaEmprende}
+              alt="Nova Emprende"
+              className="h-10 md:h-12 w-auto group-hover:scale-105 transition-transform duration-300"
             />
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-7">
             {navItems.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative group"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-orange transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
           </nav>
 
-          {/* CTA Buttons */}
-          <div className="hidden lg:flex items-center gap-4">
-            <Link to="/login">
-              <Button variant="ghost" size="sm">
-                Iniciar Sesión
-              </Button>
+          <div className="hidden lg:flex items-center gap-3">
+            <Link to="/login" className="text-sm font-medium text-foreground hover:text-brand-orange transition-colors">
+              Acceso clientes
             </Link>
-            <Link to="/#productos">
+            <Link to="/producto/ebook">
               <Button variant="cta" size="sm">
-                Ver Productos
+                Ver producto principal
               </Button>
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="lg:hidden p-2 text-foreground"
@@ -68,7 +62,6 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -90,14 +83,10 @@ const Header = () => {
               ))}
               <div className="flex flex-col gap-3 pt-4 border-t border-border">
                 <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="outline" className="w-full">
-                    Iniciar Sesión
-                  </Button>
+                  <Button variant="outline" className="w-full">Acceso clientes</Button>
                 </Link>
-                <Link to="/#productos" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="cta" className="w-full">
-                    Ver Productos
-                  </Button>
+                <Link to="/producto/ebook" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="cta" className="w-full">Ver producto principal</Button>
                 </Link>
               </div>
             </nav>
