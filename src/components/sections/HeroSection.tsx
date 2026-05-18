@@ -1,114 +1,115 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, BookOpen, Rocket, Clock, ExternalLink } from "lucide-react";
+import { BookOpen, Compass, Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import ebookCover from "@/assets/ebook-cover.jpg";
 
+const stats = [
+  { num: "1", text: "guía principal para empezar con claridad" },
+  { num: "6+", text: "recursos para ejecutar, planificar y decidir mejor" },
+  { num: "3", text: "formas de compra según la etapa de cada emprendedor" },
+];
+
+const bullets = [
+  "Transforma una idea en un plan más claro y accionable",
+  "Apóyate en herramientas prácticas para pasar de la teoría a la acción",
+  "Elige la ruta que mejor encaje con tu momento como emprendedor",
+];
+
 const HeroSection = () => {
   return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden brand-hero-gradient">
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-orange/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-brand-gold/10 rounded-full blur-[100px] animate-pulse animation-delay-400" />
+    <section id="inicio" className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden brand-hero-gradient">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-orange/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-brand-gold/10 rounded-full blur-[100px]" />
       </div>
 
       <div className="brand-container relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Content */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center lg:text-left"
-          >
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/30 mb-6"
-            >
+        <div className="grid lg:grid-cols-[1.1fr,1fr] gap-12 lg:gap-16 items-center">
+          {/* Left content */}
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/30 mb-8">
               <Sparkles className="w-4 h-4 text-brand-orange" />
-              <span className="text-sm font-medium text-brand-orange">Guía Práctica para Emprendedores</span>
-            </motion.div>
-
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight mb-6">
-              <span className="text-foreground">El </span>
-              <span className="brand-gradient-text">Big Bang</span>
-              <br />
-              <span className="text-foreground">de los </span>
-              <span className="text-brand-sand">Negocios</span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-              Transforma tus ideas en negocios rentables. Una guía práctica con herramientas, plantillas y recursos para emprendedores que pasan de la teoría a la acción.
-            </p>
-
-            {/* Stats */}
-            <div className="flex flex-wrap justify-center lg:justify-start gap-8 mb-10">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-brand-orange">6+</div>
-                <div className="text-sm text-muted-foreground">Productos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-brand-sand">15</div>
-                <div className="text-sm text-muted-foreground">Capítulos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-brand-gold">100%</div>
-                <div className="text-sm text-muted-foreground">Práctico</div>
-              </div>
+              <span className="text-sm font-medium text-brand-orange">
+                Guía práctica, herramientas útiles y recursos pensados para emprendedores
+              </span>
             </div>
 
+            <p className="text-xs font-bold tracking-[0.3em] text-muted-foreground uppercase mb-4">
+              Nova Emprende
+            </p>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] mb-6 text-foreground">
+              El Big Bang de<br />los Negocios
+            </h1>
+
+            <p className="text-xl md:text-2xl font-semibold text-foreground mb-4">
+              Transforma tus ideas en negocios rentables.
+            </p>
+
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-10 max-w-xl">
+              Una guía práctica con herramientas, plantillas y recursos para emprendedores que quieren pasar de la teoría a la acción con más claridad, foco y criterio.
+            </p>
+
+            {/* Stats grid */}
+            <div className="grid sm:grid-cols-3 gap-4 mb-8">
+              {stats.map((s) => (
+                <div key={s.num} className="rounded-xl border border-border bg-brand-dark-card/60 p-4">
+                  <div className="text-3xl font-black text-brand-orange mb-1">{s.num}</div>
+                  <div className="text-xs text-muted-foreground leading-snug">{s.text}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bullets */}
+            <ul className="space-y-3 mb-10">
+              {bullets.map((b) => (
+                <li key={b} className="flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-brand-dark-card/40">
+                  <CheckCircle2 className="w-5 h-5 text-brand-orange shrink-0" />
+                  <span className="text-sm md:text-base text-foreground">{b}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/producto/ebook">
-                <Button variant="hero" size="xl" className="w-full sm:w-auto">
+                <Button variant="cta" size="xl" className="w-full sm:w-auto">
                   <BookOpen className="w-5 h-5" />
-                  Ver más
-                  <ExternalLink className="w-5 h-5" />
+                  Ver el ebook principal
+                  <ArrowRight className="w-5 h-5" />
                 </Button>
               </Link>
-              <a href="#productos">
+              <a href="#ecosistema">
                 <Button variant="heroOutline" size="xl" className="w-full sm:w-auto">
-                  <Rocket className="w-5 h-5" />
-                  Explorar Productos
+                  <Compass className="w-5 h-5" />
+                  Explorar el ecosistema
                 </Button>
               </a>
             </div>
           </motion.div>
 
-          {/* Book Visual */}
+          {/* Right: ebook card */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="relative flex justify-center lg:justify-end"
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="relative"
           >
-            <div className="relative">
-              {/* Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-orange/30 to-brand-gold/20 rounded-3xl blur-3xl transform scale-110" />
-              
-              {/* Book Image */}
-              <div className="relative">
-                <img
-                  src={ebookCover}
-                  alt="El Big Bang de los Negocios - Ebook"
-                  className="relative w-full max-w-md rounded-2xl shadow-2xl animate-float"
-                />
-              </div>
-
-              {/* Price & Offer below cover */}
-              <div className="flex flex-col items-center gap-3 mt-6">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-black text-brand-orange">€19,99</span>
-                  <span className="text-xl text-muted-foreground line-through">€28,56</span>
+            <div className="absolute -inset-6 bg-gradient-to-br from-brand-orange/20 to-brand-gold/10 rounded-3xl blur-3xl" />
+            <div className="relative rounded-2xl border border-border bg-brand-dark-card/80 p-5 md:p-6 backdrop-blur">
+              <img src={ebookCover} alt="El Big Bang de los Negocios" className="w-full rounded-xl shadow-2xl" />
+              <div className="mt-6 grid grid-cols-2 gap-4 pt-5 border-t border-border">
+                <div>
+                  <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
+                    Producto héroe
+                  </p>
+                  <p className="text-lg font-bold text-foreground">El Big Bang</p>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/40">
-                  <Clock className="w-4 h-4 text-red-400" />
-                  <span className="text-sm font-bold text-red-400">¡Oferta hasta el 31/03! -30%</span>
+                <div>
+                  <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
+                    Precio actual
+                  </p>
+                  <p className="text-2xl font-black text-brand-orange">€19,99</p>
                 </div>
               </div>
             </div>

@@ -6,25 +6,28 @@ import { Link } from "react-router-dom";
 const testimonials = [
   {
     id: 1,
-    name: "María García",
-    role: "Fundadora de EcoModa",
-    content: "El Big Bang de los Negocios me dio la estructura que necesitaba. En 3 meses lancé mi tienda online con un plan financiero sólido gracias al Dashboard.",
+    name: "Martha Cragh",
+    location: "Ibiza, España",
+    content:
+      "El Big Bang de los Negocios me ayudó a ordenar mi idea y entender qué decisiones debía tomar primero. Luego el Dashboard me sirvió para aterrizar números con mucha más claridad.",
     rating: 5,
     avatar: "MG",
   },
   {
     id: 2,
-    name: "Carlos Rodríguez",
-    role: "Consultor Digital",
-    content: "La Guía de Prompts transformó mi forma de usar la IA. Ahora creo contenido en la mitad de tiempo y con mejor calidad.",
+    name: "Jonás Rodríguez",
+    location: "Puebla, México",
+    content:
+      "La Guía de Prompts y la lógica del ecosistema están muy bien pensadas. No sentí que compraba archivos sueltos, sino herramientas con una función clara.",
     rating: 5,
     avatar: "CR",
   },
   {
     id: 3,
-    name: "Ana Martínez",
-    role: "Emprendedora Serial",
-    content: "La Bitácora del Capitán me ayudó a desarrollar la mentalidad correcta. Los 30 días de ejercicios fueron reveladores.",
+    name: "Rossana Ben",
+    location: "Mendoza, Argentina",
+    content:
+      "La Bitácora del Capitán me empujó a ejecutar. Fue el complemento perfecto al libro porque me obligó a moverme, no solo a leer.",
     rating: 5,
     avatar: "AM",
   },
@@ -32,86 +35,64 @@ const testimonials = [
 
 const TestimonialsPreview = () => {
   return (
-    <section className="brand-section bg-background relative overflow-hidden">
-      {/* Background accent */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-orange/5 to-transparent" />
-
+    <section id="testimonios" className="brand-section bg-background relative overflow-hidden">
       <div className="brand-container relative z-10">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center max-w-3xl mx-auto mb-14"
         >
-          <span className="inline-block px-4 py-2 rounded-full bg-brand-sand/10 border border-brand-sand/30 text-sm font-medium text-brand-sand mb-4">
-            Lo que dicen nuestros clientes
+          <span className="inline-block px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/30 text-sm font-medium text-brand-orange mb-6">
+            Prueba social
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground mb-4">
-            Historias de{" "}
-            <span className="brand-gradient-text">éxito real</span>
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+            Claridad para comprar, confianza para{" "}
+            <span className="brand-gradient-text">dar el siguiente paso</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Emprendedores como tú que transformaron sus ideas en negocios rentables
+          <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+            Este bloque refuerza algo importante: cuando la oferta se entiende bien, la confianza sube y la conversión también.
           </p>
         </motion.div>
 
-        {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          {testimonials.map((testimonial, index) => (
+        <div className="grid md:grid-cols-3 gap-6 mb-10">
+          {testimonials.map((t, i) => (
             <motion.div
-              key={testimonial.id}
+              key={t.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="brand-card brand-card-hover"
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="rounded-2xl border border-border bg-brand-dark-card/60 p-6"
             >
-              {/* Quote Icon */}
-              <div className="mb-4">
-                <Quote className="w-10 h-10 text-brand-orange/30" />
-              </div>
-
-              {/* Content */}
-              <p className="text-foreground mb-6 leading-relaxed">
-                "{testimonial.content}"
-              </p>
-
-              {/* Rating */}
-              <div className="flex gap-1 mb-4">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-brand-gold text-brand-gold" />
+              <Quote className="w-8 h-8 text-brand-orange/40 mb-4" />
+              <p className="text-foreground leading-relaxed mb-5 text-sm">"{t.content}"</p>
+              <div className="flex gap-0.5 mb-4">
+                {[...Array(t.rating)].map((_, idx) => (
+                  <Star key={idx} className="w-4 h-4 fill-brand-orange text-brand-orange" />
                 ))}
               </div>
-
-              {/* Author */}
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-orange to-brand-sand flex items-center justify-center text-primary-foreground font-bold">
-                  {testimonial.avatar}
+              <div className="flex items-center gap-3 pt-4 border-t border-border">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-orange to-brand-sand flex items-center justify-center text-primary-foreground font-bold text-xs">
+                  {t.avatar}
                 </div>
                 <div>
-                  <div className="font-semibold text-foreground">{testimonial.name}</div>
-                  <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                  <div className="font-semibold text-foreground text-sm">{t.name}</div>
+                  <div className="text-xs text-muted-foreground">{t.location}</div>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
+        <div className="text-center">
           <Link to="/testimonios">
             <Button variant="heroOutline" size="lg">
-              Ver todos los testimonios
-              <ArrowRight className="w-5 h-5" />
+              Ver testimonios
+              <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

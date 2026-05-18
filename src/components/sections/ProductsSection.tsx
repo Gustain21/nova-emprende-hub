@@ -1,130 +1,124 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, FileSpreadsheet, BookOpen, Lightbulb, PieChart, Calendar, Clock } from "lucide-react";
+import { ExternalLink, FileText, BookOpen, Lightbulb, PieChart, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { products, type Product } from "@/data/products";
 
 const iconMap: Record<string, React.ReactNode> = {
-  BookOpen: <BookOpen className="w-5 h-5" />,
-  Calendar: <Calendar className="w-5 h-5" />,
-  Lightbulb: <Lightbulb className="w-5 h-5" />,
-  PieChart: <PieChart className="w-5 h-5" />,
-  FileSpreadsheet: <FileSpreadsheet className="w-5 h-5" />,
+  BookOpen: <BookOpen className="w-4 h-4" />,
+  Calendar: <Calendar className="w-4 h-4" />,
+  Lightbulb: <Lightbulb className="w-4 h-4" />,
+  PieChart: <PieChart className="w-4 h-4" />,
+  FileSpreadsheet: <FileText className="w-4 h-4" />,
 };
 
 const ProductCard = ({ product, index }: { product: Product; index: number }) => {
-  const typeStyles = {
-    ebook: "from-brand-gold/20 to-brand-orange/20 border-brand-gold/30",
-    app: "from-brand-orange/20 to-brand-dark-elevated border-brand-orange/30",
-    excel: "from-green-500/20 to-brand-dark-elevated border-green-500/30",
-  };
-
-  const typeBadge = {
-    ebook: { label: "PDF", color: "bg-brand-gold/30 text-brand-gold border border-brand-gold/50" },
-    app: { label: "APP WEB", color: "bg-brand-orange/40 text-brand-orange border border-brand-orange/60" },
-    excel: { label: "EXCEL", color: "bg-green-500/40 text-green-400 border border-green-500/60" },
-  };
+  const badge =
+    product.type === "excel"
+      ? { label: "EXCEL", color: "bg-brand-orange text-primary-foreground" }
+      : { label: "APP WEB", color: "bg-brand-orange text-primary-foreground" };
 
   return (
-    <Link to={`/producto/${product.id}`} className="h-full block">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: index * 0.1 }}
-        className={`brand-card brand-card-hover bg-gradient-to-br cursor-pointer h-full ${typeStyles[product.type]}`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Image */}
-          <div className="relative mb-4">
-            <div className="overflow-hidden rounded-xl bg-brand-dark-elevated">
-              <img
-                src={product.image}
-                alt={product.title}
-                className="w-full object-contain transition-transform duration-500 hover:scale-105 h-48"
-              />
-            </div>
-            <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold ${typeBadge[product.type].color}`}>
-              {typeBadge[product.type].label}
-            </span>
-          </div>
-
-          {/* Content */}
-          <div className="flex flex-col flex-1">
-            <div className="flex items-center gap-2 text-brand-sand mb-2">
-              {iconMap[product.iconName]}
-              <span className="text-sm font-medium">{product.subtitle}</span>
-            </div>
-
-            <h3 className="font-bold text-foreground mb-3 leading-tight text-lg">
-              {product.title}
-            </h3>
-
-            <p className="text-muted-foreground leading-relaxed mb-6 flex-1 text-sm">
-              {product.description}
-            </p>
-
-            {/* Offer Badge */}
-            {product.offerEndDate && (
-              <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/40">
-                <Clock className="w-4 h-4 text-red-400" />
-                <span className="text-sm font-bold text-red-400">
-                  ¡Oferta hasta el {product.offerEndDate}! -30%
-                </span>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-baseline gap-2">
-                <span className="font-bold text-brand-orange text-2xl">
-                  €{product.price.toFixed(2)}
-                </span>
-                {product.originalPrice && (
-                  <span className="text-lg text-muted-foreground line-through">
-                    €{product.originalPrice.toFixed(2)}
-                  </span>
-                )}
-              </div>
-              <Button variant="cta" size="default">
-                Ver más
-                <ExternalLink className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.08 }}
+      className="rounded-2xl border border-border bg-brand-dark-card/60 p-4 flex flex-col"
+    >
+      <div className="relative mb-5">
+        <div className="overflow-hidden rounded-xl bg-brand-dark-elevated aspect-[16/10]">
+          <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
         </div>
-      </motion.div>
-    </Link>
+        <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold ${badge.color}`}>
+          {badge.label}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2 text-brand-sand mb-2">
+        {iconMap[product.iconName]}
+        <span className="text-xs font-medium">{product.subtitle}</span>
+      </div>
+
+      <h3 className="text-lg font-bold text-foreground mb-2 leading-tight">{product.title}</h3>
+      <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">{product.description}</p>
+
+      <div className="flex items-center justify-between pt-4 border-t border-border">
+        <span className="text-2xl font-black text-brand-orange">€{product.price.toFixed(2)}</span>
+        <Link to={`/producto/${product.id}`}>
+          <Button variant="cta" size="sm">
+            Ver más
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Button>
+        </Link>
+      </div>
+    </motion.div>
   );
 };
 
 const ProductsSection = () => {
+  const implementacion = products.filter((p) => ["bitacora", "prompts", "planner"].includes(p.id));
+  const control = products.filter((p) => ["dashboard", "excel-infoproducto", "excel-ecomochilas"].includes(p.id));
+
   return (
-    <section id="productos" className="brand-section bg-background">
+    <section id="ecosistema" className="brand-section bg-background">
       <div className="brand-container">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center max-w-3xl mx-auto mb-16"
         >
-          <span className="inline-block px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/30 text-sm font-medium text-brand-orange mb-4">
-            Catálogo de Productos
+          <span className="inline-block px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/30 text-sm font-medium text-brand-orange mb-6">
+            Ecosistema complementario
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground mb-4">
-            Todo lo que necesitas para{" "}
-            <span className="brand-gradient-text">emprender</span>
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+            Herramientas organizadas para{" "}
+            <span className="brand-gradient-text">ejecutar mejor</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Herramientas prácticas diseñadas para llevarte de la idea al negocio rentable
+          <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+            Después del ebook, cada producto cumple una función concreta. Así evitamos una tienda caótica y construimos una oferta que se entiende y se compra mejor.
           </p>
         </motion.div>
 
-        {/* Products Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
-          ))}
+        {/* Implementación y foco */}
+        <div className="mb-16">
+          <div className="grid md:grid-cols-[1fr,1.5fr] gap-6 mb-8">
+            <div>
+              <p className="text-xs font-bold tracking-[0.3em] text-brand-sand uppercase mb-2">
+                Implementación y foco
+              </p>
+              <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                Herramientas para pasar a la acción
+              </h3>
+            </div>
+            <p className="text-sm md:text-base text-muted-foreground self-end">
+              Recursos pensados para ayudarte a aterrizar ideas, mantener foco y convertir teoría en ejecución diaria.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {implementacion.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+          </div>
+        </div>
+
+        {/* Control y gestión */}
+        <div>
+          <div className="grid md:grid-cols-[1fr,1.5fr] gap-6 mb-8">
+            <div>
+              <p className="text-xs font-bold tracking-[0.3em] text-brand-sand uppercase mb-2">
+                Control y gestión
+              </p>
+              <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                Herramientas para decidir con números
+              </h3>
+            </div>
+            <p className="text-sm md:text-base text-muted-foreground self-end">
+              Productos dirigidos a emprendedores que necesitan ordenar márgenes, viabilidad, proyecciones y seguimiento financiero.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {control.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+          </div>
         </div>
       </div>
     </section>
