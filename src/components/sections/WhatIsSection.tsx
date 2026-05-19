@@ -60,7 +60,7 @@ const WhatIsSection = () => {
               <div className="w-12 h-12 rounded-xl bg-brand-orange/15 border border-brand-orange/30 flex items-center justify-center mb-5">
                 <f.icon className="w-6 h-6 text-brand-orange" />
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-2">{f.title}</h3>
+              <h3 className="font-display text-xl font-bold text-foreground mb-2">{f.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{f.text}</p>
             </motion.div>
           ))}

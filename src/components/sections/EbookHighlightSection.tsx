@@ -74,7 +74,7 @@ const EbookHighlightSection = () => {
             <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
               Ebook principal
             </p>
-            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3">El Big Bang de los Negocios</h3>
+            <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-3">El Big Bang de los Negocios</h3>
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
               Guía práctica para transformar tus ideas en negocios rentables. 15 capítulos con metodología paso a paso.
             </p>
