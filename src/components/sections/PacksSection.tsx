@@ -98,7 +98,7 @@ const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
           {pack.icon}
         </div>
         <div>
-          <h3 className="text-xl font-bold text-foreground leading-tight">{pack.name}</h3>
+          <h3 className="font-display text-2xl font-bold text-foreground leading-tight">{pack.name}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{pack.tagline}</p>
         </div>
       </div>
