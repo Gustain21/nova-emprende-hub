@@ -25,7 +25,7 @@ const Header = () => {
             <img
               src={logoNovaEmprende}
               alt="Nova Emprende"
-              className="h-10 md:h-12 w-auto group-hover:scale-105 transition-transform duration-300"
+              className="h-[60px] md:h-[72px] w-auto group-hover:scale-105 transition-transform duration-300"
             />
           </Link>
 
