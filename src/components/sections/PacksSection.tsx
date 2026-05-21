@@ -98,7 +98,7 @@ const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
           {pack.icon}
         </div>
         <div>
-          <h3 className="font-display text-2xl font-bold text-foreground leading-tight">{pack.name}</h3>
+          <h3 className="font-sans text-2xl font-extrabold tracking-tight text-foreground leading-tight">{pack.name}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{pack.tagline}</p>
         </div>
       </div>
@@ -151,7 +151,7 @@ const PacksSection = () => {
           <span className="inline-block px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/30 text-sm font-medium text-brand-orange mb-6">
             Packs pensados para el emprendedor
           </span>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+          <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-foreground mb-6 leading-tight">
             Elige la forma de empezar que mejor{" "}
             <span className="brand-gradient-text">encaje contigo</span>
           </h2>

@@ -37,7 +37,7 @@ const WhatIsSection = () => {
           <span className="inline-block px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/30 text-sm font-medium text-brand-orange mb-6">
             Qué es NOVA EMPRENDE
           </span>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+          <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-foreground mb-6 leading-tight">
             Una estructura editorial para ayudarte a{" "}
             <span className="brand-gradient-text">emprender con criterio</span>
           </h2>
@@ -60,7 +60,7 @@ const WhatIsSection = () => {
               <div className="w-12 h-12 rounded-xl bg-brand-orange/15 border border-brand-orange/30 flex items-center justify-center mb-5">
                 <f.icon className="w-6 h-6 text-brand-orange" />
               </div>
-              <h3 className="font-display text-xl font-bold text-foreground mb-2">{f.title}</h3>
+              <h3 className="font-sans text-xl font-extrabold tracking-tight text-foreground mb-2">{f.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{f.text}</p>
             </motion.div>
           ))}

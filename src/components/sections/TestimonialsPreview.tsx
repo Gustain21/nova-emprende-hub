@@ -46,7 +46,7 @@ const TestimonialsPreview = () => {
           <span className="inline-block px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/30 text-sm font-medium text-brand-orange mb-6">
             Prueba social
           </span>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+          <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-foreground mb-6 leading-tight">
             Claridad para comprar, confianza para{" "}
             <span className="brand-gradient-text">dar el siguiente paso</span>
           </h2>
