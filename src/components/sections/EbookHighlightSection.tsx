@@ -26,7 +26,7 @@ const EbookHighlightSection = () => {
             <span className="inline-block px-4 py-1.5 rounded-full bg-brand-orange/15 border border-brand-orange/40 text-xs font-bold text-brand-orange mb-6">
               Producto principal
             </span>
-            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-5 leading-tight">
+            <h2 className="font-sans text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-foreground mb-5 leading-tight">
               El libro que debe abrir la experiencia NOVA EMPRENDE
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-8">
@@ -74,7 +74,7 @@ const EbookHighlightSection = () => {
             <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
               Ebook principal
             </p>
-            <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-3">El Big Bang de los Negocios</h3>
+            <h3 className="font-sans text-2xl md:text-3xl font-extrabold tracking-tight text-foreground mb-3">El Big Bang de los Negocios</h3>
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
               Guía práctica para transformar tus ideas en negocios rentables. 15 capítulos con metodología paso a paso.
             </p>

@@ -40,7 +40,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
         <span className="text-xs font-medium">{product.subtitle}</span>
       </div>
 
-      <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">{product.title}</h3>
+      <h3 className="font-sans text-xl font-extrabold tracking-tight text-foreground mb-2 leading-tight">{product.title}</h3>
       <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">{product.description}</p>
 
       <div className="flex items-center justify-between pt-4 border-t border-border">
@@ -72,7 +72,7 @@ const ProductsSection = () => {
           <span className="inline-block px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/30 text-sm font-medium text-brand-orange mb-6">
             Ecosistema complementario
           </span>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+          <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-foreground mb-6 leading-tight">
             Herramientas organizadas para{" "}
             <span className="brand-gradient-text">ejecutar mejor</span>
           </h2>

@@ -20,7 +20,7 @@ const CTASection = () => {
             <span className="inline-block px-4 py-1.5 rounded-full bg-brand-orange/15 border border-brand-orange/40 text-xs font-bold text-brand-orange mb-6">
               Último empuje comercial
             </span>
-            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
+            <h2 className="font-sans text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-foreground mb-6 leading-tight">
               Entra por el libro o acelera con el{" "}
               <span className="brand-gradient-text">ecosistema completo</span>
             </h2>
