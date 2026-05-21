@@ -81,44 +81,8 @@ const ProductsSection = () => {
           </p>
         </motion.div>
 
-        {/* Implementación y foco */}
-        <div className="mb-16">
-          <div className="grid md:grid-cols-[1fr,1.5fr] gap-6 mb-8">
-            <div>
-              <p className="text-xs font-bold tracking-[0.3em] text-brand-sand uppercase mb-2">
-                Implementación y foco
-              </p>
-              <h3 className="text-2xl md:text-3xl font-bold text-foreground">
-                Herramientas para pasar a la acción
-              </h3>
-            </div>
-            <p className="text-sm md:text-base text-muted-foreground self-end">
-              Recursos pensados para ayudarte a aterrizar ideas, mantener foco y convertir teoría en ejecución diaria.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {implementacion.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
-          </div>
-        </div>
-
-        {/* Control y gestión */}
-        <div>
-          <div className="grid md:grid-cols-[1fr,1.5fr] gap-6 mb-8">
-            <div>
-              <p className="text-xs font-bold tracking-[0.3em] text-brand-sand uppercase mb-2">
-                Control y gestión
-              </p>
-              <h3 className="text-2xl md:text-3xl font-bold text-foreground">
-                Herramientas para decidir con números
-              </h3>
-            </div>
-            <p className="text-sm md:text-base text-muted-foreground self-end">
-              Productos dirigidos a emprendedores que necesitan ordenar márgenes, viabilidad, proyecciones y seguimiento financiero.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {control.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
-          </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
         </div>
       </div>
     </section>
