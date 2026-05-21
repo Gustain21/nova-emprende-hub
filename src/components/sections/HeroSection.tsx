@@ -39,8 +39,9 @@ const HeroSection = () => {
               Nova Emprende
             </p>
 
-            <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] mb-6 text-foreground">
-              El Big Bang de<br />los Negocios
+            <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] mb-6 text-foreground tracking-tight">
+              El <span className="text-brand-orange">Big Bang</span><br />
+              de los <span className="text-brand-gold">Negocios</span>
             </h1>
 
             <p className="text-xl md:text-2xl font-semibold text-foreground mb-4">
