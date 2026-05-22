@@ -37,7 +37,7 @@ const FaqSection = () => {
           <span className="inline-block px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/30 text-sm font-medium text-brand-orange mb-6">
             Preguntas frecuentes
           </span>
-          <h2 className="font-sans text-4xl md:text-5xl font-black tracking-tight text-foreground mb-6 leading-tight">
+          <h2 className="font-sans text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-6 leading-tight">
             Todo más claro antes de{" "}
             <span className="brand-gradient-text">tomar la decisión</span>
           </h2>

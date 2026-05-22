@@ -1,18 +1,10 @@
 import { Link } from "react-router-dom";
 import { Instagram, Linkedin, Youtube } from "lucide-react";
-import logoNovaEmprende from "@/assets/logo-nova-emprende.png";
 
 const Footer = () => {
   return (
     <footer className="bg-card border-t border-border">
       <div className="brand-container py-16">
-        {/* Logo destacado arriba */}
-        <div className="mb-12 pb-10 border-b border-border">
-          <Link to="/" className="inline-flex items-center group">
-            <img src={logoNovaEmprende} alt="Nova Emprende" className="h-[72px] md:h-[96px] w-auto" />
-          </Link>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="space-y-4">
