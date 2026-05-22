@@ -77,7 +77,7 @@ const Footer = () => {
             © 2026 Editorial Nova Emprende. Todos los derechos reservados.
           </p>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <Link to="/privacidad" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/aviso-legal" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               Aviso legal
             </Link>
             <Link to="/privacidad" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
