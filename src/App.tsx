@@ -9,6 +9,7 @@ import Testimonios from "./pages/Testimonios";
 import Login from "./pages/Login";
 import Privacidad from "./pages/Privacidad";
 import Terminos from "./pages/Terminos";
+import AvisoLegal from "./pages/AvisoLegal";
 import NotFound from "./pages/NotFound";
 import Producto from "./pages/Producto";
 
