@@ -5,121 +5,111 @@ const Privacidad = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="pt-24 pb-16">
         <div className="brand-container">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
-              Política de <span className="text-brand-orange">Privacidad</span>
+            <span className="inline-block bg-brand-orange text-white text-sm font-medium px-4 py-2 rounded-full mb-6">
+              Base legal de la plataforma
+            </span>
+            <h1 className="font-serif text-5xl md:text-7xl font-bold text-foreground mb-8">
+              Política de <span className="text-brand-orange">privacidad</span>
             </h1>
-            
-            <div className="prose prose-invert max-w-none space-y-8 text-muted-foreground">
-              <p className="text-lg leading-relaxed">
-                Última actualización: Enero 2026
-              </p>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-12 max-w-3xl">
+              Esta política explica cómo se tratan los datos personales en la web, el checkout, el área privada y las herramientas digitales de NOVA EMPRENDE.
+            </p>
 
+            <div className="border border-border rounded-2xl p-8 md:p-12 space-y-10 text-muted-foreground">
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">1. Información que Recopilamos</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">1. Responsable del tratamiento</h2>
                 <p>
-                  En Editorial Nova Emprende, recopilamos información que usted nos proporciona directamente cuando:
-                </p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li>Crea una cuenta en nuestra plataforma</li>
-                  <li>Realiza una compra de nuestros productos digitales</li>
-                  <li>Se suscribe a nuestro boletín informativo</li>
-                  <li>Se comunica con nosotros a través del formulario de contacto</li>
-                  <li>Participa en encuestas o promociones</li>
-                </ul>
-                <p>
-                  Esta información puede incluir: nombre, dirección de correo electrónico, información de pago, y cualquier otra información que decida proporcionarnos.
+                  El responsable del tratamiento de los datos personales recabados a través de este sitio web, sus formularios, checkout, área privada y servicios asociados es <strong className="text-foreground">Editorial Nova Emprende SL</strong>.
                 </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">2. Uso de la Información</h2>
-                <p>
-                  Utilizamos la información recopilada para:
-                </p>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">2. Qué datos pueden recopilarse</h2>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>Procesar sus pedidos y entregarle los productos digitales adquiridos</li>
-                  <li>Gestionar su cuenta y proporcionarle acceso a nuestras plataformas</li>
-                  <li>Enviarle comunicaciones relacionadas con su compra</li>
-                  <li>Mejorar nuestros productos y servicios</li>
-                  <li>Responder a sus consultas y solicitudes de soporte</li>
-                  <li>Enviarle información promocional (solo si ha dado su consentimiento)</li>
+                  <li>Datos identificativos, como nombre y apellidos.</li>
+                  <li>Datos de contacto, como email.</li>
+                  <li>Datos de facturación y compra, cuando proceda.</li>
+                  <li>Datos de acceso al área privada.</li>
+                  <li>Información básica relacionada con el uso del servicio contratado.</li>
+                  <li>Comunicaciones mantenidas con soporte.</li>
                 </ul>
+                <p>
+                  Si alguna app guarda información adicional del usuario, por ejemplo datos financieros, notas o planificación, ese tratamiento se detallará de forma específica en la política correspondiente.
+                </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">3. Protección de Datos</h2>
-                <p>
-                  Implementamos medidas de seguridad técnicas y organizativas apropiadas para proteger sus datos personales contra el acceso no autorizado, la alteración, divulgación o destrucción. Esto incluye:
-                </p>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">3. Finalidades del tratamiento</h2>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>Cifrado SSL en todas las transmisiones de datos</li>
-                  <li>Almacenamiento seguro de contraseñas mediante hash</li>
-                  <li>Acceso restringido a datos personales solo al personal autorizado</li>
-                  <li>Monitorización continua de nuestros sistemas</li>
+                  <li>Gestionar el acceso, navegación y uso del sitio web.</li>
+                  <li>Tramitar compras, pagos y entregas digitales.</li>
+                  <li>Activar recursos, descargas, accesos y apps contratadas.</li>
+                  <li>Gestionar el área privada del cliente.</li>
+                  <li>Atender consultas, incidencias o soporte.</li>
+                  <li>Cumplir obligaciones legales, fiscales y contables.</li>
+                  <li>Enviar comunicaciones comerciales solo cuando exista base legal suficiente.</li>
                 </ul>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">4. Cookies y Tecnologías Similares</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">4. Base jurídica</h2>
                 <p>
-                  Utilizamos cookies y tecnologías similares para mejorar su experiencia en nuestro sitio web. Las cookies nos permiten:
+                  Según el caso, la base jurídica podrá ser la ejecución de la relación contractual o precontractual, el cumplimiento de obligaciones legales, el interés legítimo en garantizar la seguridad y operativa del sistema o el consentimiento del usuario cuando resulte necesario.
                 </p>
+              </section>
+
+              <section className="space-y-4">
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">5. Conservación</h2>
+                <p>
+                  Los datos se conservarán durante el tiempo necesario para cumplir la finalidad para la que fueron recogidos y, posteriormente, durante los plazos exigidos por la normativa legal o mientras puedan derivarse responsabilidades.
+                </p>
+              </section>
+
+              <section className="space-y-4">
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">6. Destinatarios y proveedores</h2>
+                <p>
+                  Los datos podrán ser tratados por proveedores que ayuden a operar el servicio, por ejemplo hosting, plataformas de pago, email transaccional, herramientas de acceso o asesoría profesional, siempre dentro de la base jurídica correspondiente y con las garantías exigibles.
+                </p>
+              </section>
+
+              <section className="space-y-4">
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">7. Derechos del usuario</h2>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>Recordar sus preferencias de navegación</li>
-                  <li>Mantener su sesión activa mientras navega</li>
-                  <li>Analizar el uso del sitio para mejorarlo</li>
-                  <li>Personalizar el contenido que le mostramos</li>
+                  <li>Acceso</li>
+                  <li>Rectificación</li>
+                  <li>Supresión</li>
+                  <li>Oposición</li>
+                  <li>Limitación del tratamiento</li>
+                  <li>Portabilidad, cuando proceda</li>
+                  <li>Retirada del consentimiento, cuando aplique</li>
                 </ul>
                 <p>
-                  Puede configurar su navegador para rechazar cookies, aunque esto puede afectar la funcionalidad del sitio.
+                  Para ejercer estos derechos, el usuario podrá dirigirse a <strong className="text-foreground">hola@editorialnovaemprende.com</strong>.
                 </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">5. Compartición de Datos</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">8. Seguridad</h2>
                 <p>
-                  No vendemos, alquilamos ni compartimos su información personal con terceros, excepto:
-                </p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li>Con proveedores de servicios que nos ayudan a operar nuestro negocio (procesadores de pago, servicios de hosting)</li>
-                  <li>Cuando sea requerido por ley o autoridades competentes</li>
-                  <li>Para proteger nuestros derechos, propiedad o seguridad</li>
-                </ul>
-              </section>
-
-              <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">6. Sus Derechos</h2>
-                <p>
-                  De acuerdo con el Reglamento General de Protección de Datos (RGPD), usted tiene derecho a:
-                </p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li><strong>Acceso:</strong> Solicitar una copia de sus datos personales</li>
-                  <li><strong>Rectificación:</strong> Corregir datos inexactos o incompletos</li>
-                  <li><strong>Supresión:</strong> Solicitar la eliminación de sus datos</li>
-                  <li><strong>Portabilidad:</strong> Recibir sus datos en un formato estructurado</li>
-                  <li><strong>Oposición:</strong> Oponerse al tratamiento de sus datos</li>
-                  <li><strong>Limitación:</strong> Solicitar la restricción del tratamiento</li>
-                </ul>
-              </section>
-
-              <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">7. Retención de Datos</h2>
-                <p>
-                  Conservamos sus datos personales durante el tiempo necesario para cumplir con los fines para los que fueron recopilados, incluyendo obligaciones legales, contables o de informes. Los datos de transacciones se conservan durante el período legalmente requerido.
+                  NOVA EMPRENDE adoptará medidas técnicas y organizativas razonables para proteger los datos frente a pérdida, alteración, acceso no autorizado o tratamiento indebido. El acceso al área privada y a las apps deberá realizarse siempre bajo conexión segura.
                 </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">8. Contacto</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">9. Comunicaciones comerciales</h2>
                 <p>
-                  Si tiene preguntas sobre esta Política de Privacidad o desea ejercer sus derechos, puede contactarnos en:
+                  Las comunicaciones comerciales no deben quedar mezcladas con el consentimiento necesario para la compra. Si se quieren enviar novedades o promociones, el consentimiento deberá recabarse de forma separada cuando sea legalmente exigible.
                 </p>
-                <p className="text-brand-orange font-medium">
-                  hola@editorialnovaemprende.com
+              </section>
+
+              <section className="space-y-4">
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">10. Menores y actualizaciones</h2>
+                <p>
+                  Los servicios de NOVA EMPRENDE no están dirigidos específicamente a menores de edad. Esta política podrá actualizarse para adaptarse a cambios normativos, técnicos u operativos.
                 </p>
               </section>
             </div>

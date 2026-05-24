@@ -9,24 +9,26 @@ const Terminos = () => {
       <main className="pt-24 pb-16">
         <div className="brand-container">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
-              Términos y <span className="text-brand-orange">Condiciones</span>
+            <span className="inline-block bg-brand-orange text-white text-sm font-medium px-4 py-2 rounded-full mb-6">
+              Base legal de la plataforma
+            </span>
+            <h1 className="font-serif text-5xl md:text-7xl font-bold text-foreground mb-8">
+              Términos y <span className="text-brand-orange">condiciones</span>
             </h1>
-            
-            <div className="prose prose-invert max-w-none space-y-8 text-muted-foreground">
-              <p className="text-lg leading-relaxed">
-                Última actualización: Enero 2026
-              </p>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-12 max-w-3xl">
+              Última actualización: Enero 2026
+            </p>
 
+            <div className="border border-border rounded-2xl p-8 md:p-12 space-y-10 text-muted-foreground">
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">1. Aceptación de los Términos</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">1. Aceptación de los Términos</h2>
                 <p>
                   Al acceder y utilizar el sitio web de Editorial Nova Emprende (www.editorialnovaemprende.com) y adquirir nuestros productos, usted acepta cumplir y estar sujeto a estos Términos y Condiciones. Si no está de acuerdo con alguna parte de estos términos, le rogamos que no utilice nuestros servicios.
                 </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">2. Descripción de los Servicios</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">2. Descripción de los Servicios</h2>
                 <p>
                   Editorial Nova Emprende ofrece productos digitales educativos para emprendedores, incluyendo:
                 </p>
@@ -40,7 +42,7 @@ const Terminos = () => {
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">3. Registro y Cuenta de Usuario</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">3. Registro y Cuenta de Usuario</h2>
                 <p>
                   Para acceder a los productos adquiridos, deberá crear una cuenta proporcionando información veraz y actualizada. Usted es responsable de:
                 </p>
@@ -55,7 +57,7 @@ const Terminos = () => {
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">4. Proceso de Compra y Pagos</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">4. Proceso de Compra y Pagos</h2>
                 <p>
                   Todos los precios se muestran en euros (€) e incluyen los impuestos aplicables. Al realizar una compra:
                 </p>
@@ -68,7 +70,7 @@ const Terminos = () => {
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">5. Entrega de Productos Digitales</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">5. Entrega de Productos Digitales</h2>
                 <p>
                   Los productos digitales se entregan de forma electrónica inmediatamente después de la confirmación del pago:
                 </p>
@@ -82,7 +84,7 @@ const Terminos = () => {
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">6. Política de Devoluciones</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">6. Política de Devoluciones</h2>
                 <p>
                   Debido a la naturaleza de los productos digitales, que pueden ser descargados o accedidos inmediatamente:
                 </p>
@@ -97,7 +99,7 @@ const Terminos = () => {
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">7. Propiedad Intelectual</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">7. Propiedad Intelectual</h2>
                 <p>
                   Todos los contenidos de Editorial Nova Emprende están protegidos por derechos de autor:
                 </p>
@@ -110,7 +112,7 @@ const Terminos = () => {
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">8. Limitación de Responsabilidad</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">8. Limitación de Responsabilidad</h2>
                 <p>
                   Nuestros productos son herramientas educativas y de apoyo empresarial:
                 </p>
@@ -123,7 +125,7 @@ const Terminos = () => {
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">9. Uso Aceptable</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">9. Uso Aceptable</h2>
                 <p>
                   Al utilizar nuestros servicios, se compromete a:
                 </p>
@@ -136,21 +138,21 @@ const Terminos = () => {
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">10. Modificaciones</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">10. Modificaciones</h2>
                 <p>
                   Nos reservamos el derecho de modificar estos Términos y Condiciones en cualquier momento. Los cambios entrarán en vigor desde su publicación en el sitio web. Le recomendamos revisar esta página periódicamente.
                 </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">11. Ley Aplicable</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">11. Ley Aplicable</h2>
                 <p>
                   Estos términos se rigen por la legislación española. Cualquier disputa se someterá a los tribunales competentes de España.
                 </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">12. Contacto</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">12. Contacto</h2>
                 <p>
                   Para cualquier consulta relacionada con estos Términos y Condiciones:
                 </p>
