@@ -57,7 +57,7 @@ const Login = () => {
               </div>
 
               <div className="space-y-5">
-                <h1 className="font-serif text-5xl md:text-6xl font-bold text-foreground">
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
                   Acceso clientes
                 </h1>
                 <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
