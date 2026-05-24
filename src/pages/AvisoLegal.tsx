@@ -12,7 +12,7 @@ const AvisoLegal = () => {
             <span className="inline-block bg-brand-orange text-white text-sm font-medium px-4 py-2 rounded-full mb-6">
               Base legal de la plataforma
             </span>
-            <h1 className="font-serif text-5xl md:text-7xl font-bold text-foreground mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-8">
               Aviso <span className="text-brand-orange">legal</span>
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed mb-12 max-w-3xl">
