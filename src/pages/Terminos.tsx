@@ -9,17 +9,19 @@ const Terminos = () => {
       <main className="pt-24 pb-16">
         <div className="brand-container">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
-              Términos y <span className="text-brand-orange">Condiciones</span>
+            <span className="inline-block bg-brand-orange text-white text-sm font-medium px-4 py-2 rounded-full mb-6">
+              Base legal de la plataforma
+            </span>
+            <h1 className="font-serif text-5xl md:text-7xl font-bold text-foreground mb-8">
+              Términos y <span className="text-brand-orange">condiciones</span>
             </h1>
-            
-            <div className="prose prose-invert max-w-none space-y-8 text-muted-foreground">
-              <p className="text-lg leading-relaxed">
-                Última actualización: Enero 2026
-              </p>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-12 max-w-3xl">
+              Última actualización: Enero 2026
+            </p>
 
+            <div className="border border-border rounded-2xl p-8 md:p-12 space-y-10 text-muted-foreground">
               <section className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">1. Aceptación de los Términos</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">1. Aceptación de los Términos</h2>
                 <p>
                   Al acceder y utilizar el sitio web de Editorial Nova Emprende (www.editorialnovaemprende.com) y adquirir nuestros productos, usted acepta cumplir y estar sujeto a estos Términos y Condiciones. Si no está de acuerdo con alguna parte de estos términos, le rogamos que no utilice nuestros servicios.
                 </p>
