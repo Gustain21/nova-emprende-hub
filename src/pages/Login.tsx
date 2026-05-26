@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Mail, Lock, Rocket, ArrowRight, LayoutGrid, FileText, KeyRound } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const features = [
   {
@@ -28,12 +29,20 @@ const features = [
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info("Sistema de autenticación", {
-      description: "Conecta Lovable Cloud para habilitar login/registro.",
+    const { error } = await signIn(formData.email, formData.password);
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    toast.success("Acceso demo activado", {
+      description: "Sesión simulada hasta conectar Supabase.",
     });
+    navigate("/app");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
