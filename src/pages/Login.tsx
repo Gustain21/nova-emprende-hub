@@ -4,7 +4,7 @@ import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, Rocket, ArrowRight, LayoutGrid, FileText, KeyRound } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,9 +33,9 @@ const Login = () => {
   const navigate = useNavigate();
 
   // Si ya hay sesión, redirige a /clientes
-  if (!loading && user) {
-    navigate("/clientes", { replace: true });
-  }
+  useEffect(() => {
+    if (!loading && user) navigate("/clientes", { replace: true });
+  }, [loading, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
