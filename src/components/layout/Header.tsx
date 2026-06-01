@@ -4,9 +4,12 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import logoNovaEmprende from "@/assets/logo-nova-emprende.png";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user } = useAuth();
+  const clientesHref = user ? "/clientes" : "/login";
 
   const navItems = [
     { label: "Inicio", href: "/#inicio" },
@@ -42,7 +45,7 @@ const Header = () => {
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
-            <Link to="/login" className="text-sm font-medium text-foreground hover:text-brand-orange transition-colors">
+            <Link to={clientesHref} className="text-sm font-medium text-foreground hover:text-brand-orange transition-colors">
               Acceso clientes
             </Link>
             <Link to="/producto/ebook">
@@ -82,7 +85,7 @@ const Header = () => {
                 </a>
               ))}
               <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                <Link to={clientesHref} onClick={() => setIsMenuOpen(false)}>
                   <Button variant="outline" className="w-full">Acceso clientes</Button>
                 </Link>
                 <Link to="/producto/ebook" onClick={() => setIsMenuOpen(false)}>

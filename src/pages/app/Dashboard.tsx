@@ -36,10 +36,10 @@ const Dashboard = () => {
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Stat icon={Library} label="Productos comprados" value={purchases.length} to="/app/biblioteca" />
-        <Stat icon={Download} label="Descargas disponibles" value={resources.length} to="/app/descargas" />
-        <Stat icon={Rocket} label="Apps activas" value={apps.filter((a) => a.status === "ready").length} to="/app/apps" />
-        <Stat icon={Receipt} label="Facturas" value={purchases.length} to="/app/compras" />
+        <Stat icon={Library} label="Productos comprados" value={purchases.length} to="/clientes/mis-productos" />
+        <Stat icon={Download} label="Descargas disponibles" value={resources.length} to="/clientes/descargas" />
+        <Stat icon={Rocket} label="Herramientas activas" value={apps.filter((a) => a.status === "ready").length} to="/clientes/herramientas" />
+        <Stat icon={Receipt} label="Facturas" value={purchases.length} to="/clientes/compras-facturas" />
       </div>
 
       <div className="border border-border rounded-2xl p-6 bg-card/40">

@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import Contacto from "./pages/Contacto";
 import Testimonios from "./pages/Testimonios";
@@ -29,6 +29,18 @@ import PlanFinanciero from "./pages/app/PlanFinanciero";
 
 const queryClient = new QueryClient();
 
+// Legacy redirect: /app/* → /clientes/* (con remapeo de subrutas renombradas)
+const LegacyAppRedirect = () => {
+  const { pathname, search, hash } = useLocation();
+  let target = pathname.replace(/^\/app/, "/clientes");
+  target = target
+    .replace(/^\/clientes\/biblioteca/, "/clientes/mis-productos")
+    .replace(/^\/clientes\/apps/, "/clientes/herramientas")
+    .replace(/^\/clientes\/compras\b/, "/clientes/compras-facturas")
+    .replace(/^\/clientes\/plan-financiero/, "/clientes/herramientas/plan-financiero");
+  return <Navigate to={target + search + hash} replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -47,9 +59,9 @@ const App = () => (
             <Route path="/aviso-legal" element={<AvisoLegal />} />
             <Route path="/producto/:id" element={<Producto />} />
 
-            {/* Zona privada de clientes */}
+            {/* Zona privada de clientes — rutas comerciales /clientes */}
             <Route
-              path="/app"
+              path="/clientes"
               element={
                 <ProtectedRoute>
                   <AppLayout />
@@ -57,15 +69,20 @@ const App = () => (
               }
             >
               <Route index element={<Dashboard />} />
-              <Route path="biblioteca" element={<Biblioteca />} />
-              <Route path="biblioteca/:productId" element={<ProductoPrivado />} />
+              <Route path="mis-productos" element={<Biblioteca />} />
+              <Route path="mis-productos/:productId" element={<ProductoPrivado />} />
               <Route path="descargas" element={<Descargas />} />
-              <Route path="apps" element={<Apps />} />
-              <Route path="apps/:appId" element={<AppDetalle />} />
-              <Route path="plan-financiero" element={<PlanFinanciero />} />
-              <Route path="compras" element={<Compras />} />
+              <Route path="herramientas" element={<Apps />} />
+              {/* Específica antes de :appId para evitar conflictos */}
+              <Route path="herramientas/plan-financiero" element={<PlanFinanciero />} />
+              <Route path="herramientas/:appId" element={<AppDetalle />} />
+              <Route path="compras-facturas" element={<Compras />} />
               <Route path="cuenta" element={<Cuenta />} />
             </Route>
+
+            {/* Compatibilidad: rutas internas antiguas /app/* redirigen a /clientes/* */}
+            <Route path="/app/*" element={<LegacyAppRedirect />} />
+            <Route path="/app" element={<LegacyAppRedirect />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

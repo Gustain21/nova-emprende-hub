@@ -10,18 +10,18 @@ const AppDetalle = () => {
   if (!app) {
     return (
       <div className="space-y-4">
-        <Link to="/app/apps" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
+        <Link to="/clientes/herramientas" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4 mr-1" /> Volver
         </Link>
-        <p className="text-muted-foreground">App no encontrada.</p>
+        <p className="text-muted-foreground">Herramienta no encontrada.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <Link to="/app/apps" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="w-4 h-4 mr-1" /> Volver a apps
+      <Link to="/clientes/herramientas" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="w-4 h-4 mr-1" /> Volver a herramientas
       </Link>
 
       <PurchaseGate productId={app.productId}>

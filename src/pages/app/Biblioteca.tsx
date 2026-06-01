@@ -8,7 +8,7 @@ const Biblioteca = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold text-foreground">Biblioteca</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground">Mis productos</h1>
         <p className="text-muted-foreground mt-1">Tus productos comprados.</p>
       </div>
 
@@ -19,7 +19,7 @@ const Biblioteca = () => {
           {purchases.map((p) => (
             <Link
               key={p.id}
-              to={`/app/biblioteca/${p.productId}`}
+              to={`/clientes/mis-productos/${p.productId}`}
               className="border border-border rounded-2xl p-6 bg-card/40 hover:bg-card/70 transition-colors block"
             >
               <div className="flex items-start justify-between gap-3">

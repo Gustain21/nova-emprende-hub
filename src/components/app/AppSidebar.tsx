@@ -15,12 +15,12 @@ import logo from "@/assets/logo-nova-emprende.png";
 import { Link } from "react-router-dom";
 
 const items = [
-  { title: "Dashboard", url: "/app", icon: LayoutDashboard, end: true },
-  { title: "Biblioteca", url: "/app/biblioteca", icon: Library },
-  { title: "Descargas", url: "/app/descargas", icon: Download },
-  { title: "Apps", url: "/app/apps", icon: Rocket },
-  { title: "Compras", url: "/app/compras", icon: Receipt },
-  { title: "Cuenta", url: "/app/cuenta", icon: User },
+  { title: "Inicio", url: "/clientes", icon: LayoutDashboard, end: true },
+  { title: "Mis productos", url: "/clientes/mis-productos", icon: Library },
+  { title: "Descargas", url: "/clientes/descargas", icon: Download },
+  { title: "Herramientas web", url: "/clientes/herramientas", icon: Rocket },
+  { title: "Compras y facturas", url: "/clientes/compras-facturas", icon: Receipt },
+  { title: "Mi cuenta", url: "/clientes/cuenta", icon: User },
 ];
 
 export const AppSidebar = () => {
@@ -38,7 +38,7 @@ export const AppSidebar = () => {
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Área privada</SidebarGroupLabel>
+          <SidebarGroupLabel>Área de clientes</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {

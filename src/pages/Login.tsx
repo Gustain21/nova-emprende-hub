@@ -29,8 +29,13 @@ const features = [
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const { signIn } = useAuth();
+  const { signIn, user, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Si ya hay sesión, redirige a /clientes
+  if (!loading && user) {
+    navigate("/clientes", { replace: true });
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +47,7 @@ const Login = () => {
     toast.success("Acceso demo activado", {
       description: "Sesión simulada hasta conectar Supabase.",
     });
-    navigate("/app");
+    navigate("/clientes");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

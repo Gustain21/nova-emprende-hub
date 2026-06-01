@@ -68,7 +68,7 @@ export const MOCK_APPS: PrivateApp[] = [
     title: "Plan Financiero",
     description:
       "Calcula proyecciones, márgenes y punto de equilibrio de tu negocio.",
-    route: "/app/plan-financiero",
+    route: "/clientes/herramientas/plan-financiero",
     status: "ready",
   },
   {
@@ -76,7 +76,7 @@ export const MOCK_APPS: PrivateApp[] = [
     productId: "ebook",
     title: "Validador de Idea",
     description: "Próximamente: valida tu idea de negocio en 5 pasos.",
-    route: "/app/validador-idea",
+    route: "/clientes/herramientas/validador-idea",
     status: "coming-soon",
   },
 ];
