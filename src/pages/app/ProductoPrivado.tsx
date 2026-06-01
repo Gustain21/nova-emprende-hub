@@ -12,8 +12,8 @@ const ProductoPrivado = () => {
 
   return (
     <div className="space-y-6">
-      <Link to="/app/biblioteca" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="w-4 h-4 mr-1" /> Volver a biblioteca
+      <Link to="/clientes/mis-productos" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="w-4 h-4 mr-1" /> Volver a mis productos
       </Link>
 
       <PurchaseGate productId={productId}>

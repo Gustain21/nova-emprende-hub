@@ -15,8 +15,8 @@ const PlanFinanciero = () => {
 
   return (
     <div className="space-y-6">
-      <Link to="/app/apps" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="w-4 h-4 mr-1" /> Volver a apps
+      <Link to="/clientes/herramientas" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="w-4 h-4 mr-1" /> Volver a herramientas
       </Link>
 
       <PurchaseGate productId="dashboard">

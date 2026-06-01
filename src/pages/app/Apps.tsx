@@ -10,9 +10,9 @@ const Apps = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold text-foreground">Apps</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground">Herramientas web</h1>
         <p className="text-muted-foreground mt-1">
-          Herramientas web internas. Cada cliente solo accede a las apps de los productos que ha comprado.
+          Herramientas web internas. Cada cliente solo accede a las herramientas de los productos que ha comprado.
         </p>
       </div>
 
