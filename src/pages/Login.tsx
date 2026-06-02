@@ -41,11 +41,11 @@ const Login = () => {
     e.preventDefault();
     const { error } = await signIn(formData.email, formData.password);
     if (error) {
-      toast.error(error);
+      toast.error("No se pudo acceder", { description: error });
       return;
     }
-    toast.success("Acceso demo activado", {
-      description: "Sesión simulada hasta conectar Supabase.",
+    toast.success("Acceso correcto", {
+      description: "Bienvenido a tu área de clientes.",
     });
     navigate("/clientes");
   };
@@ -153,9 +153,9 @@ const Login = () => {
                 </div>
 
                 <div className="text-right">
-                  <a href="#" className="text-sm text-brand-orange hover:underline">
+                  <Link to="/reset-password" className="text-sm text-brand-orange hover:underline">
                     ¿Olvidaste tu contraseña?
-                  </a>
+                  </Link>
                 </div>
 
                 <Button type="submit" variant="hero" size="lg" className="w-full">
@@ -165,6 +165,12 @@ const Login = () => {
               </form>
 
               <div className="mt-8 pt-6 border-t border-border space-y-5 text-center">
+                <p className="text-sm text-foreground">
+                  ¿No tienes cuenta?{" "}
+                  <Link to="/registro" className="text-brand-orange hover:underline font-medium">
+                    Crear cuenta
+                  </Link>
+                </p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Si todavía no tienes acceso, este espacio se activará después de la compra de las apps, herramientas o packs correspondientes.
                 </p>
