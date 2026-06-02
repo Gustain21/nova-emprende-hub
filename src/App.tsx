@@ -12,6 +12,8 @@ import Terminos from "./pages/Terminos";
 import AvisoLegal from "./pages/AvisoLegal";
 import NotFound from "./pages/NotFound";
 import Producto from "./pages/Producto";
+import Registro from "./pages/Registro";
+import ResetPassword from "./pages/ResetPassword";
 
 // Zona privada de clientes (Fase 1 — mock)
 import { AuthProvider } from "./lib/auth/AuthProvider";
@@ -54,6 +56,8 @@ const App = () => (
             <Route path="/contacto" element={<Contacto />} />
             <Route path="/testimonios" element={<Testimonios />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/registro" element={<Registro />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/privacidad" element={<Privacidad />} />
             <Route path="/terminos" element={<Terminos />} />
             <Route path="/aviso-legal" element={<AvisoLegal />} />
