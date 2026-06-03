@@ -14,6 +14,175 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_access: {
+        Row: {
+          active: boolean
+          app_name: string
+          app_route: string
+          app_slug: string
+          created_at: string
+          id: string
+          product_id: string
+        }
+        Insert: {
+          active?: boolean
+          app_name: string
+          app_route: string
+          app_slug: string
+          created_at?: string
+          id?: string
+          product_id: string
+        }
+        Update: {
+          active?: boolean
+          app_name?: string
+          app_route?: string
+          app_slug?: string
+          created_at?: string
+          id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_access_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entitlements: {
+        Row: {
+          access_type: string
+          active: boolean
+          created_at: string
+          expires_at: string | null
+          id: string
+          product_id: string
+          source_purchase_id: string | null
+          user_id: string
+        }
+        Insert: {
+          access_type?: string
+          active?: boolean
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          product_id: string
+          source_purchase_id?: string | null
+          user_id: string
+        }
+        Update: {
+          access_type?: string
+          active?: boolean
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          product_id?: string
+          source_purchase_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entitlements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entitlements_source_purchase_id_fkey"
+            columns: ["source_purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      files: {
+        Row: {
+          active: boolean
+          created_at: string
+          file_name: string
+          file_type: string
+          id: string
+          product_id: string
+          storage_path: string
+          version: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          file_name: string
+          file_type: string
+          id?: string
+          product_id: string
+          storage_path: string
+          version?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          file_name?: string
+          file_type?: string
+          id?: string
+          product_id?: string
+          storage_path?: string
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string | null
+          description: string | null
+          id: string
+          name: string
+          paddle_price_id: string | null
+          price: number | null
+          product_type: string
+          slug: string
+          stripe_price_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          paddle_price_id?: string | null
+          price?: number | null
+          product_type: string
+          slug: string
+          stripe_price_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          paddle_price_id?: string | null
+          price?: number | null
+          product_type?: string
+          slug?: string
+          stripe_price_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -38,12 +207,59 @@ export type Database = {
         }
         Relationships: []
       }
+      purchases: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: string
+          product_id: string
+          provider: string | null
+          provider_payment_id: string | null
+          purchased_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: string
+          product_id: string
+          provider?: string | null
+          provider_payment_id?: string | null
+          purchased_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: string
+          product_id?: string
+          provider?: string | null
+          provider_payment_id?: string | null
+          purchased_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_active_entitlement: {
+        Args: { _product_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
