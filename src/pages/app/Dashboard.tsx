@@ -19,7 +19,7 @@ const Stat = ({ icon: Icon, label, value, to }: any) => (
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { purchases, resources, apps } = usePurchases();
+  const { purchases, resources, apps, products } = usePurchases();
 
   return (
     <div className="space-y-8">
@@ -31,22 +31,15 @@ const Dashboard = () => {
           Hola, {user?.fullName.split(" ")[0]}
         </h1>
         <p className="text-muted-foreground">
-          Este es tu espacio privado en NOVA EMPRENDE. La autenticación ya es real. Los productos, descargas, herramientas y facturas mostrados son datos de demostración.
+          Este es tu espacio privado en NOVA EMPRENDE. Aquí encontrarás tus productos, descargas, herramientas web y compras.
         </p>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Stat icon={Library} label="Productos comprados" value={purchases.length} to="/clientes/mis-productos" />
+        <Stat icon={Library} label="Productos con acceso" value={products.length} to="/clientes/mis-productos" />
         <Stat icon={Download} label="Descargas disponibles" value={resources.length} to="/clientes/descargas" />
-        <Stat icon={Rocket} label="Herramientas activas" value={apps.filter((a) => a.status === "ready").length} to="/clientes/herramientas" />
-        <Stat icon={Receipt} label="Facturas" value={purchases.length} to="/clientes/compras-facturas" />
-      </div>
-
-      <div className="border border-border rounded-2xl p-6 bg-card/40">
-        <h2 className="text-lg font-bold text-foreground mb-1">Tu cuenta ya está activa</h2>
-        <p className="text-sm text-muted-foreground">
-          En esta área podrás acceder a tus productos comprados, descargas, herramientas web y facturas. Las compras y permisos se conectarán en la siguiente fase.
-        </p>
+        <Stat icon={Rocket} label="Herramientas activas" value={apps.length} to="/clientes/herramientas" />
+        <Stat icon={Receipt} label="Compras" value={purchases.length} to="/clientes/compras-facturas" />
       </div>
     </div>
   );

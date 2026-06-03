@@ -1,53 +1,63 @@
 import { usePurchases } from "@/hooks/usePurchases";
 
 const Compras = () => {
-  const { purchases } = usePurchases();
+  const { purchases, loading } = usePurchases();
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl md:text-4xl font-bold text-foreground">Compras y facturas</h1>
         <p className="text-muted-foreground mt-1">
-          Historial demo. La facturación real se generará al conectar Stripe.
+          Historial de tus compras. Las facturas se generarán automáticamente al integrar Stripe y Paddle.
         </p>
       </div>
 
-      <div className="border border-border rounded-2xl overflow-hidden bg-card/40">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/40">
-            <tr className="text-left text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Fecha</th>
-              <th className="px-4 py-3 font-medium">Producto</th>
-              <th className="px-4 py-3 font-medium">Importe</th>
-              <th className="px-4 py-3 font-medium">Estado</th>
-              <th className="px-4 py-3 font-medium">Factura</th>
-            </tr>
-          </thead>
-          <tbody>
-            {purchases.map((p) => (
-              <tr key={p.id} className="border-t border-border">
-                <td className="px-4 py-3 text-foreground">
-                  {new Date(p.purchasedAt).toLocaleDateString("es-ES")}
-                </td>
-                <td className="px-4 py-3 text-foreground">{p.productTitle}</td>
-                <td className="px-4 py-3 text-foreground">
-                  {p.amount.toFixed(2)} {p.currency}
-                </td>
-                <td className="px-4 py-3">
-                  <span className="inline-flex px-2 py-0.5 rounded-full text-xs bg-brand-orange/15 text-brand-orange">
-                    {p.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <button className="text-brand-orange hover:underline text-xs" disabled>
-                    Descargar PDF
-                  </button>
-                </td>
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Cargando…</p>
+      ) : purchases.length === 0 ? (
+        <div className="border border-border rounded-2xl p-10 bg-card/40 text-center">
+          <p className="text-sm text-muted-foreground">Aún no tienes compras registradas.</p>
+        </div>
+      ) : (
+        <div className="border border-border rounded-2xl overflow-hidden bg-card/40">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40">
+              <tr className="text-left text-muted-foreground">
+                <th className="px-4 py-3 font-medium">Fecha</th>
+                <th className="px-4 py-3 font-medium">Producto</th>
+                <th className="px-4 py-3 font-medium">Importe</th>
+                <th className="px-4 py-3 font-medium">Proveedor</th>
+                <th className="px-4 py-3 font-medium">Estado</th>
+                <th className="px-4 py-3 font-medium">Factura</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {purchases.map((p) => (
+                <tr key={p.id} className="border-t border-border">
+                  <td className="px-4 py-3 text-foreground">
+                    {new Date(p.purchasedAt).toLocaleDateString("es-ES")}
+                  </td>
+                  <td className="px-4 py-3 text-foreground">{p.productTitle}</td>
+                  <td className="px-4 py-3 text-foreground">
+                    {p.amount.toFixed(2)} {p.currency}
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground capitalize">{p.provider ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex px-2 py-0.5 rounded-full text-xs bg-brand-orange/15 text-brand-orange capitalize">
+                      {p.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button className="text-muted-foreground text-xs" disabled>
+                      Pendiente
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
