@@ -1,24 +1,32 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Library } from "lucide-react";
 import { usePurchases } from "@/hooks/usePurchases";
 
 const Biblioteca = () => {
-  const { purchases } = usePurchases();
+  const { products, loading } = usePurchases();
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl md:text-4xl font-bold text-foreground">Mis productos</h1>
-        <p className="text-muted-foreground mt-1">Tus productos comprados.</p>
+        <p className="text-muted-foreground mt-1">Productos a los que tienes acceso.</p>
       </div>
 
-      {purchases.length === 0 ? (
-        <p className="text-muted-foreground">Aún no tienes productos.</p>
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Cargando…</p>
+      ) : products.length === 0 ? (
+        <div className="border border-border rounded-2xl p-10 bg-card/40 text-center space-y-3">
+          <Library className="w-8 h-8 text-brand-orange mx-auto" />
+          <h3 className="text-lg font-bold text-foreground">Aún no tienes productos</h3>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Cuando adquieras un producto de NOVA EMPRENDE, aparecerá aquí con acceso a sus descargas y herramientas.
+          </p>
+        </div>
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          {purchases.map((p) => (
+          {products.map((p) => (
             <Link
-              key={p.id}
+              key={p.productUuid}
               to={`/clientes/mis-productos/${p.productId}`}
               className="border border-border rounded-2xl p-6 bg-card/40 hover:bg-card/70 transition-colors block"
             >
@@ -28,9 +36,6 @@ const Biblioteca = () => {
                     Producto
                   </p>
                   <h3 className="text-lg font-bold text-foreground">{p.productTitle}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Comprado el {new Date(p.purchasedAt).toLocaleDateString("es-ES")}
-                  </p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-muted-foreground shrink-0 mt-1" />
               </div>
