@@ -31,7 +31,7 @@ const Dashboard = () => {
           Hola, {user?.fullName.split(" ")[0]}
         </h1>
         <p className="text-muted-foreground">
-          Este es tu espacio privado en NOVA EMPRENDE. Datos mostrados con datos demo.
+          Este es tu espacio privado en NOVA EMPRENDE. La autenticación ya es real. Los productos, descargas, herramientas y facturas mostrados son datos de demostración.
         </p>
       </div>
 
@@ -43,9 +43,9 @@ const Dashboard = () => {
       </div>
 
       <div className="border border-border rounded-2xl p-6 bg-card/40">
-        <h2 className="text-lg font-bold text-foreground mb-1">Próximamente</h2>
+        <h2 className="text-lg font-bold text-foreground mb-1">Tu cuenta ya está activa</h2>
         <p className="text-sm text-muted-foreground">
-          En la siguiente fase conectaremos autenticación real (Supabase), compras y descargas privadas.
+          En esta área podrás acceder a tus productos comprados, descargas, herramientas web y facturas. Las compras y permisos se conectarán en la siguiente fase.
         </p>
       </div>
     </div>

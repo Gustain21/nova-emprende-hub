@@ -18,7 +18,7 @@ const AppTopbar = () => {
       <div className="flex items-center gap-3">
         <SidebarTrigger />
         <span className="text-xs uppercase tracking-widest text-muted-foreground hidden sm:inline">
-          Área privada · DATOS DEMO
+          Área de clientes
         </span>
       </div>
       <div className="flex items-center gap-3">
