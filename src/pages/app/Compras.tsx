@@ -1,7 +1,11 @@
+import { useSearchParams } from "react-router-dom";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { usePurchases } from "@/hooks/usePurchases";
 
 const Compras = () => {
   const { purchases, loading } = usePurchases();
+  const [search] = useSearchParams();
+  const payment = search.get("payment");
 
   return (
     <div className="space-y-8">
@@ -11,6 +15,23 @@ const Compras = () => {
           Historial de tus compras. Las facturas se generarán automáticamente al integrar Stripe y Paddle.
         </p>
       </div>
+
+      {payment === "success" && (
+        <div className="flex items-start gap-3 p-4 rounded-xl border border-brand-orange/30 bg-brand-orange/10">
+          <CheckCircle2 className="w-5 h-5 text-brand-orange mt-0.5" />
+          <div className="text-sm text-foreground">
+            Compra confirmada. Tu acceso ya está disponible en el Área de clientes.
+          </div>
+        </div>
+      )}
+      {payment === "cancelled" && (
+        <div className="flex items-start gap-3 p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/10">
+          <XCircle className="w-5 h-5 text-yellow-400 mt-0.5" />
+          <div className="text-sm text-yellow-200">
+            Pago cancelado. Puedes intentarlo nuevamente cuando quieras.
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando…</p>

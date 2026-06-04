@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import Producto from "./pages/Producto";
 import Registro from "./pages/Registro";
 import ResetPassword from "./pages/ResetPassword";
+import Checkout from "./pages/Checkout";
 
 // Zona privada de clientes (Fase 1 — mock)
 import { AuthProvider } from "./lib/auth/AuthProvider";
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/terminos" element={<Terminos />} />
             <Route path="/aviso-legal" element={<AvisoLegal />} />
             <Route path="/producto/:id" element={<Producto />} />
+            <Route path="/checkout/:productSlug" element={<Checkout />} />
 
             {/* Zona privada de clientes — rutas comerciales /clientes */}
             <Route
