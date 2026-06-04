@@ -1,1 +1,8 @@
 project_id = "mhhlrcmwtypahmqdpbww"
+
+# Webhooks deben aceptar peticiones externas sin JWT.
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.paddle-webhook]
+verify_jwt = false
