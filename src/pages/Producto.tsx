@@ -120,9 +120,11 @@ const Producto = () => {
               </div>
 
               {/* CTA */}
-              <Button variant="hero" size="xl" className="w-full sm:w-auto mb-6">
-                Comprar ahora
-                <ExternalLink className="w-5 h-5" />
+              <Button variant="hero" size="xl" className="w-full sm:w-auto mb-6" asChild>
+                <Link to={`/checkout/${product.id}`}>
+                  Comprar ahora
+                  <ExternalLink className="w-5 h-5" />
+                </Link>
               </Button>
 
               {/* Trust signals */}
@@ -195,9 +197,11 @@ const Producto = () => {
               Empieza hoy con <span className="text-brand-orange font-semibold">{product.title}</span> y transforma tu manera de emprender.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button variant="hero" size="xl">
-                Comprar por €{product.price.toFixed(2)}
-                <ExternalLink className="w-5 h-5" />
+              <Button variant="hero" size="xl" asChild>
+                <Link to={`/checkout/${product.id}`}>
+                  Comprar por €{product.price.toFixed(2)}
+                  <ExternalLink className="w-5 h-5" />
+                </Link>
               </Button>
               <Button variant="heroOutline" size="lg" asChild>
                 <Link to="/#packs">Ver Packs con descuento</Link>
