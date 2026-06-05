@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Compass, Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
+import { BookOpen, Compass, Sparkles, CheckCircle2, ArrowRight, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import ebookCover from "@/assets/ebook-cover.jpg";
+import { ebookProduct } from "@/data/products";
+import { getEffectivePricing, formatOfferDate } from "@/lib/offer";
 
 const stats = [
   { num: "1", text: "guía principal para empezar con claridad" },
