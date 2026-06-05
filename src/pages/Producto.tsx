@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
+import { getEffectivePricing, formatOfferDate } from "@/lib/offer";
 
 const iconMap: Record<string, React.ReactNode> = {
   BookOpen: <BookOpen className="w-6 h-6" />,
