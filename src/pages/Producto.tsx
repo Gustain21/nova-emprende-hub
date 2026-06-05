@@ -204,7 +204,7 @@ const Producto = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="hero" size="xl" asChild>
                 <Link to={`/checkout/${product.id}`}>
-                  Comprar por €{product.price.toFixed(2)}
+                  Comprar por €{price.toFixed(2)}
                   <ExternalLink className="w-5 h-5" />
                 </Link>
               </Button>
