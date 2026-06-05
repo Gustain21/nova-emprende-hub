@@ -18,6 +18,7 @@ import Checkout from "./pages/Checkout";
 
 // Zona privada de clientes (Fase 1 — mock)
 import { AuthProvider } from "./lib/auth/AuthProvider";
+import { RegionProvider } from "./lib/region/RegionContext";
 import ProtectedRoute from "./components/app/ProtectedRoute";
 import AppLayout from "./components/app/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
@@ -51,6 +52,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <RegionProvider>
           <Routes>
             {/* Públicas — intactas */}
             <Route path="/" element={<Index />} />
@@ -93,6 +95,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </RegionProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
