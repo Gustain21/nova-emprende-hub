@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, FileText, BookOpen, Lightbulb, PieChart, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { products, type Product } from "@/data/products";
+import { getEffectivePricing } from "@/lib/offer";
+import { useRegion, formatPrice } from "@/lib/region/RegionContext";
 
 const iconMap: Record<string, React.ReactNode> = {
   BookOpen: <BookOpen className="w-4 h-4" />,
@@ -13,6 +15,9 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 const ProductCard = ({ product, index }: { product: Product; index: number }) => {
+  const { currency } = useRegion();
+  const { price, originalPrice } = getEffectivePricing(product, currency);
+
   const badge =
     product.type === "excel"
       ? { label: "EXCEL", color: "bg-brand-orange text-primary-foreground" }
@@ -41,10 +46,21 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
       </div>
 
       <h3 className="font-sans text-xl font-bold tracking-tight text-foreground mb-2 leading-tight">{product.title}</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">{product.description}</p>
+      <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{product.description}</p>
+
+      {product.crossSellText && (
+        <p className="text-[11px] text-brand-sand/80 italic mb-4">{product.crossSellText}</p>
+      )}
 
       <div className="flex items-center justify-between pt-4 border-t border-border">
-        <span className="text-2xl font-black text-brand-orange">€{product.price.toFixed(2)}</span>
+        <div className="flex flex-col">
+          <span className="text-2xl font-black text-brand-orange leading-none">{formatPrice(price, currency)}</span>
+          {originalPrice != null && (
+            <span className="text-xs text-muted-foreground line-through mt-1">
+              antes {formatPrice(originalPrice, currency)}
+            </span>
+          )}
+        </div>
         <Link to={`/producto/${product.id}`}>
           <Button variant="cta" size="sm">
             Ver más
@@ -57,9 +73,6 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
 };
 
 const ProductsSection = () => {
-  const implementacion = products.filter((p) => ["bitacora", "prompts", "planner"].includes(p.id));
-  const control = products.filter((p) => ["dashboard", "excel-infoproducto", "excel-ecomochilas"].includes(p.id));
-
   return (
     <section id="ecosistema" className="brand-section bg-background">
       <div className="brand-container">

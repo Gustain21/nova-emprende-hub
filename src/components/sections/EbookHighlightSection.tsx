@@ -3,6 +3,10 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowRight, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import ebookCover from "@/assets/ebook-cover.jpg";
+import { ebookProduct } from "@/data/products";
+import { getEffectivePricing } from "@/lib/offer";
+import { useRegion, formatPrice } from "@/lib/region/RegionContext";
+import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
 
 const bullets = [
   "Metodología paso a paso para validar tu idea de negocio",
@@ -12,6 +16,9 @@ const bullets = [
 ];
 
 const EbookHighlightSection = () => {
+  const { currency } = useRegion();
+  const { price, originalPrice, offerActive } = getEffectivePricing(ebookProduct, currency);
+
   return (
     <section id="ebook" className="brand-section bg-background">
       <div className="brand-container">
@@ -29,9 +36,11 @@ const EbookHighlightSection = () => {
             <h2 className="font-sans text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-5 leading-tight">
               El libro que debe abrir la experiencia NOVA EMPRENDE
             </h2>
-            <p className="text-muted-foreground leading-relaxed mb-8">
+            <p className="text-muted-foreground leading-relaxed mb-6">
               <span className="font-semibold text-foreground">El Big Bang de los Negocios</span> no es un extra dentro del catálogo. Es el punto de partida del método. Desde ahí se entienden mejor la ejecución, la planificación y el control financiero del resto del ecosistema.
             </p>
+
+            <EbookOfferBadge className="mb-6" />
 
             <div className="grid sm:grid-cols-2 gap-3 mb-8">
               {bullets.map((b) => (
@@ -75,15 +84,23 @@ const EbookHighlightSection = () => {
               Ebook principal
             </p>
             <h3 className="font-sans text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-3">El Big Bang de los Negocios</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
               Guía práctica para transformar tus ideas en negocios rentables. 15 capítulos con metodología paso a paso.
             </p>
+
+            <EbookOfferBadge className="mb-4" />
+
             <div className="grid grid-cols-2 gap-4 pt-5 border-t border-border">
               <div>
                 <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
-                  Precio actual
+                  {offerActive ? "Precio lanzamiento" : "Precio"}
                 </p>
-                <p className="text-2xl font-black text-brand-orange">€19,99</p>
+                <p className="text-2xl font-black text-brand-orange">{formatPrice(price, currency)}</p>
+                {originalPrice != null && (
+                  <p className="text-xs text-muted-foreground line-through">
+                    antes {formatPrice(originalPrice, currency)}
+                  </p>
+                )}
               </div>
               <div>
                 <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">

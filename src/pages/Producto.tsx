@@ -1,11 +1,13 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, Clock, ExternalLink, ShieldCheck, BookOpen, Calendar, Lightbulb, PieChart, FileSpreadsheet } from "lucide-react";
+import { ArrowLeft, Check, ExternalLink, ShieldCheck, BookOpen, Calendar, Lightbulb, PieChart, FileSpreadsheet, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
-import { getEffectivePricing, formatOfferDate } from "@/lib/offer";
+import { getEffectivePricing } from "@/lib/offer";
+import { useRegion, formatPrice } from "@/lib/region/RegionContext";
+import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
 
 const iconMap: Record<string, React.ReactNode> = {
   BookOpen: <BookOpen className="w-6 h-6" />,
@@ -25,6 +27,7 @@ const Producto = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const product = getProductById(id || "");
+  const { currency } = useRegion();
 
   if (!product) {
     return (
@@ -41,8 +44,8 @@ const Producto = () => {
     );
   }
 
-  const { price, originalPrice, offerActive } = getEffectivePricing(product);
-
+  const { price, originalPrice, offerActive } = getEffectivePricing(product, currency);
+  const isEbook = product.id === "ebook";
 
   return (
     <div className="min-h-screen bg-background">
@@ -101,48 +104,53 @@ const Producto = () => {
                 {product.longDescription}
               </p>
 
-              {/* Offer Badge */}
-              {offerActive && product.offerEndDate && (
-                <div className="flex items-center gap-2 mb-6 px-4 py-3 rounded-xl bg-red-500/20 border border-red-500/40">
-                  <Clock className="w-5 h-5 text-red-400" />
-                  <span className="text-base font-bold text-red-400">
-                    ¡Oferta hasta el {formatOfferDate(product.offerEndDate)}! -30%
-                  </span>
-                </div>
-              )}
+              {/* Offer Badge — siempre que el ebook aparece */}
+              {isEbook && <EbookOfferBadge className="mb-6" />}
 
               {/* Pricing */}
-              <div className="flex items-baseline gap-3 mb-6">
+              <div className="flex items-baseline gap-3 mb-4">
                 <span className="text-4xl md:text-5xl font-black text-brand-orange">
-                  €{price.toFixed(2)}
+                  {formatPrice(price, currency)}
                 </span>
-                {originalPrice && (
+                {originalPrice != null && (
                   <span className="text-xl text-muted-foreground line-through">
-                    €{originalPrice.toFixed(2)}
+                    antes {formatPrice(originalPrice, currency)}
                   </span>
                 )}
               </div>
-
+              <p className="text-xs text-muted-foreground mb-6">
+                Los impuestos y moneda final pueden ajustarse en el checkout según tu país.
+              </p>
 
               {/* CTA */}
               <Button variant="hero" size="xl" className="w-full sm:w-auto mb-6" asChild>
-                <Link to={`/checkout/${product.id}`}>
+                <Link to={`/checkout/${product.slug}`}>
                   Comprar ahora
                   <ExternalLink className="w-5 h-5" />
                 </Link>
               </Button>
 
               {/* Trust signals */}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                 <ShieldCheck className="w-4 h-4 text-brand-orange" />
                 <span>Acceso inmediato tras la compra · Pago seguro</span>
               </div>
+
+              {/* Cross-sell */}
+              {product.crossSellText && (
+                <Link
+                  to="/#packs"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-brand-sand hover:text-brand-orange transition-colors"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {product.crossSellText}
+                </Link>
+              )}
             </motion.div>
           </div>
 
           {/* Benefits & What You Get */}
           <div className="grid md:grid-cols-2 gap-8 mb-16">
-            {/* Benefits */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -164,7 +172,6 @@ const Producto = () => {
               </ul>
             </motion.div>
 
-            {/* What You Get */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -203,8 +210,8 @@ const Producto = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="hero" size="xl" asChild>
-                <Link to={`/checkout/${product.id}`}>
-                  Comprar por €{price.toFixed(2)}
+                <Link to={`/checkout/${product.slug}`}>
+                  Comprar por {formatPrice(price, currency)}
                   <ExternalLink className="w-5 h-5" />
                 </Link>
               </Button>
