@@ -103,7 +103,17 @@ const HeroSection = () => {
             <div className="absolute -inset-6 bg-gradient-to-br from-brand-orange/20 to-brand-gold/10 rounded-3xl blur-3xl" />
             <div className="relative rounded-2xl border border-border bg-brand-dark-card/80 p-5 md:p-6 backdrop-blur">
               <img src={ebookCover} alt="El Big Bang de los Negocios" className="w-full rounded-xl shadow-2xl" />
-              <div className="mt-6 grid grid-cols-2 gap-4 pt-5 border-t border-border">
+
+              {offerActive && ebookProduct.offerEndDate && (
+                <div className="mt-5 flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/40">
+                  <Clock className="w-4 h-4 text-red-400 shrink-0" />
+                  <span className="text-xs font-bold text-red-400">
+                    ¡Oferta hasta el {formatOfferDate(ebookProduct.offerEndDate)}! -30%
+                  </span>
+                </div>
+              )}
+
+              <div className="mt-5 grid grid-cols-2 gap-4 pt-5 border-t border-border">
                 <div>
                   <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
                     Producto héroe
@@ -112,12 +122,24 @@ const HeroSection = () => {
                 </div>
                 <div>
                   <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
-                    Precio actual
+                    {offerActive ? "Precio oferta" : "Precio"}
                   </p>
-                  <p className="text-2xl font-black text-brand-orange">€19,99</p>
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <p className="text-2xl font-black text-brand-orange">€{price.toFixed(2)}</p>
+                    {originalPrice && (
+                      <p className="text-sm text-muted-foreground line-through">€{originalPrice.toFixed(2)}</p>
+                    )}
+                  </div>
                 </div>
               </div>
+
+              {offerActive && ebookProduct.offerEndDate && (
+                <p className="mt-4 text-xs text-muted-foreground text-center">
+                  Compra antes del {formatOfferDate(ebookProduct.offerEndDate)} para aprovechar este precio.
+                </p>
+              )}
             </div>
+
           </motion.div>
         </div>
       </div>
