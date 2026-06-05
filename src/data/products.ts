@@ -37,7 +37,7 @@ export const ebookProduct: Product = {
   type: "ebook",
   iconName: "BookOpen",
   featured: true,
-  offerEndDate: "31/03",
+  offerEndDate: "2026-08-31",
   benefits: [
     "Metodología paso a paso para validar tu idea de negocio",
     "15 capítulos con ejercicios prácticos aplicables desde el día 1",
