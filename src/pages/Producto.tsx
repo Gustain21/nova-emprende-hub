@@ -102,11 +102,11 @@ const Producto = () => {
               </p>
 
               {/* Offer Badge */}
-              {product.offerEndDate && (
+              {offerActive && product.offerEndDate && (
                 <div className="flex items-center gap-2 mb-6 px-4 py-3 rounded-xl bg-red-500/20 border border-red-500/40">
                   <Clock className="w-5 h-5 text-red-400" />
                   <span className="text-base font-bold text-red-400">
-                    ¡Oferta hasta el {product.offerEndDate}! -30%
+                    ¡Oferta hasta el {formatOfferDate(product.offerEndDate)}! -30%
                   </span>
                 </div>
               )}
@@ -114,14 +114,15 @@ const Producto = () => {
               {/* Pricing */}
               <div className="flex items-baseline gap-3 mb-6">
                 <span className="text-4xl md:text-5xl font-black text-brand-orange">
-                  €{product.price.toFixed(2)}
+                  €{price.toFixed(2)}
                 </span>
-                {product.originalPrice && (
+                {originalPrice && (
                   <span className="text-xl text-muted-foreground line-through">
-                    €{product.originalPrice.toFixed(2)}
+                    €{originalPrice.toFixed(2)}
                   </span>
                 )}
               </div>
+
 
               {/* CTA */}
               <Button variant="hero" size="xl" className="w-full sm:w-auto mb-6" asChild>
