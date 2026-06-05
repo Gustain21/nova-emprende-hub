@@ -41,6 +41,9 @@ const Producto = () => {
     );
   }
 
+  const { price, originalPrice, offerActive } = getEffectivePricing(product);
+
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
