@@ -52,6 +52,42 @@ export type Database = {
           },
         ]
       }
+      bundle_items: {
+        Row: {
+          bundle_product_id: string
+          created_at: string
+          id: string
+          included_product_id: string
+        }
+        Insert: {
+          bundle_product_id: string
+          created_at?: string
+          id?: string
+          included_product_id: string
+        }
+        Update: {
+          bundle_product_id?: string
+          created_at?: string
+          id?: string
+          included_product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_items_bundle_product_id_fkey"
+            columns: ["bundle_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_items_included_product_id_fkey"
+            columns: ["included_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entitlements: {
         Row: {
           access_type: string
@@ -145,41 +181,104 @@ export type Database = {
         Row: {
           active: boolean
           created_at: string
+          cross_sell_text: string | null
           currency: string | null
+          default_region: string | null
           description: string | null
+          display_currency: string | null
           id: string
           name: string
           paddle_price_id: string | null
+          paddle_tax_category: string | null
+          payment_provider_eu: string | null
+          payment_provider_intl: string | null
+          payment_provider_latam: string | null
           price: number | null
+          price_eur: number | null
+          price_usd: number | null
           product_type: string
+          regular_price_eur: number | null
+          regular_price_usd: number | null
+          sale_active: boolean
+          sale_discount_percent: number | null
+          sale_ends_at: string | null
+          sale_price_eur: number | null
+          sale_price_usd: number | null
+          short_value_text: string | null
           slug: string
           stripe_price_id: string | null
+          stripe_tax_code: string | null
+          tax_behavior: string | null
+          tax_category: string | null
+          tax_rate_hint: number | null
         }
         Insert: {
           active?: boolean
           created_at?: string
+          cross_sell_text?: string | null
           currency?: string | null
+          default_region?: string | null
           description?: string | null
+          display_currency?: string | null
           id?: string
           name: string
           paddle_price_id?: string | null
+          paddle_tax_category?: string | null
+          payment_provider_eu?: string | null
+          payment_provider_intl?: string | null
+          payment_provider_latam?: string | null
           price?: number | null
+          price_eur?: number | null
+          price_usd?: number | null
           product_type: string
+          regular_price_eur?: number | null
+          regular_price_usd?: number | null
+          sale_active?: boolean
+          sale_discount_percent?: number | null
+          sale_ends_at?: string | null
+          sale_price_eur?: number | null
+          sale_price_usd?: number | null
+          short_value_text?: string | null
           slug: string
           stripe_price_id?: string | null
+          stripe_tax_code?: string | null
+          tax_behavior?: string | null
+          tax_category?: string | null
+          tax_rate_hint?: number | null
         }
         Update: {
           active?: boolean
           created_at?: string
+          cross_sell_text?: string | null
           currency?: string | null
+          default_region?: string | null
           description?: string | null
+          display_currency?: string | null
           id?: string
           name?: string
           paddle_price_id?: string | null
+          paddle_tax_category?: string | null
+          payment_provider_eu?: string | null
+          payment_provider_intl?: string | null
+          payment_provider_latam?: string | null
           price?: number | null
+          price_eur?: number | null
+          price_usd?: number | null
           product_type?: string
+          regular_price_eur?: number | null
+          regular_price_usd?: number | null
+          sale_active?: boolean
+          sale_discount_percent?: number | null
+          sale_ends_at?: string | null
+          sale_price_eur?: number | null
+          sale_price_usd?: number | null
+          short_value_text?: string | null
           slug?: string
           stripe_price_id?: string | null
+          stripe_tax_code?: string | null
+          tax_behavior?: string | null
+          tax_category?: string | null
+          tax_rate_hint?: number | null
         }
         Relationships: []
       }
@@ -210,6 +309,9 @@ export type Database = {
       purchases: {
         Row: {
           amount: number | null
+          buyer_country: string | null
+          buyer_currency: string | null
+          buyer_region: string | null
           currency: string | null
           id: string
           product_id: string
@@ -217,10 +319,20 @@ export type Database = {
           provider_payment_id: string | null
           purchased_at: string
           status: string
+          subtotal_amount: number | null
+          tax_amount: number | null
+          tax_country: string | null
+          tax_provider: string | null
+          tax_rate: number | null
+          tax_status: string | null
+          total_amount: number | null
           user_id: string
         }
         Insert: {
           amount?: number | null
+          buyer_country?: string | null
+          buyer_currency?: string | null
+          buyer_region?: string | null
           currency?: string | null
           id?: string
           product_id: string
@@ -228,10 +340,20 @@ export type Database = {
           provider_payment_id?: string | null
           purchased_at?: string
           status?: string
+          subtotal_amount?: number | null
+          tax_amount?: number | null
+          tax_country?: string | null
+          tax_provider?: string | null
+          tax_rate?: number | null
+          tax_status?: string | null
+          total_amount?: number | null
           user_id: string
         }
         Update: {
           amount?: number | null
+          buyer_country?: string | null
+          buyer_currency?: string | null
+          buyer_region?: string | null
           currency?: string | null
           id?: string
           product_id?: string
@@ -239,6 +361,13 @@ export type Database = {
           provider_payment_id?: string | null
           purchased_at?: string
           status?: string
+          subtotal_amount?: number | null
+          tax_amount?: number | null
+          tax_country?: string | null
+          tax_provider?: string | null
+          tax_rate?: number | null
+          tax_status?: string | null
+          total_amount?: number | null
           user_id?: string
         }
         Relationships: [
