@@ -19,6 +19,8 @@ const bullets = [
 ];
 
 const HeroSection = () => {
+  const { price, originalPrice, offerActive } = getEffectivePricing(ebookProduct);
+
   return (
     <section id="inicio" className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden brand-hero-gradient">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
