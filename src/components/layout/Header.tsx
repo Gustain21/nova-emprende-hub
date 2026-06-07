@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import logoNovaEmprende from "@/assets/logo-nova-emprende.png";
 import { useAuth } from "@/hooks/useAuth";
-import RegionSelector from "@/components/RegionSelector";
+
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
