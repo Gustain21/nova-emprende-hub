@@ -6,3 +6,7 @@ verify_jwt = false
 
 [functions.paddle-webhook]
 verify_jwt = false
+
+# Detección de país pública (sin auth).
+[functions.geo-detect]
+verify_jwt = false
