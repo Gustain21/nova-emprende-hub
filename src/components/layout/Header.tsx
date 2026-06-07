@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import logoNovaEmprende from "@/assets/logo-nova-emprende.png";
 import { useAuth } from "@/hooks/useAuth";
-import RegionSelector from "@/components/RegionSelector";
+
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,7 +46,7 @@ const Header = () => {
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
-            <RegionSelector />
+            
             <Link to={clientesHref} className="text-sm font-medium text-foreground hover:text-brand-orange transition-colors">
               Acceso clientes
             </Link>
@@ -87,7 +87,7 @@ const Header = () => {
                 </a>
               ))}
               <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                <RegionSelector className="self-start" />
+                
                 <Link to={clientesHref} onClick={() => setIsMenuOpen(false)}>
                   <Button variant="outline" className="w-full">Acceso clientes</Button>
                 </Link>
