@@ -8,8 +8,8 @@ import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { COUNTRIES } from "@/lib/payments/countries";
 import { selectPaymentProvider, type ProductLike } from "@/lib/payments/selectProvider";
+import { useRegion } from "@/lib/region/RegionContext";
 
 interface DbProduct extends ProductLike {
   id: string;
@@ -28,9 +28,12 @@ const Checkout = () => {
 
   const localProduct = productSlug ? getProductById(productSlug) : undefined;
 
+  const { region } = useRegion();
+  const autoCountry = region === "EU" ? "ES" : region === "LATAM" ? "MX" : "US";
+
   const [dbProduct, setDbProduct] = useState<DbProduct | null>(null);
   const [loadingProduct, setLoadingProduct] = useState(true);
-  const [country, setCountry] = useState<string>("ES");
+  const country = autoCountry;
   const [email, setEmail] = useState<string>(user?.email ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -163,20 +166,7 @@ const Checkout = () => {
             </div>
 
             <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm text-muted-foreground mb-1">País del comprador</label>
-                <select
-                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                >
-                  {COUNTRIES.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+
 
               {!user && (
                 <div>
