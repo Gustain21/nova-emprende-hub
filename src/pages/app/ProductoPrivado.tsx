@@ -12,9 +12,9 @@ const ProductoPrivado = () => {
   const productResources = resources.filter((r) => r.productId === productId);
   const productApps = apps.filter((a) => a.productId === productId);
 
-  const handleDownload = async (storagePath: string, fileName: string) => {
+  const handleDownload = async (fileId: string, fileName: string) => {
     try {
-      const url = await getSignedDownloadUrl(storagePath);
+      const url = await getSignedDownloadUrl(fileId);
       const a = document.createElement("a");
       a.href = url;
       a.download = fileName;
@@ -61,7 +61,7 @@ const ProductoPrivado = () => {
                     <p className="text-xs text-muted-foreground">{r.type.toUpperCase()}</p>
                   </div>
                   {r.available ? (
-                    <Button variant="cta" size="sm" onClick={() => handleDownload(r.storagePath, r.title)}>
+                    <Button variant="cta" size="sm" onClick={() => handleDownload(r.id, r.title)}>
                       <Download className="w-4 h-4" /> Descargar
                     </Button>
                   ) : (
