@@ -50,7 +50,7 @@ const Descargas = () => {
               <p className="text-xs text-muted-foreground">{r.type.toUpperCase()}</p>
             </div>
             {r.available ? (
-              <Button variant="cta" size="sm" onClick={() => handleDownload(r.storagePath, r.title)}>
+              <Button variant="cta" size="sm" onClick={() => handleDownload(r.id, r.title)}>
                 <Download className="w-4 h-4" /> Descargar
               </Button>
             ) : (
