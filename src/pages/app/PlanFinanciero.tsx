@@ -19,7 +19,7 @@ const PlanFinanciero = () => {
         <ArrowLeft className="w-4 h-4 mr-1" /> Volver a herramientas
       </Link>
 
-      <PurchaseGate productId="dashboard-financiero-web">
+      <PurchaseGate productId="dashboard-financiero">
         <div className="space-y-8">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-brand-orange/15 flex items-center justify-center">
