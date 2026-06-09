@@ -44,35 +44,41 @@ const ProductoPrivado = () => {
             </h1>
           </div>
 
-          <section className="space-y-3">
-            <h2 className="text-lg font-bold text-foreground">Descargas</h2>
-            <div className="space-y-2">
-              {loading && <p className="text-sm text-muted-foreground">Cargando…</p>}
-              {!loading && productResources.length === 0 && (
-                <p className="text-sm text-muted-foreground">Sin descargas todavía.</p>
-              )}
-              {productResources.map((r) => (
-                <div
-                  key={r.id}
-                  className="border border-border rounded-xl p-4 bg-card/40 flex items-center justify-between gap-3"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{r.title}</p>
-                    <p className="text-xs text-muted-foreground">{r.type.toUpperCase()}</p>
+          {loading && <p className="text-sm text-muted-foreground">Cargando…</p>}
+
+          {!loading && productResources.length > 0 && (
+            <section className="space-y-3">
+              <h2 className="text-lg font-bold text-foreground">Descargas</h2>
+              <div className="space-y-2">
+                {productResources.map((r) => (
+                  <div
+                    key={r.id}
+                    className="border border-border rounded-xl p-4 bg-card/40 flex items-center justify-between gap-3"
+                  >
+                    <div>
+                      <p className="font-medium text-foreground">{r.title}</p>
+                      <p className="text-xs text-muted-foreground">{r.type.toUpperCase()}</p>
+                    </div>
+                    {r.available ? (
+                      <Button variant="cta" size="sm" onClick={() => handleDownload(r.id, r.title)}>
+                        <Download className="w-4 h-4" /> Descargar
+                      </Button>
+                    ) : (
+                      <Button variant="outline" size="sm" disabled>
+                        Archivo pendiente de carga
+                      </Button>
+                    )}
                   </div>
-                  {r.available ? (
-                    <Button variant="cta" size="sm" onClick={() => handleDownload(r.id, r.title)}>
-                      <Download className="w-4 h-4" /> Descargar
-                    </Button>
-                  ) : (
-                    <Button variant="outline" size="sm" disabled>
-                      Archivo pendiente de carga
-                    </Button>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
+            </section>
+          )}
+
+          {!loading && productResources.length === 0 && productApps.length === 0 && (
+            <div className="border border-border rounded-2xl p-8 bg-card/40 text-center text-sm text-muted-foreground">
+              El contenido de este producto estará disponible próximamente en tu área privada.
             </div>
-          </section>
+          )}
 
           {productApps.length > 0 && (
             <section className="space-y-3">
@@ -88,7 +94,7 @@ const ProductoPrivado = () => {
                     </div>
                     <Link to={a.route}>
                       <Button variant="cta" size="sm">
-                        <Rocket className="w-4 h-4" /> Abrir
+                        <Rocket className="w-4 h-4" /> Abrir herramienta
                       </Button>
                     </Link>
                   </div>
