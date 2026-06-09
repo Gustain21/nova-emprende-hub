@@ -94,7 +94,7 @@ const ProductoPrivado = () => {
                     </div>
                     <Link to={a.route}>
                       <Button variant="cta" size="sm">
-                        <Rocket className="w-4 h-4" /> Abrir
+                        <Rocket className="w-4 h-4" /> Abrir herramienta
                       </Button>
                     </Link>
                   </div>
