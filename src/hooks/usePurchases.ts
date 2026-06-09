@@ -144,10 +144,12 @@ export const usePurchases = () => {
 };
 
 // Genera una URL firmada temporal para un archivo del bucket privado.
-export async function getSignedDownloadUrl(storagePath: string, expiresInSeconds = 300) {
-  const { data, error } = await supabase.storage
-    .from("nova-products")
-    .createSignedUrl(storagePath, expiresInSeconds);
+// Server-side: valida JWT + entitlement activo antes de firmar.
+export async function getSignedDownloadUrl(fileId: string, expiresInSeconds = 300) {
+  const { data, error } = await supabase.functions.invoke("get-download-url", {
+    body: { fileId, expiresIn: expiresInSeconds },
+  });
   if (error) throw error;
-  return data.signedUrl;
+  if (!data?.url) throw new Error(data?.error ?? "No se pudo generar el enlace");
+  return data.url as string;
 }
