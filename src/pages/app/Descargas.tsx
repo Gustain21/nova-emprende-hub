@@ -6,9 +6,9 @@ import { toast } from "sonner";
 const Descargas = () => {
   const { resources, loading } = usePurchases();
 
-  const handleDownload = async (storagePath: string, fileName: string) => {
+  const handleDownload = async (fileId: string, fileName: string) => {
     try {
-      const url = await getSignedDownloadUrl(storagePath);
+      const url = await getSignedDownloadUrl(fileId);
       const a = document.createElement("a");
       a.href = url;
       a.download = fileName;
