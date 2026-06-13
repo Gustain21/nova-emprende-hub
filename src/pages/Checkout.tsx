@@ -57,13 +57,22 @@ const Checkout = () => {
       });
   }, [productSlug]);
 
-  const selection = useMemo(
+  // TEMPORAL: forzamos Paddle para todos los países hasta que Stripe esté completamente configurado.
+  // La selección automática por país queda preparada pero desactivada.
+  // const selection = useMemo(
+  //   () =>
+  //     selectPaymentProvider(country, {
+  //       stripe_price_id: dbProduct?.stripe_price_id,
+  //       paddle_price_id: dbProduct?.paddle_price_id,
+  //     }),
+  //   [country, dbProduct],
+  // );
+  const selection= useMemo<ReturnType<typeof selectPaymentProvider>>(
     () =>
-      selectPaymentProvider(country, {
-        stripe_price_id: dbProduct?.stripe_price_id,
-        paddle_price_id: dbProduct?.paddle_price_id,
-      }),
-    [country, dbProduct],
+      dbProduct?.paddle_price_id
+        ? { provider: "paddle", reason: "Paddle activo temporalmente para todos los países (modo test)." }
+        : { provider: "none", reason: "Este producto aún no tiene paddle_price_id configurado." },
+    [dbProduct],
   );
 
   const paymentStatus = search.get("payment"); // 'cancelled' soportado aquí
@@ -91,8 +100,8 @@ const Checkout = () => {
 
     setSubmitting(true);
     try {
-      const fnName =
-        selection.provider === "stripe" ? "create-stripe-checkout" : "create-paddle-checkout";
+      // TEMPORAL: usar siempre create-paddle-checkout hasta reactivar Stripe.
+      const fnName = "create-paddle-checkout";
       const { data, error } = await supabase.functions.invoke(fnName, {
         body: {
           product_slug: dbProduct.slug,
@@ -237,7 +246,7 @@ const Checkout = () => {
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
               <ShieldCheck className="w-4 h-4 text-brand-orange" />
-              Pago seguro · Stripe / Paddle · modo test
+              Pago seguro · Paddle · modo test
             </div>
           </motion.div>
         </div>
