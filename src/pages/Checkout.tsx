@@ -57,13 +57,22 @@ const Checkout = () => {
       });
   }, [productSlug]);
 
-  const selection = useMemo(
+  // TEMPORAL: forzamos Paddle para todos los países hasta que Stripe esté completamente configurado.
+  // La selección automática por país queda preparada pero desactivada.
+  // const selection = useMemo(
+  //   () =>
+  //     selectPaymentProvider(country, {
+  //       stripe_price_id: dbProduct?.stripe_price_id,
+  //       paddle_price_id: dbProduct?.paddle_price_id,
+  //     }),
+  //   [country, dbProduct],
+  // );
+  const selection= useMemo<ReturnType<typeof selectPaymentProvider>>(
     () =>
-      selectPaymentProvider(country, {
-        stripe_price_id: dbProduct?.stripe_price_id,
-        paddle_price_id: dbProduct?.paddle_price_id,
-      }),
-    [country, dbProduct],
+      dbProduct?.paddle_price_id
+        ? { provider: "paddle", reason: "Paddle activo temporalmente para todos los países (modo test)." }
+        : { provider: "none", reason: "Este producto aún no tiene paddle_price_id configurado." },
+    [dbProduct],
   );
 
   const paymentStatus = search.get("payment"); // 'cancelled' soportado aquí
