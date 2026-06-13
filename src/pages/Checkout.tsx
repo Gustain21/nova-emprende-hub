@@ -100,8 +100,8 @@ const Checkout = () => {
 
     setSubmitting(true);
     try {
-      const fnName =
-        selection.provider === "stripe" ? "create-stripe-checkout" : "create-paddle-checkout";
+      // TEMPORAL: usar siempre create-paddle-checkout hasta reactivar Stripe.
+      const fnName = "create-paddle-checkout";
       const { data, error } = await supabase.functions.invoke(fnName, {
         body: {
           product_slug: dbProduct.slug,
