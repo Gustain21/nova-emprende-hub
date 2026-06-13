@@ -246,7 +246,7 @@ const Checkout = () => {
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
               <ShieldCheck className="w-4 h-4 text-brand-orange" />
-              Pago seguro · Stripe / Paddle · modo test
+              Pago seguro · Paddle · modo test
             </div>
           </motion.div>
         </div>
