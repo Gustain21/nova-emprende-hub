@@ -8,16 +8,36 @@ import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { selectPaymentProvider, type ProductLike } from "@/lib/payments/selectProvider";
 import { useRegion } from "@/lib/region/RegionContext";
 
-interface DbProduct extends ProductLike {
+interface DbProduct {
   id: string;
   slug: string;
   name: string;
   description: string | null;
   price: number | null;
   currency: string | null;
+  stripe_price_id?: string | null;
+  paddle_price_id?: string | null;
+}
+
+const STORAGE_KEY_HINTS = ["paddle", "checkout", "transaction", "ptxn", "payment", "purchase_pending"];
+
+function purgeCheckoutStorage() {
+  try {
+    for (const storage of [window.localStorage, window.sessionStorage]) {
+      const toDelete: string[] = [];
+      for (let i = 0; i < storage.length; i++) {
+        const key = storage.key(i);
+        if (!key) continue;
+        const lk = key.toLowerCase();
+        if (STORAGE_KEY_HINTS.some((h) => lk.includes(h))) toDelete.push(key);
+      }
+      toDelete.forEach((k) => storage.removeItem(k));
+    }
+  } catch {
+    // ignore
+  }
 }
 
 const Checkout = () => {
@@ -29,34 +49,48 @@ const Checkout = () => {
   const localProduct = productSlug ? getProductById(productSlug) : undefined;
 
   const { region } = useRegion();
-  const autoCountry = region === "EU" ? "ES" : region === "LATAM" ? "MX" : "US";
+  const country = region === "EU" ? "ES" : region === "LATAM" ? "MX" : "US";
 
   const [dbProduct, setDbProduct] = useState<DbProduct | null>(null);
   const [loadingProduct, setLoadingProduct] = useState(true);
-  const country = autoCountry;
   const [email, setEmail] = useState<string>(user?.email ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cancelledMessage, setCancelledMessage] = useState<boolean>(false);
 
   useEffect(() => {
     setEmail((e) => e || user?.email || "");
   }, [user]);
 
-  const [wasCancelled, setWasCancelled] = useState(false);
-
-  // Detectar payment=cancelled / _ptxn / ptxn y limpiar la URL para que el
-  // siguiente click cree SIEMPRE una transacción nueva (no reutilizar la cancelada).
+  // Init: decidir cancelledMessage SOLO desde los query params actuales,
+  // limpiar la URL y purgar cualquier rastro de transacciones anteriores.
   useEffect(() => {
-    const url = new URL(window.location.href);
-    const hasCancelled = url.searchParams.get("payment") === "cancelled";
-    const hasPtxn = url.searchParams.has("_ptxn") || url.searchParams.has("ptxn");
-    if (hasCancelled || hasPtxn) {
-      if (hasCancelled) setWasCancelled(true);
-      url.searchParams.delete("payment");
-      url.searchParams.delete("_ptxn");
-      url.searchParams.delete("ptxn");
-      window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+    if (typeof window === "undefined") return;
+    // eslint-disable-next-line no-console
+    console.debug("[checkout] page loaded", { slug: productSlug, href: window.location.href });
+
+    const params = new URLSearchParams(window.location.search);
+    const paymentParam = params.get("payment");
+    const isCancelled = paymentParam === "cancelled" || paymentParam === "canceled";
+
+    // eslint-disable-next-line no-console
+    console.debug("[checkout] query params detected", { payment: paymentParam });
+
+    if (isCancelled) {
+      setCancelledMessage(true);
+      // eslint-disable-next-line no-console
+      console.debug("[checkout] cancelled message set");
+    } else {
+      setCancelledMessage(false);
     }
+
+    // Siempre purgar storage y limpiar la URL a su pathname.
+    purgeCheckoutStorage();
+    if (window.location.search) {
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+    // eslint-disable-next-line no-console
+    console.debug("[checkout] cancelled state cleared from storage/url");
   }, [productSlug]);
 
   useEffect(() => {
@@ -74,25 +108,14 @@ const Checkout = () => {
       });
   }, [productSlug]);
 
-  // TEMPORAL: forzamos Paddle para todos los países hasta que Stripe esté completamente configurado.
-  // La selección automática por país queda preparada pero desactivada.
-  // const selection = useMemo(
-  //   () =>
-  //     selectPaymentProvider(country, {
-  //       stripe_price_id: dbProduct?.stripe_price_id,
-  //       paddle_price_id: dbProduct?.paddle_price_id,
-  //     }),
-  //   [country, dbProduct],
-  // );
-  const selection= useMemo<ReturnType<typeof selectPaymentProvider>>(
+  // TEMPORAL: Paddle siempre que el producto lo tenga configurado.
+  const selection = useMemo(
     () =>
       dbProduct?.paddle_price_id
-        ? { provider: "paddle", reason: "Paddle activo temporalmente para todos los países (modo test)." }
-        : { provider: "none", reason: "Este producto aún no tiene paddle_price_id configurado." },
+        ? { provider: "paddle" as const, reason: "Paddle activo temporalmente para todos los países (modo test)." }
+        : { provider: "none" as const, reason: "Este producto aún no tiene paddle_price_id configurado." },
     [dbProduct],
   );
-
-  const paymentStatus = wasCancelled ? "cancelled" : search.get("payment");
 
   const displayName = dbProduct?.name ?? localProduct?.title ?? "Producto";
   const displayDescription = dbProduct?.description ?? localProduct?.description ?? "";
@@ -100,43 +123,66 @@ const Checkout = () => {
   const displayCurrency = dbProduct?.currency ?? "EUR";
 
   const handleContinue = async () => {
+    // Reset de estado anterior en cada click.
     setError(null);
+    setCancelledMessage(false);
+    purgeCheckoutStorage();
 
-    if (!user) {
-      navigate(`/login?next=/checkout/${productSlug}`);
-      return;
-    }
     if (!dbProduct) {
-      setError("Producto no disponible en el catálogo de Lovable Cloud.");
+      setError("Producto no disponible en el catálogo.");
       return;
     }
     if (selection.provider === "none") {
       setError(selection.reason);
       return;
     }
+    if (!user && !email) {
+      setError("Introduce tu email para continuar.");
+      return;
+    }
 
     setSubmitting(true);
     try {
-      // TEMPORAL: usar siempre create-paddle-checkout hasta reactivar Stripe.
-      const fnName = "create-paddle-checkout";
-      const { data, error } = await supabase.functions.invoke(fnName, {
+      // eslint-disable-next-line no-console
+      console.debug("[checkout] creating new paddle transaction", { slug: dbProduct.slug });
+      const { data, error: fnError } = await supabase.functions.invoke("create-paddle-checkout", {
         body: {
           product_slug: dbProduct.slug,
           country,
-          email,
+          email: user?.email ?? email,
         },
       });
-      if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url as string;
+      if (fnError) throw fnError;
+      // eslint-disable-next-line no-console
+      console.debug("[checkout] new paddle transaction received", data);
+
+      const checkoutUrl: string | undefined = data?.url;
+      const transactionId: string | undefined = data?.transaction_id;
+
+      // Preferir Paddle.js si está disponible y tenemos transaction_id.
+      const paddleGlobal = (window as any).Paddle;
+      if (transactionId && paddleGlobal?.Checkout?.open) {
+        // eslint-disable-next-line no-console
+        console.debug("[checkout] opening paddle checkout via Paddle.js", { transactionId });
+        paddleGlobal.Checkout.open({ transactionId });
+        setSubmitting(false);
         return;
       }
-      throw new Error(data?.error || "No se recibió URL de checkout.");
+      if (checkoutUrl) {
+        // eslint-disable-next-line no-console
+        console.debug("[checkout] opening paddle checkout via redirect", { checkoutUrl });
+        window.location.href = checkoutUrl;
+        return;
+      }
+      throw new Error(data?.error || "No se recibió URL ni transaction_id de checkout.");
     } catch (e: any) {
       setError(e?.message || "Error iniciando el checkout.");
       setSubmitting(false);
     }
   };
+
+  // Solo mostrar mensaje cancelado si el state local lo marcó (proveniente exclusivamente de la URL actual).
+  const showCancelled = cancelledMessage;
 
   return (
     <div className="min-h-screen bg-background">
@@ -154,7 +200,7 @@ const Checkout = () => {
             </Button>
           </div>
 
-          {paymentStatus === "cancelled" && (
+          {showCancelled && (
             <div className="mb-6 flex items-start gap-3 p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/10">
               <XCircle className="w-5 h-5 text-yellow-400 mt-0.5" />
               <div className="text-sm text-yellow-200">
@@ -187,23 +233,30 @@ const Checkout = () => {
               </div>
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
                 <div className="text-xs text-muted-foreground">Email</div>
-                <div className="text-sm text-foreground truncate">{email || "Inicia sesión"}</div>
+                <div className="text-sm text-foreground truncate">
+                  {user?.email || email || "Introduce tu email"}
+                </div>
               </div>
             </div>
 
             <div className="space-y-4 mb-6">
-
-
               {!user && (
                 <div>
                   <label className="block text-sm text-muted-foreground mb-1">Email del comprador</label>
                   <input
                     type="email"
+                    required
                     className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="tu@email.com"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    ¿Ya tienes cuenta?{" "}
+                    <Link to={`/login?next=/checkout/${productSlug}`} className="text-brand-orange hover:underline">
+                      Inicia sesión
+                    </Link>
+                  </p>
                 </div>
               )}
 
@@ -237,10 +290,6 @@ const Checkout = () => {
               <Button variant="hero" size="xl" disabled className="w-full">
                 <Loader2 className="w-5 h-5 animate-spin" />
                 Cargando producto…
-              </Button>
-            ) : !user ? (
-              <Button variant="hero" size="xl" className="w-full" asChild>
-                <Link to={`/login?next=/checkout/${productSlug}`}>Iniciar sesión para continuar</Link>
               </Button>
             ) : (
               <Button
