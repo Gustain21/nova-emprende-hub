@@ -42,6 +42,23 @@ const Checkout = () => {
     setEmail((e) => e || user?.email || "");
   }, [user]);
 
+  const [wasCancelled, setWasCancelled] = useState(false);
+
+  // Detectar payment=cancelled / _ptxn / ptxn y limpiar la URL para que el
+  // siguiente click cree SIEMPRE una transacción nueva (no reutilizar la cancelada).
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const hasCancelled = url.searchParams.get("payment") === "cancelled";
+    const hasPtxn = url.searchParams.has("_ptxn") || url.searchParams.has("ptxn");
+    if (hasCancelled || hasPtxn) {
+      if (hasCancelled) setWasCancelled(true);
+      url.searchParams.delete("payment");
+      url.searchParams.delete("_ptxn");
+      url.searchParams.delete("ptxn");
+      window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+    }
+  }, [productSlug]);
+
   useEffect(() => {
     if (!productSlug) return;
     setLoadingProduct(true);
