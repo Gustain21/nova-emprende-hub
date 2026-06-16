@@ -92,7 +92,7 @@ const Checkout = () => {
     [dbProduct],
   );
 
-  const paymentStatus = search.get("payment"); // 'cancelled' soportado aquí
+  const paymentStatus = wasCancelled ? "cancelled" : search.get("payment");
 
   const displayName = dbProduct?.name ?? localProduct?.title ?? "Producto";
   const displayDescription = dbProduct?.description ?? localProduct?.description ?? "";
