@@ -124,7 +124,7 @@ const Producto = () => {
 
               {/* CTA */}
               <Button variant="hero" size="xl" className="w-full sm:w-auto mb-6" asChild>
-                <Link to={`/checkout/${product.slug}`}>
+                <Link to={`/pagar/${product.slug}`}>
                   Comprar ahora
                   <ExternalLink className="w-5 h-5" />
                 </Link>
@@ -210,7 +210,7 @@ const Producto = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="hero" size="xl" asChild>
-                <Link to={`/checkout/${product.slug}`}>
+                <Link to={`/pagar/${product.slug}`}>
                   Comprar por {formatPrice(price, currency)}
                   <ExternalLink className="w-5 h-5" />
                 </Link>
