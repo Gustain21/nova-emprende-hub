@@ -1,7 +1,6 @@
-// NOVA EMPRENDE — create-paddle-checkout (modo sandbox)
-// Crea una transacción Paddle y devuelve la URL de checkout.
-// Requiere PADDLE_API_KEY configurada en Lovable Cloud secrets.
-// PADDLE_ENVIRONMENT por defecto: 'sandbox'.
+// NOVA EMPRENDE — create-paddle-checkout (público, sandbox)
+// Crea una transacción Paddle. No requiere sesión: el checkout es público.
+// La activación de entitlements se hace exclusivamente desde paddle-webhook.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -17,74 +16,87 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
+    console.log("create-paddle-checkout called");
+
     const paddleKey = Deno.env.get("PADDLE_API_KEY");
-    if (!paddleKey) {
-      return json(
-        { error: "PADDLE_API_KEY pendiente de configurar en Lovable Cloud secrets." },
-        503,
-      );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+    console.log("env presence", {
+      PADDLE_API_KEY: !!paddleKey,
+      SUPABASE_URL: !!supabaseUrl,
+      SUPABASE_SERVICE_ROLE_KEY: !!serviceKey,
+    });
+
+    if (!paddleKey) return json({ error: "config_error", detail: "PADDLE_API_KEY missing" }, 500);
+    if (!supabaseUrl || !serviceKey) {
+      return json({ error: "config_error", detail: "Supabase env missing" }, 500);
     }
+
     const paddleEnv = (Deno.env.get("PADDLE_ENVIRONMENT") || "sandbox").toLowerCase();
     const paddleBase =
       paddleEnv === "live" ? "https://api.paddle.com" : "https://sandbox-api.paddle.com";
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return json({ error: "No autenticado." }, 401);
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    const supabaseUser = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsErr } = await supabaseUser.auth.getClaims(token);
-    if (claimsErr || !claimsData?.claims) return json({ error: "Sesión inválida." }, 401);
-    const userId = claimsData.claims.sub as string;
-    const userEmail = (claimsData.claims.email as string) ?? "";
-
     const body = await req.json().catch(() => ({}));
-    const productSlug = body?.product_slug as string | undefined;
+    const slug = (body?.slug || body?.product_slug) as string | undefined;
+    const email = (body?.email as string | undefined)?.trim();
     const country = (body?.country as string | undefined)?.toUpperCase() ?? null;
-    const buyerEmail = (body?.email as string | undefined) || userEmail;
-    if (!productSlug) return json({ error: "product_slug requerido." }, 400);
+    console.log("body received", { slug, hasEmail: !!email });
+
+    if (!slug) return json({ error: "invalid_request", detail: "slug requerido" }, 400);
+    if (!email || !EMAIL_RE.test(email)) {
+      return json({ error: "invalid_request", detail: "email inválido" }, 400);
+    }
+
+    // Optional auth (user_id si hay sesión)
+    let userId: string | null = null;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ") && anonKey) {
+      try {
+        const supaUser = createClient(supabaseUrl, anonKey, {
+          global: { headers: { Authorization: authHeader } },
+        });
+        const token = authHeader.replace("Bearer ", "");
+        const { data } = await supaUser.auth.getClaims(token);
+        userId = (data?.claims?.sub as string) ?? null;
+      } catch (_) {
+        userId = null;
+      }
+    }
 
     const supabaseAdmin = createClient(supabaseUrl, serviceKey);
     const { data: product, error: prodErr } = await supabaseAdmin
       .from("products")
       .select("id, slug, name, price, currency, paddle_price_id, active")
-      .eq("slug", productSlug)
-      .eq("active", true)
+      .eq("slug", slug)
       .maybeSingle();
-    if (prodErr || !product) return json({ error: "Producto no encontrado." }, 404);
-    if (!product.paddle_price_id) {
-      return json({ error: "Este producto no tiene paddle_price_id configurado." }, 400);
+
+    if (prodErr || !product) {
+      return json({ error: "product_not_found", detail: "Producto no encontrado" }, 404);
     }
+    if (!product.active) {
+      return json({ error: "product_inactive", detail: "Producto no activo" }, 400);
+    }
+    if (!product.paddle_price_id) {
+      return json({ error: "missing_paddle_price_id", detail: "Producto sin paddle_price_id" }, 400);
+    }
+    console.log("product found", { id: product.id, slug: product.slug });
+    console.log("paddle_price_id found");
 
-    const origin = req.headers.get("origin") || req.headers.get("referer") || "";
-    const successUrl = `${origin}/clientes/compras-facturas?payment=success`;
-    const cancelUrl = `${origin}/checkout/${product.slug}?payment=cancelled`;
+    const origin =
+      req.headers.get("origin") ||
+      (req.headers.get("referer") ? new URL(req.headers.get("referer")!).origin : "") ||
+      "https://bigbang-business-suite.lovable.app";
+    const checkoutReturnUrl = `${origin}/pagar/${product.slug}`;
 
-    const { data: pending, error: pendErr } = await supabaseAdmin
-      .from("purchases")
-      .insert({
-        user_id: userId,
-        product_id: product.id,
-        amount: product.price ?? 0,
-        currency: product.currency ?? "EUR",
-        status: "pending",
-        provider: "paddle",
-      })
-      .select("id")
-      .single();
-    if (pendErr) console.error("[create-paddle-checkout] no se pudo registrar pending", pendErr);
-
-    // Crear transacción Paddle (sandbox por defecto)
+    console.log("creating paddle transaction");
     const txRes = await fetch(`${paddleBase}/transactions`, {
       method: "POST",
       headers: {
@@ -93,40 +105,50 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         items: [{ price_id: product.paddle_price_id, quantity: 1 }],
-        customer: buyerEmail ? { email: buyerEmail } : undefined,
-        checkout: { url: cancelUrl },
+        customer: { email },
+        checkout: { url: checkoutReturnUrl },
         custom_data: {
-          user_id: userId,
           product_id: product.id,
           product_slug: product.slug,
+          buyer_email: email,
+          user_id: userId,
           country: country ?? "",
-          purchase_id: pending?.id ?? "",
-          success_url: successUrl,
+          source: "public_pagar_checkout",
         },
       }),
     });
 
-    const txJson = await txRes.json();
+    const txJson = await txRes.json().catch(() => ({}));
     if (!txRes.ok) {
-      console.error("[create-paddle-checkout] paddle error", txJson);
+      const err = txJson?.error ?? {};
+      console.log("paddle error", { code: err?.code, detail: err?.detail });
       return json(
-        { error: txJson?.error?.detail || "Error creando transacción Paddle." },
-        txRes.status,
+        {
+          error: "paddle_error",
+          code: err?.code ?? `http_${txRes.status}`,
+          detail: err?.detail ?? "Paddle rechazó la transacción",
+          documentation_url: err?.documentation_url ?? null,
+          rawPaddleError: {
+            type: err?.type,
+            errors: err?.errors,
+          },
+        },
+        200, // 200 para que el frontend reciba el body legible en supabase.functions.invoke
       );
     }
 
-    const checkoutUrl: string | undefined = txJson?.data?.checkout?.url;
-    if (!checkoutUrl) {
-      return json({ error: "Paddle no devolvió URL de checkout." }, 500);
-    }
+    const transaction_id: string | undefined = txJson?.data?.id;
+    const checkout_url: string | undefined = txJson?.data?.checkout?.url;
+    console.log("paddle transaction created", { transaction_id });
 
     return json({
-      url: checkoutUrl,
-      transaction_id: txJson?.data?.id,
+      transaction_id,
+      checkout_url,
+      url: checkout_url, // compat
       mode: paddleEnv,
     });
   } catch (err: any) {
-    console.error("[create-paddle-checkout] error", err);
-    return json({ error: err?.message || "Error interno." }, 500);
+    console.error("create-paddle-checkout fatal", err);
+    return json({ error: "internal_error", detail: err?.message || "Error interno" }, 500);
   }
 });
