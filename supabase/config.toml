@@ -10,3 +10,7 @@ verify_jwt = false
 # Detección de país pública (sin auth).
 [functions.geo-detect]
 verify_jwt = false
+
+# Checkout público — no requiere login previo.
+[functions.create-paddle-checkout]
+verify_jwt = false

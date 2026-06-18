@@ -70,16 +70,30 @@ const PagarProducto = () => {
     setError(null);
     if (!dbProduct) return setError("Producto no disponible.");
     if (!hasPaddle) return setError("Este producto no tiene Paddle configurado.");
-    if (!user && !email) return setError("Introduce tu email para continuar.");
+
+    const buyerEmail = (user?.email || email || "").trim();
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!buyerEmail || !emailRe.test(buyerEmail)) {
+      return setError("Introduce un email válido para continuar.");
+    }
 
     setSubmitting(true);
     try {
       const { data, error: fnError } = await supabase.functions.invoke("create-paddle-checkout", {
-        body: { product_slug: dbProduct.slug, country, email: user?.email ?? email },
+        body: {
+          slug: dbProduct.slug,
+          email: buyerEmail,
+          country,
+        },
       });
       if (fnError) throw fnError;
 
-      const checkoutUrl: string | undefined = data?.url;
+      if (data?.error) {
+        const code = data.code ? ` [${data.code}]` : "";
+        throw new Error(`${data.detail || data.error}${code}`);
+      }
+
+      const checkoutUrl: string | undefined = data?.checkout_url || data?.url;
       const transactionId: string | undefined = data?.transaction_id;
       const paddleGlobal = (window as any).Paddle;
       if (transactionId && paddleGlobal?.Checkout?.open) {
@@ -91,12 +105,13 @@ const PagarProducto = () => {
         window.location.href = checkoutUrl;
         return;
       }
-      throw new Error(data?.error || "No se recibió checkout de Paddle.");
+      throw new Error("No se recibió checkout de Paddle.");
     } catch (e: any) {
       setError(e?.message || "Error iniciando el checkout.");
       setSubmitting(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-background">
