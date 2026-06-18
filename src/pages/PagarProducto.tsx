@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ShieldCheck, AlertTriangle, Loader2, CheckCircle2, XCircle } from "lucide-react";
@@ -20,6 +20,86 @@ interface DbProduct {
   paddle_price_id?: string | null;
 }
 
+const PADDLE_CLIENT_TOKEN =
+  (import.meta as any).env?.VITE_PADDLE_CLIENT_TOKEN ||
+  (import.meta as any).env?.VITE_PADDLE_SANDBOX_CLIENT_TOKEN ||
+  "";
+const PADDLE_ENVIRONMENT =
+  ((import.meta as any).env?.VITE_PADDLE_ENVIRONMENT as string) || "sandbox";
+const PADDLE_JS_SRC = "https://cdn.paddle.com/paddle/v2/paddle.js";
+
+function extractPtxnFromUrl(url: string | undefined | null): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url, window.location.origin);
+    return u.searchParams.get("_ptxn") || u.searchParams.get("ptxn");
+  } catch {
+    return null;
+  }
+}
+
+let paddleLoaderPromise: Promise<any> | null = null;
+function loadPaddle(): Promise<any> {
+  if (typeof window === "undefined") return Promise.reject(new Error("no window"));
+  const w = window as any;
+  if (w.Paddle) return Promise.resolve(w.Paddle);
+  if (paddleLoaderPromise) return paddleLoaderPromise;
+  console.log("[pagar] Paddle.js loading");
+  paddleLoaderPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${PADDLE_JS_SRC}"]`) as HTMLScriptElement | null;
+    const onReady = () => (w.Paddle ? resolve(w.Paddle) : reject(new Error("Paddle.js cargado pero objeto Paddle no disponible")));
+    if (existing) {
+      existing.addEventListener("load", onReady);
+      existing.addEventListener("error", () => reject(new Error("No se pudo cargar Paddle.js")));
+      if (w.Paddle) resolve(w.Paddle);
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = PADDLE_JS_SRC;
+    s.async = true;
+    s.onload = onReady;
+    s.onerror = () => reject(new Error("No se pudo cargar Paddle.js"));
+    document.head.appendChild(s);
+  });
+  return paddleLoaderPromise;
+}
+
+let paddleInitialized = false;
+async function initPaddle(): Promise<any> {
+  const Paddle = await loadPaddle();
+  if (paddleInitialized) return Paddle;
+  if (!PADDLE_CLIENT_TOKEN) {
+    throw new Error(
+      "Falta configurar PADDLE_CLIENT_TOKEN / Paddle client-side token para abrir Paddle.js"
+    );
+  }
+  try {
+    if (PADDLE_ENVIRONMENT === "sandbox" && typeof Paddle.Environment?.set === "function") {
+      Paddle.Environment.set("sandbox");
+    }
+    Paddle.Initialize({ token: PADDLE_CLIENT_TOKEN });
+    paddleInitialized = true;
+    console.log("[pagar] Paddle initialized", { env: PADDLE_ENVIRONMENT });
+    return Paddle;
+  } catch (e) {
+    paddleInitialized = false;
+    throw e;
+  }
+}
+
+async function openPaddleCheckout(transactionId: string) {
+  const Paddle = await initPaddle();
+  console.log("[pagar] opening Paddle checkout with transactionId", transactionId);
+  Paddle.Checkout.open({
+    transactionId,
+    settings: {
+      displayMode: "overlay",
+      theme: "dark",
+      locale: "es",
+    },
+  });
+}
+
 const PagarProducto = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -33,12 +113,18 @@ const PagarProducto = () => {
   const [email, setEmail] = useState<string>(user?.email ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const autoOpenedRef = useRef(false);
 
-  // Cancelled state derives EXCLUSIVELY from current URL — no storage, no purchases.
-  const cancelled = useMemo(() => {
-    if (typeof window === "undefined") return false;
-    const p = new URLSearchParams(window.location.search).get("payment");
-    return p === "cancelled" || p === "canceled";
+  // Cancelled / success derive EXCLUSIVELY from current URL
+  const { cancelled, success, urlPtxn } = useMemo(() => {
+    if (typeof window === "undefined") return { cancelled: false, success: false, urlPtxn: null as string | null };
+    const sp = new URLSearchParams(window.location.search);
+    const p = sp.get("payment");
+    return {
+      cancelled: p === "cancelled" || p === "canceled",
+      success: p === "success",
+      urlPtxn: sp.get("_ptxn") || sp.get("ptxn"),
+    };
   }, []);
 
   useEffect(() => {
@@ -60,6 +146,24 @@ const PagarProducto = () => {
       });
   }, [slug]);
 
+  // Auto-open Paddle if URL contains _ptxn and is not a cancelled/success return
+  useEffect(() => {
+    if (autoOpenedRef.current) return;
+    if (!urlPtxn) return;
+    if (cancelled || success) return;
+    autoOpenedRef.current = true;
+    console.log("[pagar] _ptxn detected in URL", urlPtxn);
+    (async () => {
+      try {
+        console.log("[pagar] opening Paddle checkout from _ptxn");
+        await openPaddleCheckout(urlPtxn);
+      } catch (e: any) {
+        console.error("[pagar] error opening from _ptxn", e);
+        setError(e?.message || "Error abriendo Paddle Checkout.");
+      }
+    })();
+  }, [urlPtxn, cancelled, success]);
+
   const displayName = dbProduct?.name ?? localProduct?.title ?? "Producto";
   const displayDescription = dbProduct?.description ?? localProduct?.description ?? "";
   const displayPrice = dbProduct?.price ?? localProduct?.price ?? null;
@@ -77,14 +181,19 @@ const PagarProducto = () => {
       return setError("Introduce un email válido para continuar.");
     }
 
+    if (!PADDLE_CLIENT_TOKEN) {
+      return setError(
+        "Falta configurar PADDLE_CLIENT_TOKEN / Paddle client-side token para abrir Paddle.js"
+      );
+    }
+
     setSubmitting(true);
     try {
+      // Pre-init Paddle.js in parallel so it's ready when transaction arrives
+      initPaddle().catch((e) => console.warn("[pagar] paddle preinit warn", e));
+
       const { data, error: fnError } = await supabase.functions.invoke("create-paddle-checkout", {
-        body: {
-          slug: dbProduct.slug,
-          email: buyerEmail,
-          country,
-        },
+        body: { slug: dbProduct.slug, email: buyerEmail, country },
       });
       if (fnError) throw fnError;
 
@@ -93,25 +202,44 @@ const PagarProducto = () => {
         throw new Error(`${data.detail || data.error}${code}`);
       }
 
+      let transactionId: string | undefined = data?.transaction_id;
       const checkoutUrl: string | undefined = data?.checkout_url || data?.url;
-      const transactionId: string | undefined = data?.transaction_id;
-      const paddleGlobal = (window as any).Paddle;
-      if (transactionId && paddleGlobal?.Checkout?.open) {
-        paddleGlobal.Checkout.open({ transactionId });
+
+      if (transactionId) {
+        console.log("[pagar] transaction_id received", transactionId);
+      } else if (checkoutUrl) {
+        console.log("[pagar] checkout_url received", checkoutUrl);
+        const fromUrl = extractPtxnFromUrl(checkoutUrl);
+        if (fromUrl) transactionId = fromUrl;
+      }
+
+      if (transactionId) {
+        await openPaddleCheckout(transactionId);
         setSubmitting(false);
         return;
       }
+
+      // Only redirect if checkout_url is an external Paddle URL (not our own domain)
       if (checkoutUrl) {
-        window.location.href = checkoutUrl;
-        return;
+        try {
+          const u = new URL(checkoutUrl);
+          const ownHost = window.location.hostname;
+          if (u.hostname !== ownHost && !u.hostname.endsWith("lovable.app")) {
+            window.location.href = checkoutUrl;
+            return;
+          }
+        } catch {
+          /* ignore */
+        }
       }
-      throw new Error("No se recibió checkout de Paddle.");
+
+      throw new Error("No se recibió transaction_id de Paddle.");
     } catch (e: any) {
+      console.error("[pagar] checkout error", e);
       setError(e?.message || "Error iniciando el checkout.");
       setSubmitting(false);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-background">
@@ -222,7 +350,7 @@ const PagarProducto = () => {
                 {submitting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Redirigiendo…
+                    Abriendo Paddle…
                   </>
                 ) : (
                   "Continuar al pago con paddle"
