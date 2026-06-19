@@ -14,3 +14,6 @@ verify_jwt = false
 # Checkout público — no requiere login previo.
 [functions.create-paddle-checkout]
 verify_jwt = false
+
+[functions.get-paddle-client-token]
+verify_jwt = false

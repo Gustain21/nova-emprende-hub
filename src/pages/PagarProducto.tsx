@@ -20,13 +20,22 @@ interface DbProduct {
   paddle_price_id?: string | null;
 }
 
-const PADDLE_CLIENT_TOKEN =
-  (import.meta as any).env?.VITE_PADDLE_CLIENT_TOKEN ||
-  (import.meta as any).env?.VITE_PADDLE_SANDBOX_CLIENT_TOKEN ||
-  "";
-const PADDLE_ENVIRONMENT =
-  ((import.meta as any).env?.VITE_PADDLE_ENVIRONMENT as string) || "sandbox";
 const PADDLE_JS_SRC = "https://cdn.paddle.com/paddle/v2/paddle.js";
+
+let paddleClientConfig: { token: string; environment: string } | null = null;
+let paddleClientConfigPromise: Promise<{ token: string; environment: string }> | null = null;
+async function fetchPaddleClientConfig() {
+  if (paddleClientConfig) return paddleClientConfig;
+  if (paddleClientConfigPromise) return paddleClientConfigPromise;
+  paddleClientConfigPromise = (async () => {
+    const { data, error } = await supabase.functions.invoke("get-paddle-client-token", { body: {} });
+    if (error) throw error;
+    if (!data?.token) throw new Error(data?.detail || "No se pudo obtener el token de Paddle.");
+    paddleClientConfig = { token: data.token, environment: data.environment || "sandbox" };
+    return paddleClientConfig;
+  })();
+  return paddleClientConfigPromise;
+}
 
 function extractPtxnFromUrl(url: string | undefined | null): string | null {
   if (!url) return null;
@@ -68,18 +77,17 @@ let paddleInitialized = false;
 async function initPaddle(): Promise<any> {
   const Paddle = await loadPaddle();
   if (paddleInitialized) return Paddle;
-  if (!PADDLE_CLIENT_TOKEN) {
-    throw new Error(
-      "Falta configurar PADDLE_CLIENT_TOKEN / Paddle client-side token para abrir Paddle.js"
-    );
+  const { token, environment } = await fetchPaddleClientConfig();
+  if (!token) {
+    throw new Error("Falta el client-side token de Paddle (PADDLE_CLIENT_TOKEN).");
   }
   try {
-    if (PADDLE_ENVIRONMENT === "sandbox" && typeof Paddle.Environment?.set === "function") {
+    if (environment === "sandbox" && typeof Paddle.Environment?.set === "function") {
       Paddle.Environment.set("sandbox");
     }
-    Paddle.Initialize({ token: PADDLE_CLIENT_TOKEN });
+    Paddle.Initialize({ token });
     paddleInitialized = true;
-    console.log("[pagar] Paddle initialized", { env: PADDLE_ENVIRONMENT });
+    console.log("[pagar] Paddle initialized", { env: environment });
     return Paddle;
   } catch (e) {
     paddleInitialized = false;
@@ -181,11 +189,6 @@ const PagarProducto = () => {
       return setError("Introduce un email válido para continuar.");
     }
 
-    if (!PADDLE_CLIENT_TOKEN) {
-      return setError(
-        "Falta configurar PADDLE_CLIENT_TOKEN / Paddle client-side token para abrir Paddle.js"
-      );
-    }
 
     setSubmitting(true);
     try {
