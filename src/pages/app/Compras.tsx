@@ -61,7 +61,7 @@ const Compras = () => {
                   </td>
                   <td className="px-4 py-3 text-foreground">{p.productTitle}</td>
                   <td className="px-4 py-3 text-foreground">
-                    {p.amount.toFixed(2)} {p.currency}
+                    {formatPrice(p.amount, p.currency)}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground capitalize">{p.provider ?? "—"}</td>
                   <td className="px-4 py-3">
