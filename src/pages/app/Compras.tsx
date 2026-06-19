@@ -1,6 +1,7 @@
 import { useSearchParams } from "react-router-dom";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { usePurchases } from "@/hooks/usePurchases";
+import { formatPrice } from "@/lib/region/RegionContext";
 
 const Compras = () => {
   const { purchases, loading } = usePurchases();
@@ -60,7 +61,7 @@ const Compras = () => {
                   </td>
                   <td className="px-4 py-3 text-foreground">{p.productTitle}</td>
                   <td className="px-4 py-3 text-foreground">
-                    {p.amount.toFixed(2)} {p.currency}
+                    {formatPrice(p.amount, p.currency)}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground capitalize">{p.provider ?? "—"}</td>
                   <td className="px-4 py-3">

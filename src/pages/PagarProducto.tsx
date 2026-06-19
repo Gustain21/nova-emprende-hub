@@ -8,7 +8,7 @@ import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useRegion } from "@/lib/region/RegionContext";
+import { useRegion, formatPrice } from "@/lib/region/RegionContext";
 
 interface DbProduct {
   id: string;
@@ -282,7 +282,7 @@ const PagarProducto = () => {
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
                 <div className="text-xs text-muted-foreground">Precio</div>
                 <div className="text-2xl font-bold text-brand-orange">
-                  {displayPrice != null ? `${Number(displayPrice).toFixed(2)} ${displayCurrency}` : "—"}
+                  {displayPrice != null ? formatPrice(Number(displayPrice), displayCurrency) : "—"}
                 </div>
               </div>
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
