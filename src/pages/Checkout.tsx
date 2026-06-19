@@ -228,7 +228,7 @@ const Checkout = () => {
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
                 <div className="text-xs text-muted-foreground">Precio</div>
                 <div className="text-2xl font-bold text-brand-orange">
-                  {displayPrice != null ? `${Number(displayPrice).toFixed(2)} ${displayCurrency}` : "—"}
+                  {displayPrice != null ? formatPrice(Number(displayPrice), displayCurrency) : "—"}
                 </div>
               </div>
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
