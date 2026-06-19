@@ -20,13 +20,22 @@ interface DbProduct {
   paddle_price_id?: string | null;
 }
 
-const PADDLE_CLIENT_TOKEN =
-  (import.meta as any).env?.VITE_PADDLE_CLIENT_TOKEN ||
-  (import.meta as any).env?.VITE_PADDLE_SANDBOX_CLIENT_TOKEN ||
-  "";
-const PADDLE_ENVIRONMENT =
-  ((import.meta as any).env?.VITE_PADDLE_ENVIRONMENT as string) || "sandbox";
 const PADDLE_JS_SRC = "https://cdn.paddle.com/paddle/v2/paddle.js";
+
+let paddleClientConfig: { token: string; environment: string } | null = null;
+let paddleClientConfigPromise: Promise<{ token: string; environment: string }> | null = null;
+async function fetchPaddleClientConfig() {
+  if (paddleClientConfig) return paddleClientConfig;
+  if (paddleClientConfigPromise) return paddleClientConfigPromise;
+  paddleClientConfigPromise = (async () => {
+    const { data, error } = await supabase.functions.invoke("get-paddle-client-token", { body: {} });
+    if (error) throw error;
+    if (!data?.token) throw new Error(data?.detail || "No se pudo obtener el token de Paddle.");
+    paddleClientConfig = { token: data.token, environment: data.environment || "sandbox" };
+    return paddleClientConfig;
+  })();
+  return paddleClientConfigPromise;
+}
 
 function extractPtxnFromUrl(url: string | undefined | null): string | null {
   if (!url) return null;
