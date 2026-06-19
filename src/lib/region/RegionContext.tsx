@@ -121,12 +121,21 @@ export const REGION_LABEL: Record<Region, string> = {
   INTL: "Internacional · USD",
 };
 
-export const formatPrice = (amount: number, currency: Currency) => {
-  if (currency === "EUR") {
-    // 19,99 €
-    return `${amount.toFixed(2).replace(".", ",")} €`;
+export const formatPrice = (
+  amount: number,
+  currency: Currency | string = "EUR",
+  locale?: string,
+) => {
+  const cur = (currency || "EUR").toUpperCase();
+  const loc = locale ?? (cur === "EUR" ? "es-ES" : "en-US");
+  try {
+    return new Intl.NumberFormat(loc, {
+      style: "currency",
+      currency: cur,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${amount.toFixed(2)} ${cur}`;
   }
-  // USD 19
-  const isInt = Math.abs(amount - Math.round(amount)) < 0.005;
-  return `USD ${isInt ? Math.round(amount) : amount.toFixed(2)}`;
 };
