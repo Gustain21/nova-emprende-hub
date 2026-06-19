@@ -1,6 +1,7 @@
 import { useSearchParams } from "react-router-dom";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { usePurchases } from "@/hooks/usePurchases";
+import { formatPrice } from "@/lib/region/RegionContext";
 
 const Compras = () => {
   const { purchases, loading } = usePurchases();
