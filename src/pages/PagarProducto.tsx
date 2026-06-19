@@ -77,18 +77,17 @@ let paddleInitialized = false;
 async function initPaddle(): Promise<any> {
   const Paddle = await loadPaddle();
   if (paddleInitialized) return Paddle;
-  if (!PADDLE_CLIENT_TOKEN) {
-    throw new Error(
-      "Falta configurar PADDLE_CLIENT_TOKEN / Paddle client-side token para abrir Paddle.js"
-    );
+  const { token, environment } = await fetchPaddleClientConfig();
+  if (!token) {
+    throw new Error("Falta el client-side token de Paddle (PADDLE_CLIENT_TOKEN).");
   }
   try {
-    if (PADDLE_ENVIRONMENT === "sandbox" && typeof Paddle.Environment?.set === "function") {
+    if (environment === "sandbox" && typeof Paddle.Environment?.set === "function") {
       Paddle.Environment.set("sandbox");
     }
-    Paddle.Initialize({ token: PADDLE_CLIENT_TOKEN });
+    Paddle.Initialize({ token });
     paddleInitialized = true;
-    console.log("[pagar] Paddle initialized", { env: PADDLE_ENVIRONMENT });
+    console.log("[pagar] Paddle initialized", { env: environment });
     return Paddle;
   } catch (e) {
     paddleInitialized = false;
