@@ -189,11 +189,6 @@ const PagarProducto = () => {
       return setError("Introduce un email válido para continuar.");
     }
 
-    if (!PADDLE_CLIENT_TOKEN) {
-      return setError(
-        "Falta configurar PADDLE_CLIENT_TOKEN / Paddle client-side token para abrir Paddle.js"
-      );
-    }
 
     setSubmitting(true);
     try {
