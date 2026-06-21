@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.get-paddle-client-token]
 verify_jwt = false
+
+[functions.verify-paddle-prices]
+verify_jwt = false
