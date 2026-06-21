@@ -75,9 +75,9 @@ Deno.serve(async (req) => {
         } else {
           const data = body?.data ?? {};
           const item = (data?.details?.line_items ?? [])[0] ?? {};
-          const subtotalCents = Number(item?.totals?.subtotal ?? NaN);
+          const totalCents = Number(item?.totals?.total ?? data?.details?.totals?.total ?? NaN);
           const currency = data?.currency_code ?? null;
-          const amountEur = Number.isFinite(subtotalCents) ? subtotalCents / 100 : null;
+          const amountEur = Number.isFinite(totalCents) ? totalCents / 100 : null;
           row.paddle_amount_eur = amountEur;
           row.paddle_currency = currency;
           row.paddle_status = "preview";
