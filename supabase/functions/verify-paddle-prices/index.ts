@@ -57,25 +57,33 @@ Deno.serve(async (req) => {
         error: null,
       };
       try {
-        const r = await fetch(`${paddleBase}/prices/${p.paddle_price_id}`, {
-          headers: { Authorization: `Bearer ${paddleKey}` },
+        const r = await fetch(`${paddleBase}/transactions/preview`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${paddleKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            items: [{ price_id: p.paddle_price_id, quantity: 1 }],
+            currency_code: "EUR",
+            address: { country_code: "ES" },
+          }),
         });
         const body = await r.json();
         if (!r.ok) {
           row.error = body?.error?.detail || body?.error?.code || `HTTP ${r.status}`;
         } else {
-          const price = body?.data ?? {};
-          const cents = Number(price?.unit_price?.amount ?? NaN);
-          const currency = price?.unit_price?.currency_code ?? null;
-          const status = price?.status ?? null;
-          const amountEur = Number.isFinite(cents) ? cents / 100 : null;
+          const data = body?.data ?? {};
+          const item = (data?.details?.line_items ?? [])[0] ?? {};
+          const subtotalCents = Number(item?.totals?.subtotal ?? NaN);
+          const currency = data?.currency_code ?? null;
+          const amountEur = Number.isFinite(subtotalCents) ? subtotalCents / 100 : null;
           row.paddle_amount_eur = amountEur;
           row.paddle_currency = currency;
-          row.paddle_status = status;
+          row.paddle_status = "preview";
           row.match =
             currency === "EUR" &&
             amountEur !== null &&
-            Number(p.price_eur) !== null &&
             Math.abs(amountEur - Number(p.price_eur)) < 0.005;
         }
       } catch (e) {
