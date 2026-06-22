@@ -121,21 +121,23 @@ export const REGION_LABEL: Record<Region, string> = {
   INTL: "Internacional · USD",
 };
 
+// Formato único de precios para toda la web: es-ES + EUR → "19,99 €".
+const eurFormatter = new Intl.NumberFormat("es-ES", {
+  style: "currency",
+  currency: "EUR",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 export const formatPrice = (
   amount: number,
-  currency: Currency | string = "EUR",
-  locale?: string,
+  _currency: Currency | string = "EUR",
+  _locale?: string,
 ) => {
-  const cur = (currency || "EUR").toUpperCase();
-  const loc = locale ?? (cur === "EUR" ? "es-ES" : "en-US");
+  const value = Number.isFinite(amount) ? amount : 0;
   try {
-    return new Intl.NumberFormat(loc, {
-      style: "currency",
-      currency: cur,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
+    return eurFormatter.format(value);
   } catch {
-    return `${amount.toFixed(2)} ${cur}`;
+    return `${value.toFixed(2).replace(".", ",")} €`;
   }
 };
