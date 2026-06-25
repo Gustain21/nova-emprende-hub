@@ -282,12 +282,7 @@ const PagarProducto = () => {
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
                 <div className="text-xs text-muted-foreground">Precio</div>
                 <div className="text-2xl font-bold text-brand-orange">
-                  {displayPrice != null
-                    ? new Intl.NumberFormat("es-ES", {
-                        style: "currency",
-                        currency: "EUR",
-                      }).format(Number(displayPrice))
-                    : "—"}
+                  {displayPrice != null ? formatPriceEUR(Number(displayPrice)) : "—"}
                 </div>
               </div>
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
