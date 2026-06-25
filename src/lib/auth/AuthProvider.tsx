@@ -29,6 +29,44 @@ const toProfile = (u: User | null | undefined): Profile | null => {
   };
 };
 
+const AUTH_ERROR_KEYS = ["error", "error_code", "error_description", "access_denied", "otp_expired"];
+
+const cleanAuthErrorParams = () => {
+  if (typeof window === "undefined") return;
+  try {
+    const url = new URL(window.location.href);
+    let changed = false;
+    AUTH_ERROR_KEYS.forEach((k) => {
+      if (url.searchParams.has(k)) {
+        url.searchParams.delete(k);
+        changed = true;
+      }
+    });
+    const hash = url.hash.startsWith("#") ? url.hash.slice(1) : url.hash;
+    if (hash) {
+      const hp = new URLSearchParams(hash);
+      let hashChanged = false;
+      AUTH_ERROR_KEYS.forEach((k) => {
+        if (hp.has(k)) {
+          hp.delete(k);
+          hashChanged = true;
+        }
+      });
+      if (hashChanged) {
+        const rest = hp.toString();
+        url.hash = rest ? `#${rest}` : "";
+        changed = true;
+      }
+    }
+    if (changed) {
+      window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+    }
+  } catch {
+    /* noop */
+  }
+};
+
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<Profile | null>(null);
@@ -39,6 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       setUser(toProfile(newSession?.user));
+      if (newSession) cleanAuthErrorParams();
     });
 
     // 2) Luego hidratación inicial
@@ -46,10 +85,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(data.session);
       setUser(toProfile(data.session?.user));
       setLoading(false);
+      if (data.session) cleanAuthErrorParams();
     });
 
     return () => sub.subscription.unsubscribe();
   }, []);
+
 
   const signIn: AuthContextValue["signIn"] = async (email, password) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
