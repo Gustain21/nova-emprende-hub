@@ -22,6 +22,10 @@ const Registro = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordValid(formData.password)) {
+      toast.error("Tu contraseña todavía no cumple los requisitos mínimos de seguridad.");
+      return;
+    }
     setSubmitting(true);
     const { error, needsConfirmation } = await signUp(formData.email, formData.password, formData.fullName);
     setSubmitting(false);
