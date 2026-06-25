@@ -78,7 +78,7 @@ const PlanFinanciero = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Beneficio anual estimado</p>
-                <p className="text-xl font-bold text-foreground">{(beneficio * 12).toFixed(2)} €</p>
+                <p className="text-xl font-bold text-foreground">{formatPriceEUR(beneficio * 12)}</p>
               </div>
             </div>
           </div>
