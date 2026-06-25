@@ -94,19 +94,14 @@ const ResetPassword = () => {
                     <label htmlFor="newPassword" className="text-sm font-bold text-foreground">
                       Nueva contraseña
                     </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <Input
-                        id="newPassword"
-                        type="password"
-                        required
-                        minLength={6}
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Mínimo 6 caracteres"
-                        className="bg-muted border-border pl-11 h-12"
-                      />
-                    </div>
+                    <PasswordField
+                      id="newPassword"
+                      required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Crea una contraseña segura"
+                      showRequirements
+                    />
                   </div>
                   <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
                     {submitting ? "Actualizando..." : "Guardar nueva contraseña"}
