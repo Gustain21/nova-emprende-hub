@@ -90,8 +90,8 @@ const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
         <p className="text-xs text-muted-foreground mb-4">
           Acceso inmediato. Impuestos y moneda final se ajustan en el checkout según tu país.
         </p>
-        <Button variant={pack.featured ? "hero" : "cta"} size="lg" className="w-full">
-          Elegir {pack.name}
+        <Button variant={pack.featured ? "hero" : "cta"} size="lg" className="w-full" asChild>
+          <Link to={`/pagar/${pack.slug}`}>Elegir {pack.name}</Link>
         </Button>
       </div>
     </motion.div>
