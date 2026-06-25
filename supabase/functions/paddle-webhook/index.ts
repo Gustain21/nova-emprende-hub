@@ -111,11 +111,11 @@ Deno.serve(async (req) => {
         await supabase.from("purchases").update({ status: "refunded" }).eq("id", purchaseId);
       }
       if (userId && productId) {
-        await supabase
-          .from("entitlements")
-          .update({ active: false })
-          .eq("user_id", userId)
-          .eq("product_id", productId);
+        const { error: revErr } = await supabase.rpc("revoke_purchase_entitlements", {
+          p_user_id: userId,
+          p_product_id: productId,
+        });
+        if (revErr) console.error("[paddle-webhook] revoke rpc error", revErr);
       }
     }
 
