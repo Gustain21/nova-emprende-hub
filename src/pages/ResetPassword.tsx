@@ -3,12 +3,13 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Lock, KeyRound, ArrowRight } from "lucide-react";
+import { Mail, KeyRound, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { PasswordField, isPasswordValid } from "@/components/auth/PasswordField";
 
 const ResetPassword = () => {
   const { resetPassword } = useAuth();
@@ -47,6 +48,10 @@ const ResetPassword = () => {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordValid(newPassword)) {
+      toast.error("Tu contraseña todavía no cumple los requisitos mínimos de seguridad.");
+      return;
+    }
     setSubmitting(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setSubmitting(false);
@@ -89,19 +94,14 @@ const ResetPassword = () => {
                     <label htmlFor="newPassword" className="text-sm font-bold text-foreground">
                       Nueva contraseña
                     </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <Input
-                        id="newPassword"
-                        type="password"
-                        required
-                        minLength={6}
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Mínimo 6 caracteres"
-                        className="bg-muted border-border pl-11 h-12"
-                      />
-                    </div>
+                    <PasswordField
+                      id="newPassword"
+                      required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Crea una contraseña segura"
+                      showRequirements
+                    />
                   </div>
                   <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
                     {submitting ? "Actualizando..." : "Guardar nueva contraseña"}

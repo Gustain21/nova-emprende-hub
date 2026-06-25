@@ -3,11 +3,12 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Lock, Rocket, ArrowRight, LayoutGrid, FileText, KeyRound } from "lucide-react";
+import { Mail, Rocket, ArrowRight, LayoutGrid, FileText, KeyRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { PasswordField } from "@/components/auth/PasswordField";
 
 const features = [
   {
@@ -138,18 +139,13 @@ const Login = () => {
                   <label htmlFor="password" className="text-sm font-bold text-foreground">
                     Contraseña
                   </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      className="bg-muted border-border pl-11 h-12"
-                    />
-                  </div>
+                  <PasswordField
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                  />
                 </div>
 
                 <div className="text-right">

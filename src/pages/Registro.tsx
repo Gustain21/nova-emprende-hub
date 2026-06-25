@@ -3,11 +3,12 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Lock, User, Rocket, ArrowRight } from "lucide-react";
+import { Mail, User, Rocket, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { PasswordField, isPasswordValid } from "@/components/auth/PasswordField";
 
 const Registro = () => {
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" });
@@ -21,6 +22,10 @@ const Registro = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordValid(formData.password)) {
+      toast.error("Tu contraseña todavía no cumple los requisitos mínimos de seguridad.");
+      return;
+    }
     setSubmitting(true);
     const { error, needsConfirmation } = await signUp(formData.email, formData.password, formData.fullName);
     setSubmitting(false);
@@ -109,20 +114,15 @@ const Registro = () => {
                   <label htmlFor="password" className="text-sm font-bold text-foreground">
                     Contraseña
                   </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      required
-                      minLength={6}
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="Mínimo 6 caracteres"
-                      className="bg-muted border-border pl-11 h-12"
-                    />
-                  </div>
+                  <PasswordField
+                    id="password"
+                    name="password"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Crea una contraseña segura"
+                    showRequirements
+                  />
                 </div>
 
                 <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
