@@ -48,6 +48,10 @@ const ResetPassword = () => {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordValid(newPassword)) {
+      toast.error("Tu contraseña todavía no cumple los requisitos mínimos de seguridad.");
+      return;
+    }
     setSubmitting(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setSubmitting(false);
