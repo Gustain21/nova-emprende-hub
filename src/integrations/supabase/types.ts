@@ -385,9 +385,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      grant_purchase_entitlements: {
+        Args: {
+          p_product_id: string
+          p_purchase_id?: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       has_active_entitlement: {
         Args: { _product_id: string; _user_id: string }
         Returns: boolean
+      }
+      revoke_purchase_entitlements: {
+        Args: { p_product_id: string; p_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
