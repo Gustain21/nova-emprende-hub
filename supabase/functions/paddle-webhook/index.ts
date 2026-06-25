@@ -91,22 +91,13 @@ Deno.serve(async (req) => {
           });
         }
 
-        const { data: existing } = await supabase
-          .from("entitlements")
-          .select("id")
-          .eq("user_id", userId)
-          .eq("product_id", productId)
-          .eq("active", true)
-          .maybeSingle();
-        if (!existing) {
-          await supabase.from("entitlements").insert({
-            user_id: userId,
-            product_id: productId,
-            active: true,
-            access_type: "lifetime",
-            source_purchase_id: purchaseId ?? null,
-          });
-        }
+        // Concede entitlements expandiendo bundles si corresponde.
+        const { error: grantErr } = await supabase.rpc("grant_purchase_entitlements", {
+          p_user_id: userId,
+          p_product_id: productId,
+          p_purchase_id: purchaseId ?? null,
+        });
+        if (grantErr) console.error("[paddle-webhook] grant rpc error", grantErr);
       }
     } else if (
       eventType === "transaction.canceled" ||
@@ -120,11 +111,11 @@ Deno.serve(async (req) => {
         await supabase.from("purchases").update({ status: "refunded" }).eq("id", purchaseId);
       }
       if (userId && productId) {
-        await supabase
-          .from("entitlements")
-          .update({ active: false })
-          .eq("user_id", userId)
-          .eq("product_id", productId);
+        const { error: revErr } = await supabase.rpc("revoke_purchase_entitlements", {
+          p_user_id: userId,
+          p_product_id: productId,
+        });
+        if (revErr) console.error("[paddle-webhook] revoke rpc error", revErr);
       }
     }
 
