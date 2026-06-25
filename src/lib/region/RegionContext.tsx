@@ -129,15 +129,18 @@ const eurFormatter = new Intl.NumberFormat("es-ES", {
   maximumFractionDigits: 2,
 });
 
-export const formatPrice = (
-  amount: number,
-  _currency: Currency | string = "EUR",
-  _locale?: string,
-) => {
-  const value = Number.isFinite(amount) ? amount : 0;
+export const formatPriceEUR = (amount: number | string | null | undefined) => {
+  const num = typeof amount === "number" ? amount : Number(amount);
+  const value = Number.isFinite(num) ? num : 0;
   try {
     return eurFormatter.format(value);
   } catch {
     return `${value.toFixed(2).replace(".", ",")} €`;
   }
 };
+
+export const formatPrice = (
+  amount: number,
+  _currency: Currency | string = "EUR",
+  _locale?: string,
+) => formatPriceEUR(amount);
