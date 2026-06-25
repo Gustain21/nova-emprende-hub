@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       setUser(toProfile(newSession?.user));
+      if (newSession) cleanAuthErrorParams();
     });
 
     // 2) Luego hidratación inicial
@@ -46,10 +47,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(data.session);
       setUser(toProfile(data.session?.user));
       setLoading(false);
+      if (data.session) cleanAuthErrorParams();
     });
 
     return () => sub.subscription.unsubscribe();
   }, []);
+
 
   const signIn: AuthContextValue["signIn"] = async (email, password) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
