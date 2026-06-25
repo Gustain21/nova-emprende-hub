@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check, Star, Rocket, Zap, Crown, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
 import { packs, type Pack, EBOOK_OFFER_END } from "@/data/products";
 import { useRegion, formatPrice } from "@/lib/region/RegionContext";
 import { isOfferActive, formatOfferDate } from "@/lib/offer";
