@@ -3,12 +3,13 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Lock, KeyRound, ArrowRight } from "lucide-react";
+import { Mail, KeyRound, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { PasswordField, isPasswordValid } from "@/components/auth/PasswordField";
 
 const ResetPassword = () => {
   const { resetPassword } = useAuth();
