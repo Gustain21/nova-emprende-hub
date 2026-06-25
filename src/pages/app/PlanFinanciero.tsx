@@ -3,6 +3,7 @@ import { ArrowLeft, Calculator } from "lucide-react";
 import { useState } from "react";
 import PurchaseGate from "@/components/app/PurchaseGate";
 import { Input } from "@/components/ui/input";
+import { formatPriceEUR } from "@/lib/region/RegionContext";
 
 // App privada de ejemplo asociada al producto "dashboard".
 const PlanFinanciero = () => {
