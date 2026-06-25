@@ -3,6 +3,7 @@ import { ArrowLeft, Calculator } from "lucide-react";
 import { useState } from "react";
 import PurchaseGate from "@/components/app/PurchaseGate";
 import { Input } from "@/components/ui/input";
+import { formatPriceEUR } from "@/lib/region/RegionContext";
 
 // App privada de ejemplo asociada al producto "dashboard".
 const PlanFinanciero = () => {
@@ -69,7 +70,7 @@ const PlanFinanciero = () => {
               <h2 className="font-bold text-foreground">Resultados</h2>
               <div>
                 <p className="text-sm text-muted-foreground">Beneficio mensual</p>
-                <p className="text-3xl font-bold text-foreground">{beneficio.toFixed(2)} €</p>
+                <p className="text-3xl font-bold text-foreground">{formatPriceEUR(beneficio)}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Margen neto</p>
@@ -77,7 +78,7 @@ const PlanFinanciero = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Beneficio anual estimado</p>
-                <p className="text-xl font-bold text-foreground">{(beneficio * 12).toFixed(2)} €</p>
+                <p className="text-xl font-bold text-foreground">{formatPriceEUR(beneficio * 12)}</p>
               </div>
             </div>
           </div>
