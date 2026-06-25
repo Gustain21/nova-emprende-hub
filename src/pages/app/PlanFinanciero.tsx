@@ -70,7 +70,7 @@ const PlanFinanciero = () => {
               <h2 className="font-bold text-foreground">Resultados</h2>
               <div>
                 <p className="text-sm text-muted-foreground">Beneficio mensual</p>
-                <p className="text-3xl font-bold text-foreground">{beneficio.toFixed(2)} €</p>
+                <p className="text-3xl font-bold text-foreground">{formatPriceEUR(beneficio)}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Margen neto</p>
