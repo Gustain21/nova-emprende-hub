@@ -210,8 +210,14 @@ const PagarProducto = () => {
         throw new Error(`${data.detail || data.error}${code}`);
       }
 
+      if (data?.debug_buyer_email) {
+        setDebugBuyerEmail(data.debug_buyer_email);
+        console.log("[pagar] debug_buyer_email returned by edge fn:", data.debug_buyer_email);
+      }
+
       let transactionId: string | undefined = data?.transaction_id;
       const checkoutUrl: string | undefined = data?.checkout_url || data?.url;
+
 
       if (transactionId) {
         console.log("[pagar] transaction_id received", transactionId);
