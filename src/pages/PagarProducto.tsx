@@ -118,9 +118,12 @@ const PagarProducto = () => {
   const localProduct = slug ? getProductById(slug) : undefined;
   const [dbProduct, setDbProduct] = useState<DbProduct | null>(null);
   const [loadingProduct, setLoadingProduct] = useState(true);
-  const [email, setEmail] = useState<string>(user?.email ?? "");
+  // IMPORTANT: never prefill from user/session/localStorage. The buyer email
+  // must be exactly what is typed in the form for this transaction.
+  const [buyerEmail, setBuyerEmail] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [debugBuyerEmail, setDebugBuyerEmail] = useState<string | null>(null);
   const autoOpenedRef = useRef(false);
 
   // Cancelled / success derive EXCLUSIVELY from current URL
