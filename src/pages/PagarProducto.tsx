@@ -118,9 +118,12 @@ const PagarProducto = () => {
   const localProduct = slug ? getProductById(slug) : undefined;
   const [dbProduct, setDbProduct] = useState<DbProduct | null>(null);
   const [loadingProduct, setLoadingProduct] = useState(true);
-  const [email, setEmail] = useState<string>(user?.email ?? "");
+  // IMPORTANT: never prefill from user/session/localStorage. The buyer email
+  // must be exactly what is typed in the form for this transaction.
+  const [buyerEmail, setBuyerEmail] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [debugBuyerEmail, setDebugBuyerEmail] = useState<string | null>(null);
   const autoOpenedRef = useRef(false);
 
   // Cancelled / success derive EXCLUSIVELY from current URL
@@ -135,9 +138,8 @@ const PagarProducto = () => {
     };
   }, []);
 
-  useEffect(() => {
-    setEmail((e) => e || user?.email || "");
-  }, [user]);
+  // No prefill: buyerEmail must come exclusively from manual input.
+
 
   useEffect(() => {
     if (!slug) return;
@@ -180,15 +182,17 @@ const PagarProducto = () => {
 
   const handleContinue = async () => {
     setError(null);
+    setDebugBuyerEmail(null);
     if (!dbProduct) return setError("Producto no disponible.");
     if (!hasPaddle) return setError("Este producto no tiene Paddle configurado.");
 
-    const buyerEmail = (user?.email || email || "").trim();
+    // SOURCE OF TRUTH: only the manually-typed input. No session/localStorage fallback.
+    const emailToSend = buyerEmail.trim().toLowerCase();
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!buyerEmail || !emailRe.test(buyerEmail)) {
+    if (!emailToSend || !emailRe.test(emailToSend)) {
       return setError("Introduce un email válido para continuar.");
     }
-
+    console.log("[pagar] buyer email to send to Paddle:", emailToSend);
 
     setSubmitting(true);
     try {
@@ -196,17 +200,24 @@ const PagarProducto = () => {
       initPaddle().catch((e) => console.warn("[pagar] paddle preinit warn", e));
 
       const { data, error: fnError } = await supabase.functions.invoke("create-paddle-checkout", {
-        body: { slug: dbProduct.slug, email: buyerEmail, country },
+        body: { slug: dbProduct.slug, email: emailToSend, country },
       });
       if (fnError) throw fnError;
+
 
       if (data?.error) {
         const code = data.code ? ` [${data.code}]` : "";
         throw new Error(`${data.detail || data.error}${code}`);
       }
 
+      if (data?.debug_buyer_email) {
+        setDebugBuyerEmail(data.debug_buyer_email);
+        console.log("[pagar] debug_buyer_email returned by edge fn:", data.debug_buyer_email);
+      }
+
       let transactionId: string | undefined = data?.transaction_id;
       const checkoutUrl: string | undefined = data?.checkout_url || data?.url;
+
 
       if (transactionId) {
         console.log("[pagar] transaction_id received", transactionId);
@@ -286,32 +297,37 @@ const PagarProducto = () => {
                 </div>
               </div>
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
-                <div className="text-xs text-muted-foreground">Email</div>
+                <div className="text-xs text-muted-foreground">Email comprador</div>
                 <div className="text-sm text-foreground truncate">
-                  {user?.email || email || "Introduce tu email"}
+                  {buyerEmail || "Introduce tu email"}
                 </div>
               </div>
             </div>
 
-            {!user && (
-              <div className="mb-4">
-                <label className="block text-sm text-muted-foreground mb-1">Email del comprador</label>
-                <input
-                  type="email"
-                  required
-                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="tu@email.com"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  ¿Ya tienes cuenta?{" "}
-                  <Link to={`/login?next=/pagar/${slug}`} className="text-brand-orange hover:underline">
-                    Inicia sesión
-                  </Link>
-                </p>
-              </div>
-            )}
+            <div className="mb-4">
+              <label className="block text-sm text-muted-foreground mb-1">Email del comprador</label>
+              <input
+                type="email"
+                required
+                autoComplete="off"
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground"
+                value={buyerEmail}
+                onChange={(e) => setBuyerEmail(e.target.value)}
+                placeholder="tu@email.com"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                El recibo y el acceso se enviarán exactamente a este email.
+                {!user && (
+                  <>
+                    {" "}¿Ya tienes cuenta?{" "}
+                    <Link to={`/login?next=/pagar/${slug}`} className="text-brand-orange hover:underline">
+                      Inicia sesión
+                    </Link>
+                  </>
+                )}
+              </p>
+            </div>
+
 
             <div className="p-3 rounded-lg border border-border bg-muted/20 text-sm mb-6">
               <div className="text-muted-foreground">Proveedor de pago</div>
@@ -360,6 +376,13 @@ const PagarProducto = () => {
                 )}
               </Button>
             )}
+
+            {debugBuyerEmail && (
+              <div className="mt-3 text-xs text-muted-foreground">
+                Email enviado a Paddle: <span className="text-brand-orange font-mono">{debugBuyerEmail}</span>
+              </div>
+            )}
+
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
               <ShieldCheck className="w-4 h-4 text-brand-orange" />
