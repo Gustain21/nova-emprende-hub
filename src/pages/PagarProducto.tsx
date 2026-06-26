@@ -182,15 +182,17 @@ const PagarProducto = () => {
 
   const handleContinue = async () => {
     setError(null);
+    setDebugBuyerEmail(null);
     if (!dbProduct) return setError("Producto no disponible.");
     if (!hasPaddle) return setError("Este producto no tiene Paddle configurado.");
 
-    const buyerEmail = (user?.email || email || "").trim();
+    // SOURCE OF TRUTH: only the manually-typed input. No session/localStorage fallback.
+    const emailToSend = buyerEmail.trim().toLowerCase();
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!buyerEmail || !emailRe.test(buyerEmail)) {
+    if (!emailToSend || !emailRe.test(emailToSend)) {
       return setError("Introduce un email válido para continuar.");
     }
-
+    console.log("[pagar] buyer email to send to Paddle:", emailToSend);
 
     setSubmitting(true);
     try {
@@ -198,9 +200,10 @@ const PagarProducto = () => {
       initPaddle().catch((e) => console.warn("[pagar] paddle preinit warn", e));
 
       const { data, error: fnError } = await supabase.functions.invoke("create-paddle-checkout", {
-        body: { slug: dbProduct.slug, email: buyerEmail, country },
+        body: { slug: dbProduct.slug, email: emailToSend, country },
       });
       if (fnError) throw fnError;
+
 
       if (data?.error) {
         const code = data.code ? ` [${data.code}]` : "";
