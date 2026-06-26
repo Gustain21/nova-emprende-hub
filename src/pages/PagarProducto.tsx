@@ -377,6 +377,13 @@ const PagarProducto = () => {
               </Button>
             )}
 
+            {debugBuyerEmail && (
+              <div className="mt-3 text-xs text-muted-foreground">
+                Email enviado a Paddle: <span className="text-brand-orange font-mono">{debugBuyerEmail}</span>
+              </div>
+            )}
+
+
             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
               <ShieldCheck className="w-4 h-4 text-brand-orange" />
               Pago seguro · Paddle
