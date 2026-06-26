@@ -138,9 +138,8 @@ const PagarProducto = () => {
     };
   }, []);
 
-  useEffect(() => {
-    setEmail((e) => e || user?.email || "");
-  }, [user]);
+  // No prefill: buyerEmail must come exclusively from manual input.
+
 
   useEffect(() => {
     if (!slug) return;
