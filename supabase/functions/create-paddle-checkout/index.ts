@@ -46,14 +46,16 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const slug = (body?.slug || body?.product_slug) as string | undefined;
-    const email = (body?.email as string | undefined)?.trim();
+    const rawEmail = (body?.email as string | undefined)?.trim().toLowerCase();
     const country = (body?.country as string | undefined)?.toUpperCase() ?? null;
-    console.log("body received", { slug, hasEmail: !!email });
+    console.log("Checkout buyer email:", rawEmail);
+    console.log("Checkout product slug:", slug);
 
     if (!slug) return json({ error: "invalid_request", detail: "slug requerido" }, 400);
-    if (!email || !EMAIL_RE.test(email)) {
+    if (!rawEmail || !EMAIL_RE.test(rawEmail)) {
       return json({ error: "invalid_request", detail: "email inválido" }, 400);
     }
+    const email = rawEmail;
 
     // Optional auth (user_id si hay sesión)
     let userId: string | null = null;
