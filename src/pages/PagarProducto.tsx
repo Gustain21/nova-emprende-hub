@@ -297,32 +297,37 @@ const PagarProducto = () => {
                 </div>
               </div>
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
-                <div className="text-xs text-muted-foreground">Email</div>
+                <div className="text-xs text-muted-foreground">Email comprador</div>
                 <div className="text-sm text-foreground truncate">
-                  {user?.email || email || "Introduce tu email"}
+                  {buyerEmail || "Introduce tu email"}
                 </div>
               </div>
             </div>
 
-            {!user && (
-              <div className="mb-4">
-                <label className="block text-sm text-muted-foreground mb-1">Email del comprador</label>
-                <input
-                  type="email"
-                  required
-                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="tu@email.com"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  ¿Ya tienes cuenta?{" "}
-                  <Link to={`/login?next=/pagar/${slug}`} className="text-brand-orange hover:underline">
-                    Inicia sesión
-                  </Link>
-                </p>
-              </div>
-            )}
+            <div className="mb-4">
+              <label className="block text-sm text-muted-foreground mb-1">Email del comprador</label>
+              <input
+                type="email"
+                required
+                autoComplete="off"
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground"
+                value={buyerEmail}
+                onChange={(e) => setBuyerEmail(e.target.value)}
+                placeholder="tu@email.com"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                El recibo y el acceso se enviarán exactamente a este email.
+                {!user && (
+                  <>
+                    {" "}¿Ya tienes cuenta?{" "}
+                    <Link to={`/login?next=/pagar/${slug}`} className="text-brand-orange hover:underline">
+                      Inicia sesión
+                    </Link>
+                  </>
+                )}
+              </p>
+            </div>
+
 
             <div className="p-3 rounded-lg border border-border bg-muted/20 text-sm mb-6">
               <div className="text-muted-foreground">Proveedor de pago</div>
