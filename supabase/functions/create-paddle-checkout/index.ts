@@ -148,6 +148,7 @@ Deno.serve(async (req) => {
       checkout_url,
       url: checkout_url, // compat
       mode: paddleEnv,
+      debug_buyer_email: email,
     });
   } catch (err: any) {
     console.error("create-paddle-checkout fatal", err);
