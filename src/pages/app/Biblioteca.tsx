@@ -19,7 +19,7 @@ const Biblioteca = () => {
           <Library className="w-8 h-8 text-brand-orange mx-auto" />
           <h3 className="text-lg font-bold text-foreground">Aún no tienes productos</h3>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Cuando adquieras un producto de NOVA EMPRENDE, aparecerá aquí con acceso a sus descargas y herramientas.
+            No encontramos compras asociadas a este email. Asegúrate de iniciar sesión con el mismo correo usado en la compra.
           </p>
         </div>
       ) : (
