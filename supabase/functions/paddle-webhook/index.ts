@@ -57,20 +57,62 @@ Deno.serve(async (req) => {
   const eventType: string = event?.event_type ?? "";
   const data: any = event?.data ?? {};
   const custom = data?.custom_data ?? {};
-  const userId = custom?.user_id as string | undefined;
-  const productId = custom?.product_id as string | undefined;
+  let userId = (custom?.user_id as string | undefined) || undefined;
+  let productId = (custom?.product_id as string | undefined) || undefined;
+  const productSlug = (custom?.product_slug as string | undefined) || undefined;
   const purchaseId = custom?.purchase_id as string | undefined;
   const transactionId = data?.id as string | undefined;
+  const buyerEmailRaw =
+    (custom?.buyer_email as string | undefined) ||
+    (data?.customer?.email as string | undefined) ||
+    (data?.billing_details?.email as string | undefined) ||
+    "";
+  const buyerEmail = buyerEmailRaw.trim().toLowerCase() || null;
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
+  // Resuelve product_id por slug si viene sólo el slug
+  if (!productId && productSlug) {
+    const { data: prod } = await supabase
+      .from("products")
+      .select("id")
+      .eq("slug", productSlug)
+      .maybeSingle();
+    if (prod?.id) productId = prod.id as string;
+  }
+
+  // Intenta resolver user_id por email si el comprador ya tiene cuenta
+  if (!userId && buyerEmail) {
+    try {
+      const { data: list } = await (supabase as any).auth.admin.listUsers({
+        page: 1,
+        perPage: 200,
+      });
+      const match = list?.users?.find(
+        (u: any) => (u.email ?? "").toLowerCase() === buyerEmail,
+      );
+      if (match?.id) userId = match.id as string;
+    } catch (e) {
+      console.warn("[paddle-webhook] listUsers failed", e);
+    }
+  }
+
+  console.log("[paddle-webhook] event", {
+    eventType,
+    hasUserId: !!userId,
+    productId,
+    productSlug,
+    buyerEmail,
+    transactionId,
+  });
+
   try {
     if (eventType === "transaction.paid" || eventType === "transaction.completed") {
-      if (!userId || !productId) {
-        console.warn("[paddle-webhook] custom_data incompleto", custom);
+      if (!productId) {
+        console.warn("[paddle-webhook] sin product_id/product_slug, no puedo registrar", custom);
       } else {
         if (purchaseId) {
           await supabase
@@ -79,25 +121,33 @@ Deno.serve(async (req) => {
               status: "paid",
               provider: "paddle",
               provider_payment_id: transactionId ?? null,
+              email: buyerEmail,
+              ...(userId ? { user_id: userId } : {}),
             })
             .eq("id", purchaseId);
         } else {
           await supabase.from("purchases").insert({
-            user_id: userId,
+            user_id: userId ?? null,
             product_id: productId,
             status: "paid",
             provider: "paddle",
             provider_payment_id: transactionId ?? null,
+            email: buyerEmail,
           });
         }
 
-        // Concede entitlements expandiendo bundles si corresponde.
-        const { error: grantErr } = await supabase.rpc("grant_purchase_entitlements", {
-          p_user_id: userId,
-          p_product_id: productId,
-          p_purchase_id: purchaseId ?? null,
-        });
-        if (grantErr) console.error("[paddle-webhook] grant rpc error", grantErr);
+        // Concede entitlements sólo si ya conocemos al usuario.
+        // Si no, la compra queda pendiente de reclamar (claim_purchases_by_email al iniciar sesión).
+        if (userId) {
+          const { error: grantErr } = await supabase.rpc("grant_purchase_entitlements", {
+            p_user_id: userId,
+            p_product_id: productId,
+            p_purchase_id: purchaseId ?? null,
+          });
+          if (grantErr) console.error("[paddle-webhook] grant rpc error", grantErr);
+        } else {
+          console.log("[paddle-webhook] compra registrada como invitada, pendiente de reclamar");
+        }
       }
     } else if (
       eventType === "transaction.canceled" ||
