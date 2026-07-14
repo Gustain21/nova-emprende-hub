@@ -153,3 +153,27 @@ export async function getSignedDownloadUrl(fileId: string, expiresInSeconds = 30
   if (!data?.url) throw new Error(data?.error ?? "No se pudo generar el enlace");
   return data.url as string;
 }
+
+// Reclama compras Paddle realizadas antes del registro:
+// busca compras con el email del usuario actual y crea/actualiza sus accesos.
+export async function syncPurchasesForCurrentUser() {
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData?.user;
+  if (!user) return { claimed: 0, granted: 0 };
+  const normalizedEmail = (user.email ?? "").trim().toLowerCase();
+  console.log("Auth user email:", user.email);
+  console.log("Normalized email:", normalizedEmail);
+
+  const { data, error } = await supabase.rpc("claim_purchases_by_email");
+  if (error) {
+    console.error("claim_purchases_by_email error", error);
+    return { claimed: 0, granted: 0 };
+  }
+  const row = Array.isArray(data) ? data[0] : data;
+  const claimed = Number(row?.claimed_count ?? 0);
+  const granted = Number(row?.entitlements_granted ?? 0);
+  console.log("Purchases claimed for email:", claimed);
+  console.log("Entitlements granted:", granted);
+  return { claimed, granted };
+}
+
