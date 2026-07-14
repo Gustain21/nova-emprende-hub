@@ -313,6 +313,7 @@ export type Database = {
           buyer_currency: string | null
           buyer_region: string | null
           currency: string | null
+          email: string | null
           id: string
           product_id: string
           provider: string | null
@@ -326,7 +327,7 @@ export type Database = {
           tax_rate: number | null
           tax_status: string | null
           total_amount: number | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           amount?: number | null
@@ -334,6 +335,7 @@ export type Database = {
           buyer_currency?: string | null
           buyer_region?: string | null
           currency?: string | null
+          email?: string | null
           id?: string
           product_id: string
           provider?: string | null
@@ -347,7 +349,7 @@ export type Database = {
           tax_rate?: number | null
           tax_status?: string | null
           total_amount?: number | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           amount?: number | null
@@ -355,6 +357,7 @@ export type Database = {
           buyer_currency?: string | null
           buyer_region?: string | null
           currency?: string | null
+          email?: string | null
           id?: string
           product_id?: string
           provider?: string | null
@@ -368,7 +371,7 @@ export type Database = {
           tax_rate?: number | null
           tax_status?: string | null
           total_amount?: number | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -385,6 +388,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_purchases_by_email: {
+        Args: never
+        Returns: {
+          claimed_count: number
+          entitlements_granted: number
+        }[]
+      }
       grant_purchase_entitlements: {
         Args: {
           p_product_id: string
