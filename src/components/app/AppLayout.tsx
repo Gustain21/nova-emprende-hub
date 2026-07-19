@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import AppTopbar from "./AppTopbar";
@@ -7,6 +7,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { syncPurchasesForCurrentUser } from "@/hooks/usePurchases";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+
+const ScrollToTopOnRouteChange = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [pathname]);
+  return null;
+};
+
+
 
 const AppLayout = () => {
   const { user } = useAuth();
