@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Download, Rocket } from "lucide-react";
+import { ArrowLeft, Download, Loader2, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PurchaseGate from "@/components/app/PurchaseGate";
-import { usePurchases, getSignedDownloadUrl } from "@/hooks/usePurchases";
-import { toast } from "sonner";
+import { usePurchases } from "@/hooks/usePurchases";
+import { downloadProtectedFile } from "@/lib/downloads";
 
 const ProductoPrivado = () => {
   const { productId = "" } = useParams();
@@ -11,19 +12,16 @@ const ProductoPrivado = () => {
   const product = products.find((p) => p.productId === productId);
   const productResources = resources.filter((r) => r.productId === productId);
   const productApps = apps.filter((a) => a.productId === productId);
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   const handleDownload = async (fileId: string, fileName: string) => {
+    setPendingId(fileId);
     try {
-      const url = await getSignedDownloadUrl(fileId);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      a.target = "_blank";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    } catch (err: any) {
-      toast.error("No se pudo generar la descarga", { description: err?.message });
+      await downloadProtectedFile(fileId, fileName);
+    } catch {
+      // toast ya mostrado
+    } finally {
+      setPendingId(null);
     }
   };
 
