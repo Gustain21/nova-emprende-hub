@@ -31,6 +31,7 @@ import AppDetalle from "./pages/app/AppDetalle";
 import Compras from "./pages/app/Compras";
 import Cuenta from "./pages/app/Cuenta";
 import PlanFinanciero from "./pages/app/PlanFinanciero";
+import Bitacora from "./pages/app/Bitacora";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,7 @@ const App = () => (
               <Route path="herramientas" element={<Apps />} />
               {/* Específica antes de :appId para evitar conflictos */}
               <Route path="herramientas/plan-financiero" element={<PlanFinanciero />} />
+              <Route path="herramientas/bitacora-del-capitan" element={<Bitacora />} />
               <Route path="herramientas/:appId" element={<AppDetalle />} />
               <Route path="compras-facturas" element={<Compras />} />
               <Route path="cuenta" element={<Cuenta />} />
