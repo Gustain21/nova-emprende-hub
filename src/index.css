@@ -169,6 +169,60 @@
   .brand-container {
     @apply container mx-auto px-4 md:px-6 lg:px-8;
   }
+
+
+  /* === Bitácora del Capitán — estilos scopeados === */
+  .bitacora-app .tactical-card {
+    @apply bg-card border border-border rounded-lg p-6;
+    background: var(--gradient-card);
+  }
+  .bitacora-app .phase-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider;
+  }
+  .bitacora-app .phase-1 {
+    @apply bg-primary/20 text-primary border border-primary/30;
+  }
+  .bitacora-app .phase-2 {
+    @apply bg-accent/20 text-accent-foreground border border-accent/30;
+  }
+  .bitacora-app .phase-3 {
+    @apply bg-emerald-500/20 text-emerald-400 border border-emerald-500/30;
+  }
+  .bitacora-app .spark-box {
+    @apply bg-secondary/10 border-l-4 border-primary p-4 rounded-r-lg italic text-muted-foreground;
+  }
+  .bitacora-app .exercise-box {
+    @apply bg-card border border-border rounded-lg p-5;
+  }
+  .bitacora-app .input-field {
+    @apply w-full bg-muted/40 border border-border rounded-md p-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all;
+    min-height: 80px;
+    resize: vertical;
+  }
+  .bitacora-app .nav-item {
+    @apply px-3 py-2 rounded-md text-sm font-medium transition-all cursor-pointer;
+  }
+  .bitacora-app .nav-item-inactive {
+    @apply text-muted-foreground hover:text-foreground hover:bg-secondary/20;
+  }
+  .bitacora-app .glow-energy {
+    box-shadow: var(--shadow-glow);
+  }
+}
+
+@layer utilities {
+  .bitacora-app .animate-float {
+    animation: bitacora-float 6s ease-in-out infinite;
+  }
+  @keyframes bitacora-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+}
+@layer components {
+  .bitacora-placeholder-close {
+    display: none;
+  }
 }
 
 @layer utilities {
