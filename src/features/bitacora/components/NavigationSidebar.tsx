@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { phases, PhaseContent, DayContent } from '@/data/bitacoraContent';
+import { phases, PhaseContent, DayContent } from '@/features/bitacora/data/bitacoraContent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 interface NavigationSidebarProps {

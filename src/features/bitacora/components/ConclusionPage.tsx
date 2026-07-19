@@ -1,5 +1,5 @@
 import React from 'react';
-import { conclusionContent } from '@/data/bitacoraContent';
+import { conclusionContent } from '@/features/bitacora/data/bitacoraContent';
 
 interface ConclusionPageProps {
   onRestart: () => void;

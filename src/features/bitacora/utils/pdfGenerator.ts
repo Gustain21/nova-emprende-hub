@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { phases, introContent, conclusionContent } from '@/data/bitacoraContent';
+import { phases, introContent, conclusionContent } from '@/features/bitacora/data/bitacoraContent';
 
 export const generatePDF = (answers: Record<string, string>) => {
   const pdf = new jsPDF('p', 'mm', 'a4');

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DayContent } from '@/data/bitacoraContent';
+import { DayContent } from '@/features/bitacora/data/bitacoraContent';
 
 interface DayPageProps {
   day: DayContent;

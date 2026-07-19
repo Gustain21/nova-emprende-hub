@@ -1,5 +1,5 @@
 import React from 'react';
-import { introContent } from '@/data/bitacoraContent';
+import { introContent } from '@/features/bitacora/data/bitacoraContent';
 
 interface IntroPageProps {
   onContinue: () => void;
