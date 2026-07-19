@@ -170,10 +170,19 @@ const Login = () => {
                   </Link>
                 </div>
 
-                <Button type="submit" variant="hero" size="lg" className="w-full">
-                  Acceder a mis herramientas
+                <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
+                  {submitting ? "Accediendo..." : "Acceder a mis herramientas"}
                   <ArrowRight className="w-5 h-5" />
                 </Button>
+
+                {errorMsg && (
+                  <p
+                    role="alert"
+                    className="text-sm text-destructive text-center font-medium"
+                  >
+                    {errorMsg}
+                  </p>
+                )}
               </form>
 
               <div className="mt-8 pt-6 border-t border-border space-y-5 text-center">
