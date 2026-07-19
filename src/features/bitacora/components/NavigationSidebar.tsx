@@ -53,17 +53,17 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop (móvil) */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+        <div
+          className="absolute inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
-      <aside 
-        className={`fixed top-0 left-0 h-full w-72 bg-card border-r border-border z-50 transform transition-transform duration-300 lg:translate-x-0 ${
+      <aside
+        className={`absolute top-0 left-0 h-full w-72 bg-card border-r border-border z-50 transform transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } overflow-y-auto`}
       >
