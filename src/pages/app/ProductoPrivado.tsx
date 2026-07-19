@@ -58,8 +58,17 @@ const ProductoPrivado = () => {
                       <p className="text-xs text-muted-foreground">{r.type.toUpperCase()}</p>
                     </div>
                     {r.available ? (
-                      <Button variant="cta" size="sm" onClick={() => handleDownload(r.id, r.title)}>
-                        <Download className="w-4 h-4" /> Descargar
+                      <Button
+                        variant="cta"
+                        size="sm"
+                        onClick={() => handleDownload(r.id, r.title)}
+                        disabled={pendingId === r.id}
+                      >
+                        {pendingId === r.id ? (
+                          <><Loader2 className="w-4 h-4 animate-spin" /> Preparando descarga…</>
+                        ) : (
+                          <><Download className="w-4 h-4" /> Descargar</>
+                        )}
                       </Button>
                     ) : (
                       <Button variant="outline" size="sm" disabled>
