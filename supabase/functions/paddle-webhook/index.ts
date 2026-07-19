@@ -109,11 +109,36 @@ Deno.serve(async (req) => {
     transactionId,
   });
 
+  // Extrae importe real de Paddle. Paddle envía importes en unidad mínima (céntimos).
+  const totals = data?.details?.totals ?? data?.details?.line_items?.[0] ?? {};
+  const rawTotal =
+    totals?.total ??
+    data?.details?.totals?.grand_total ??
+    data?.payments?.[0]?.amount ??
+    null;
+  const rawCurrency =
+    data?.currency_code ??
+    data?.details?.totals?.currency_code ??
+    totals?.currency_code ??
+    "EUR";
+  const amountMajor =
+    rawTotal != null && !Number.isNaN(Number(rawTotal))
+      ? Number(rawTotal) / 100
+      : null;
+
   try {
     if (eventType === "transaction.paid" || eventType === "transaction.completed") {
       if (!productId) {
         console.warn("[paddle-webhook] sin product_id/product_slug, no puedo registrar", custom);
       } else {
+        const amountPayload: Record<string, unknown> = {};
+        if (amountMajor != null) {
+          amountPayload.amount = amountMajor;
+          amountPayload.total_amount = amountMajor;
+          amountPayload.currency = rawCurrency;
+          amountPayload.buyer_currency = rawCurrency;
+        }
+
         if (purchaseId) {
           await supabase
             .from("purchases")
@@ -123,6 +148,7 @@ Deno.serve(async (req) => {
               provider_payment_id: transactionId ?? null,
               email: buyerEmail,
               ...(userId ? { user_id: userId } : {}),
+              ...amountPayload,
             })
             .eq("id", purchaseId);
         } else {
@@ -133,8 +159,10 @@ Deno.serve(async (req) => {
             provider: "paddle",
             provider_payment_id: transactionId ?? null,
             email: buyerEmail,
+            ...amountPayload,
           });
         }
+
 
         // Concede entitlements sólo si ya conocemos al usuario.
         // Si no, la compra queda pendiente de reclamar (claim_purchases_by_email al iniciar sesión).
