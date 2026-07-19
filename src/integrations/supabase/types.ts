@@ -52,6 +52,33 @@ export type Database = {
           },
         ]
       }
+      bitacora_progress: {
+        Row: {
+          answers: Json
+          created_at: string
+          current_day: number
+          current_view: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          current_day?: number
+          current_view?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          current_day?: number
+          current_view?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bundle_items: {
         Row: {
           bundle_product_id: string
@@ -407,6 +434,7 @@ export type Database = {
         Args: { _product_id: string; _user_id: string }
         Returns: boolean
       }
+      has_bitacora_access: { Args: { _user_id: string }; Returns: boolean }
       revoke_purchase_entitlements: {
         Args: { p_product_id: string; p_user_id: string }
         Returns: undefined
