@@ -28,8 +28,17 @@ const features = [
   },
 ];
 
+const mapAuthError = (msg: string) => {
+  const m = msg.toLowerCase();
+  if (m.includes("invalid login credentials")) return "Email o contraseña incorrectos.";
+  if (m.includes("email not confirmed")) return "Tu email todavía no está confirmado.";
+  return "No pudimos iniciar sesión. Inténtalo nuevamente.";
+};
+
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const { signIn, user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -40,14 +49,21 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await signIn(formData.email, formData.password);
+    setErrorMsg(null);
+    setSubmitting(true);
+    const email = formData.email.trim().toLowerCase();
+    const { error } = await signIn(email, formData.password);
+    setSubmitting(false);
     if (error) {
-      toast.error("No se pudo acceder", { description: error });
+      const friendly = mapAuthError(error);
+      setErrorMsg(friendly);
+      toast.error(friendly);
       return;
     }
     toast.success("Acceso correcto", {
       description: "Bienvenido a tu área de clientes.",
     });
+    window.scrollTo(0, 0);
     navigate("/clientes");
   };
 
@@ -154,10 +170,19 @@ const Login = () => {
                   </Link>
                 </div>
 
-                <Button type="submit" variant="hero" size="lg" className="w-full">
-                  Acceder a mis herramientas
+                <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
+                  {submitting ? "Accediendo..." : "Acceder a mis herramientas"}
                   <ArrowRight className="w-5 h-5" />
                 </Button>
+
+                {errorMsg && (
+                  <p
+                    role="alert"
+                    className="text-sm text-destructive text-center font-medium"
+                  >
+                    {errorMsg}
+                  </p>
+                )}
               </form>
 
               <div className="mt-8 pt-6 border-t border-border space-y-5 text-center">
