@@ -54,26 +54,29 @@ export type Database = {
       }
       bitacora_progress: {
         Row: {
-          answers: Json
           created_at: string
-          current_day: number
-          current_view: string
+          current_day: number | null
+          current_view: string | null
+          progress: number
+          responses: Json
           updated_at: string
           user_id: string
         }
         Insert: {
-          answers?: Json
           created_at?: string
-          current_day?: number
-          current_view?: string
+          current_day?: number | null
+          current_view?: string | null
+          progress?: number
+          responses?: Json
           updated_at?: string
           user_id: string
         }
         Update: {
-          answers?: Json
           created_at?: string
-          current_day?: number
-          current_view?: string
+          current_day?: number | null
+          current_view?: string | null
+          progress?: number
+          responses?: Json
           updated_at?: string
           user_id?: string
         }

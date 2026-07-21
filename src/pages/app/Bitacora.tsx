@@ -11,7 +11,13 @@ import { phases } from "@/features/bitacora/data/bitacoraContent";
 import { generatePDF } from "@/features/bitacora/utils/pdfGenerator";
 import { useBitacoraProgress } from "@/features/bitacora/hooks/useBitacoraProgress";
 
-const SaveIndicator = ({ status }: { status: ReturnType<typeof useBitacoraProgress>["saveStatus"] }) => {
+const SaveIndicator = ({
+  status,
+  error,
+}: {
+  status: ReturnType<typeof useBitacoraProgress>["saveStatus"];
+  error: string | null;
+}) => {
   if (status === "saving") {
     return (
       <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -29,7 +35,7 @@ const SaveIndicator = ({ status }: { status: ReturnType<typeof useBitacoraProgre
   if (status === "error") {
     return (
       <span className="inline-flex items-center gap-1.5 text-xs text-destructive">
-        <AlertCircle className="w-3.5 h-3.5" /> Error al guardar
+        <AlertCircle className="w-3.5 h-3.5" /> Error al guardar: {error ?? "Error desconocido"}
       </span>
     );
   }
@@ -44,6 +50,7 @@ const BitacoraApp = () => {
   const {
     loading,
     saveStatus,
+    saveError,
     answers,
     currentDay,
     currentView,
@@ -84,7 +91,7 @@ const BitacoraApp = () => {
           <ArrowLeft className="w-4 h-4 mr-1" /> Volver a herramientas
         </Link>
         <div className="flex items-center gap-3">
-          <SaveIndicator status={saveStatus} />
+          <SaveIndicator status={saveStatus} error={saveError} />
           {currentView !== "cover" && (
             <button
               onClick={() => setCurrentView("day")}

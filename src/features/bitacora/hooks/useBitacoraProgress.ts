@@ -9,12 +9,14 @@ export interface BitacoraState {
   answers: Record<string, string>;
   currentDay: number;
   currentView: BitacoraView;
+  progress: number;
 }
 
 const DEFAULT_STATE: BitacoraState = {
   answers: {},
   currentDay: 1,
   currentView: "cover",
+  progress: 0,
 };
 
 export const useBitacoraProgress = () => {
@@ -25,6 +27,7 @@ export const useBitacoraProgress = () => {
   const [loading, setLoading] = useState(true);
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
   const debounceRef = useRef<number | null>(null);
   const loadedUserRef = useRef<string | null>(null);
 
@@ -43,7 +46,7 @@ export const useBitacoraProgress = () => {
       console.log("[bitacora] loading progress for user", userId);
       const { data, error } = await supabase
         .from("bitacora_progress")
-        .select("answers, current_day, current_view")
+        .select("*")
         .eq("user_id", userId)
         .maybeSingle();
       if (cancelled) return;
@@ -53,9 +56,10 @@ export const useBitacoraProgress = () => {
       if (data) {
         console.log("[bitacora] progress recovered", data);
         setState({
-          answers: (data.answers as Record<string, string>) ?? {},
+          answers: (data.responses as Record<string, string>) ?? {},
           currentDay: data.current_day ?? 1,
           currentView: (data.current_view as BitacoraView) ?? "cover",
+          progress: Number.isFinite(Number(data.progress)) ? Number(data.progress) : 0,
         });
       } else {
         console.log("[bitacora] no previous progress");
@@ -74,22 +78,45 @@ export const useBitacoraProgress = () => {
     if (!userId || !isInitialLoadComplete) return;
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     setSaveStatus("saving");
+    setSaveError(null);
     debounceRef.current = window.setTimeout(async () => {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      console.log("BITACORA AUTH USER:", authData.user?.id);
+      if (authError || !authData.user?.id || authData.user.id !== userId) {
+        setSaveError("Tu sesión ha caducado. Vuelve a iniciar sesión.");
+        setSaveStatus("error");
+        return;
+      }
+
+      const normalizedProgress = Number.isFinite(state.progress)
+        ? state.progress
+        : 0;
       const payload = {
-        user_id: userId,
-        answers: state.answers,
-        current_day: state.currentDay,
-        current_view: state.currentView,
+        user_id: authData.user.id,
+        responses: state.answers ?? {},
+        current_day: Number.isInteger(state.currentDay) ? state.currentDay : null,
+        current_view: state.currentView ?? null,
+        progress: normalizedProgress,
+        updated_at: new Date().toISOString(),
       };
       console.log("[bitacora] upsert payload", payload);
       const { error } = await supabase
         .from("bitacora_progress")
-        .upsert(payload, { onConflict: "user_id" });
+        .upsert(payload, { onConflict: "user_id" })
+        .select()
+        .single();
       if (error) {
-        console.error("[bitacora] save error", error);
+        console.error("BITACORA SAVE ERROR FULL:", {
+          message: error?.message,
+          details: error?.details,
+          hint: error?.hint,
+          code: error?.code,
+        });
+        setSaveError(error.message);
         setSaveStatus("error");
       } else {
         console.log("[bitacora] saved at", new Date().toISOString());
+        setSaveError(null);
         setSaveStatus("saved");
       }
     }, 700);
@@ -115,7 +142,11 @@ export const useBitacoraProgress = () => {
   }, []);
 
   const setCurrentDay = useCallback((day: number) => {
-    setState((prev) => ({ ...prev, currentDay: day }));
+    setState((prev) => ({
+      ...prev,
+      currentDay: day,
+      progress: Number.isInteger(day) ? Math.min(100, Math.max(0, (day / 30) * 100)) : prev.progress,
+    }));
   }, []);
 
   const setCurrentView = useCallback((view: BitacoraView) => {
@@ -125,6 +156,7 @@ export const useBitacoraProgress = () => {
   return {
     loading,
     saveStatus,
+    saveError,
     answers: state.answers,
     currentDay: state.currentDay,
     currentView: state.currentView,
