@@ -86,11 +86,21 @@ const App = () => (
               <Route path="herramientas" element={<Apps />} />
               {/* Específica antes de :appId para evitar conflictos */}
               <Route path="herramientas/plan-financiero" element={<PlanFinanciero />} />
-              <Route path="herramientas/bitacora-del-capitan" element={<Bitacora />} />
               <Route path="herramientas/:appId" element={<AppDetalle />} />
               <Route path="compras-facturas" element={<Compras />} />
               <Route path="cuenta" element={<Cuenta />} />
             </Route>
+
+            {/* Herramienta a pantalla completa (sin sidebar del área cliente) */}
+            <Route
+              path="/clientes/herramientas/bitacora-del-capitan"
+              element={
+                <ProtectedRoute>
+                  <Bitacora />
+                </ProtectedRoute>
+              }
+            />
+
 
             {/* Compatibilidad: rutas internas antiguas /app/* redirigen a /clientes/* */}
             <Route path="/app/*" element={<LegacyAppRedirect />} />
