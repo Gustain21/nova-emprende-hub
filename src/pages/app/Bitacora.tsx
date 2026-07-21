@@ -178,15 +178,26 @@ const BitacoraApp = () => {
 };
 
 const Bitacora = () => (
-  <div className="space-y-6">
-    <div>
-      <p className="text-xs uppercase tracking-widest text-brand-orange font-bold mb-1">Herramienta</p>
-      <h1 className="text-3xl md:text-4xl font-bold text-foreground">La Bitácora del Capitán</h1>
+  <div className="min-h-screen w-full bg-background">
+    <div className="w-full px-4 md:px-6 py-4 border-b border-border flex items-center justify-between gap-3">
+      <div>
+        <p className="text-[10px] uppercase tracking-widest text-brand-orange font-bold">Herramienta</p>
+        <h1 className="text-xl md:text-2xl font-bold text-foreground">La Bitácora del Capitán</h1>
+      </div>
+      <Link
+        to="/clientes/herramientas"
+        className="inline-flex items-center text-sm px-3 py-1.5 rounded-md border border-border hover:bg-secondary"
+      >
+        <ArrowLeft className="w-4 h-4 mr-1" /> Volver al área de clientes
+      </Link>
     </div>
-    <PurchaseGate productId="bitacora-del-capitan">
-      <BitacoraApp />
-    </PurchaseGate>
+    <div className="w-full px-4 md:px-6 py-6">
+      <PurchaseGate productId="bitacora-del-capitan">
+        <BitacoraApp />
+      </PurchaseGate>
+    </div>
   </div>
 );
 
 export default Bitacora;
+
