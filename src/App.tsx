@@ -33,6 +33,7 @@ import Cuenta from "./pages/app/Cuenta";
 import DashboardFinanciero from "./pages/app/DashboardFinanciero";
 import Bitacora from "./pages/app/Bitacora";
 import GuiaPrompts from "./pages/app/GuiaPrompts";
+import Planner from "./pages/app/Planner";
 
 const queryClient = new QueryClient();
 
@@ -115,6 +116,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardFinanciero />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clientes/herramientas/planner-ejecucion-90-dias"
+              element={
+                <ProtectedRoute>
+                  <Planner />
                 </ProtectedRoute>
               }
             />
