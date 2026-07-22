@@ -207,6 +207,30 @@ export type Database = {
           },
         ]
       }
+      guia_progress: {
+        Row: {
+          completed: Json
+          created_at: string
+          favorites: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: Json
+          created_at?: string
+          favorites?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: Json
+          created_at?: string
+          favorites?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           active: boolean
