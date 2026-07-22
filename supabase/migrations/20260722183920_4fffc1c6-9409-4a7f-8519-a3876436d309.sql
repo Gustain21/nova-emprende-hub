@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS purchases_provider_payment_id_unique ON public.purchases (provider_payment_id) WHERE provider_payment_id IS NOT NULL;
