@@ -1,4 +1,4 @@
-import { Route, Routes, useParams } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import PurchaseGate from "@/components/app/PurchaseGate";
 import GuiaShell from "@/features/guia-prompts/components/GuiaShell";
 import GuiaIndex from "@/features/guia-prompts/components/GuiaIndex";
@@ -7,8 +7,11 @@ import { useGuiaProgress } from "@/features/guia-prompts/hooks/useGuiaProgress";
 
 const GuiaInner = () => {
   const { status } = useGuiaProgress();
+  const location = useLocation();
+  const parts = location.pathname.split("/").filter(Boolean);
+  const inModulo = parts.length >= 4 && parts[2] === "guia-de-prompts";
   return (
-    <GuiaShell status={status} showBackToIndex={useIsModuloRoute()}>
+    <GuiaShell status={status} showBackToIndex={inModulo}>
       <Routes>
         <Route index element={<GuiaIndex />} />
         <Route path=":slug" element={<GuiaModulo />} />
@@ -17,27 +20,15 @@ const GuiaInner = () => {
   );
 };
 
-// Small helper: detects if we're in a nested :slug route via URL check.
-const useIsModuloRoute = () => {
-  if (typeof window === "undefined") return false;
-  const parts = window.location.pathname.split("/").filter(Boolean);
-  // /clientes/herramientas/guia-de-prompts/<slug>
-  return parts.length >= 4 && parts[2] === "guia-de-prompts";
-};
-
 const GuiaPrompts = () => (
   <div className="min-h-screen w-full bg-background">
-    <PurchaseGateWrapper />
-  </div>
-);
-
-const PurchaseGateWrapper = () => (
-  <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 [&>div]:m-0">
-    <PurchaseGate productId="guia-de-prompts">
-      <div className="-mx-4 -my-6 sm:-mx-6">
-        <GuiaInner />
-      </div>
-    </PurchaseGate>
+    <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+      <PurchaseGate productId="guia-de-prompts">
+        <div className="-mx-4 -mt-6 sm:-mx-6">
+          <GuiaInner />
+        </div>
+      </PurchaseGate>
+    </div>
   </div>
 );
 

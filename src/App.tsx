@@ -32,6 +32,7 @@ import Compras from "./pages/app/Compras";
 import Cuenta from "./pages/app/Cuenta";
 import PlanFinanciero from "./pages/app/PlanFinanciero";
 import Bitacora from "./pages/app/Bitacora";
+import GuiaPrompts from "./pages/app/GuiaPrompts";
 
 const queryClient = new QueryClient();
 
@@ -100,6 +101,15 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/clientes/herramientas/guia-de-prompts/*"
+              element={
+                <ProtectedRoute>
+                  <GuiaPrompts />
+                </ProtectedRoute>
+              }
+            />
+
 
 
             {/* Compatibilidad: rutas internas antiguas /app/* redirigen a /clientes/* */}
