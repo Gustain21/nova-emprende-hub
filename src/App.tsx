@@ -30,7 +30,7 @@ import Apps from "./pages/app/Apps";
 import AppDetalle from "./pages/app/AppDetalle";
 import Compras from "./pages/app/Compras";
 import Cuenta from "./pages/app/Cuenta";
-import PlanFinanciero from "./pages/app/PlanFinanciero";
+import DashboardFinanciero from "./pages/app/DashboardFinanciero";
 import Bitacora from "./pages/app/Bitacora";
 import GuiaPrompts from "./pages/app/GuiaPrompts";
 
@@ -44,7 +44,8 @@ const LegacyAppRedirect = () => {
     .replace(/^\/clientes\/biblioteca/, "/clientes/mis-productos")
     .replace(/^\/clientes\/apps/, "/clientes/herramientas")
     .replace(/^\/clientes\/compras\b/, "/clientes/compras-facturas")
-    .replace(/^\/clientes\/plan-financiero/, "/clientes/herramientas/plan-financiero");
+    .replace(/^\/clientes\/plan-financiero/, "/clientes/herramientas/dashboard-financiero")
+    .replace(/^\/clientes\/herramientas\/plan-financiero/, "/clientes/herramientas/dashboard-financiero");
   return <Navigate to={target + search + hash} replace />;
 };
 
@@ -85,14 +86,14 @@ const App = () => (
               <Route path="mis-productos/:productId" element={<ProductoPrivado />} />
               <Route path="descargas" element={<Descargas />} />
               <Route path="herramientas" element={<Apps />} />
-              {/* Específica antes de :appId para evitar conflictos */}
-              <Route path="herramientas/plan-financiero" element={<PlanFinanciero />} />
+              {/* Legacy: la antigua demo redirige al Dashboard real */}
+              <Route path="herramientas/plan-financiero" element={<Navigate to="/clientes/herramientas/dashboard-financiero" replace />} />
               <Route path="herramientas/:appId" element={<AppDetalle />} />
               <Route path="compras-facturas" element={<Compras />} />
               <Route path="cuenta" element={<Cuenta />} />
             </Route>
 
-            {/* Herramienta a pantalla completa (sin sidebar del área cliente) */}
+            {/* Herramientas a pantalla completa (sin sidebar del área cliente) */}
             <Route
               path="/clientes/herramientas/bitacora-del-capitan"
               element={
@@ -106,6 +107,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <GuiaPrompts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clientes/herramientas/dashboard-financiero"
+              element={
+                <ProtectedRoute>
+                  <DashboardFinanciero />
                 </ProtectedRoute>
               }
             />
