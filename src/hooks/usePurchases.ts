@@ -114,12 +114,17 @@ export const usePurchases = () => {
         purchasedAt: p.purchased_at,
       }));
 
-      // 5) Lista de "productos comprados" (acceso) para la vista Mis productos
-      const products = ownedProducts.map((p: any) => ({
-        productId: p.slug,
-        productUuid: p.id,
-        productTitle: p.name,
-      }));
+      // 5) Lista de "productos comprados" (acceso) para la vista Mis productos.
+      // Los packs (bundles) no se muestran como producto individual: solo aparecen
+      // en "Compras y facturas". Se listan sus productos incluidos ya expandidos.
+      const BUNDLE_SLUGS = new Set(["pack-base", "pack-impulso", "pack-dominio"]);
+      const products = ownedProducts
+        .filter((p: any) => !BUNDLE_SLUGS.has(p.slug))
+        .map((p: any) => ({
+          productId: p.slug,
+          productUuid: p.id,
+          productTitle: p.name,
+        }));
 
       const ownedSlugs = new Set(products.map((p) => p.productId));
       const ownedUuidSet = new Set(ownedUuids);
