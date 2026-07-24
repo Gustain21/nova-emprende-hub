@@ -51,6 +51,14 @@ const LegacyAppRedirect = () => {
   return <Navigate to={target + search + hash} replace />;
 };
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -59,6 +67,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <RegionProvider>
+          <ScrollToTop />
           <Routes>
             {/* Públicas — intactas */}
             <Route path="/" element={<Index />} />
