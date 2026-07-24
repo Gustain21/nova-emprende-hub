@@ -4,9 +4,12 @@ import { BookOpen, Compass, Sparkles, CheckCircle2, ArrowRight } from "lucide-re
 import { Link } from "react-router-dom";
 import ebookCover from "@/assets/ebook-cover.jpg";
 import { ebookProduct } from "@/data/products";
-import { getEffectivePricing } from "@/lib/offer";
-import { useRegion, formatPrice } from "@/lib/region/RegionContext";
+import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
+import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+
 
 const stats = [
   { num: "1", text: "guía principal para empezar con claridad" },
