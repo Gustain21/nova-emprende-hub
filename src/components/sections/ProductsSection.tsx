@@ -59,13 +59,18 @@ const ProductCard = ({ product, index, currencyCode }: { product: Product; index
 
       <div className="flex items-center justify-between pt-4 border-t border-border">
         <div className="flex flex-col">
-          <span className="text-2xl font-black text-brand-orange leading-none">{formatPrice(price, currency)}</span>
+          <LocalizedPrice
+            priceId={priceId}
+            fallbackEur={product.price}
+            className="text-2xl font-black text-brand-orange leading-none"
+          />
           {originalPrice != null && (
             <span className="text-xs text-muted-foreground line-through mt-1">
-              antes {formatPrice(originalPrice, currency)}
+              antes {formatByCurrency(originalPrice, currencyCode)}
             </span>
           )}
         </div>
+
         <Link to={`/producto/${product.id}`}>
           <Button variant="cta" size="sm">
             Ver más
@@ -78,6 +83,11 @@ const ProductCard = ({ product, index, currencyCode }: { product: Product; index
 };
 
 const ProductsSection = () => {
+  const priceIds = products.map((p) => PADDLE_PRICE_IDS[p.slug]).filter(Boolean);
+  const prices = useLocalizedPaddlePrices(priceIds);
+  const currencyCode =
+    Object.values(prices).find((p) => p.currencyCode)?.currencyCode ?? null;
+
   return (
     <section id="ecosistema" className="brand-section bg-background">
       <div className="brand-container">
@@ -100,7 +110,9 @@ const ProductsSection = () => {
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+          {products.map((p, i) => (
+            <ProductCard key={p.id} product={p} index={i} currencyCode={currencyCode} />
+          ))}
         </div>
       </div>
     </section>
@@ -108,3 +120,4 @@ const ProductsSection = () => {
 };
 
 export default ProductsSection;
+
