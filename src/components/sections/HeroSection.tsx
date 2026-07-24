@@ -24,8 +24,11 @@ const bullets = [
 ];
 
 const HeroSection = () => {
-  const { currency } = useRegion();
-  const { price, originalPrice, offerActive } = getEffectivePricing(ebookProduct, currency);
+  const ebookPriceId = PADDLE_PRICE_IDS[ebookProduct.slug];
+  const { currencyCode } = useLocalizedPaddlePrice(ebookPriceId);
+  const offerActive = isOfferActive(ebookProduct.offerEndDate, ebookProduct.saleActive);
+  const originalPrice = offerActive ? ebookProduct.originalPrice : undefined;
+
 
   return (
     <section id="inicio" className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden brand-hero-gradient">
