@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -51,6 +52,14 @@ const LegacyAppRedirect = () => {
   return <Navigate to={target + search + hash} replace />;
 };
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -59,6 +68,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <RegionProvider>
+          <ScrollToTop />
           <Routes>
             {/* Públicas — intactas */}
             <Route path="/" element={<Index />} />
