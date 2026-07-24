@@ -101,12 +101,17 @@ const EbookHighlightSection = () => {
                 <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
                   {offerActive ? "Precio lanzamiento" : "Precio"}
                 </p>
-                <p className="text-2xl font-black text-brand-orange">{formatPrice(price, currency)}</p>
+                <LocalizedPrice
+                  priceId={ebookPriceId}
+                  fallbackEur={ebookProduct.price}
+                  className="text-2xl font-black text-brand-orange"
+                />
                 {originalPrice != null && (
                   <p className="text-xs text-muted-foreground line-through">
-                    antes {formatPrice(originalPrice, currency)}
+                    antes {formatByCurrency(originalPrice, currencyCode)}
                   </p>
                 )}
+
               </div>
               <div>
                 <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
