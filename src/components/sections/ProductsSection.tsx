@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, FileText, BookOpen, Lightbulb, PieChart, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { products, type Product } from "@/data/products";
-import { getEffectivePricing } from "@/lib/offer";
-import { useRegion, formatPrice } from "@/lib/region/RegionContext";
+import { isOfferActive } from "@/lib/offer";
+import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { useLocalizedPaddlePrices, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+
 
 const iconMap: Record<string, React.ReactNode> = {
   BookOpen: <BookOpen className="w-4 h-4" />,
@@ -14,9 +17,11 @@ const iconMap: Record<string, React.ReactNode> = {
   FileSpreadsheet: <FileText className="w-4 h-4" />,
 };
 
-const ProductCard = ({ product, index }: { product: Product; index: number }) => {
-  const { currency } = useRegion();
-  const { price, originalPrice } = getEffectivePricing(product, currency);
+const ProductCard = ({ product, index, currencyCode }: { product: Product; index: number; currencyCode: string | null }) => {
+  const priceId = PADDLE_PRICE_IDS[product.slug];
+  const offerActive = isOfferActive(product.offerEndDate, product.saleActive);
+  const originalPrice = offerActive ? product.originalPrice : undefined;
+
 
   const badge =
     product.type === "excel"
