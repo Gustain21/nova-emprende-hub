@@ -134,13 +134,18 @@ const HeroSection = () => {
                     {offerActive ? "Precio lanzamiento" : "Precio"}
                   </p>
                   <div className="flex items-baseline gap-2 flex-wrap">
-                    <p className="text-2xl font-black text-brand-orange">{formatPrice(price, currency)}</p>
+                    <LocalizedPrice
+                      priceId={ebookPriceId}
+                      fallbackEur={ebookProduct.price}
+                      className="text-2xl font-black text-brand-orange"
+                    />
                     {originalPrice != null && (
                       <p className="text-sm text-muted-foreground line-through">
-                        antes {formatPrice(originalPrice, currency)}
+                        antes {formatByCurrency(originalPrice, currencyCode)}
                       </p>
                     )}
                   </div>
+
                 </div>
               </div>
 
