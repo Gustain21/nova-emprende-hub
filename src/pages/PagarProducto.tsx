@@ -8,7 +8,10 @@ import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useRegion, formatPrice, formatPriceEUR } from "@/lib/region/RegionContext";
+import { useRegion } from "@/lib/region/RegionContext";
+import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+
 
 interface DbProduct {
   id: string;
@@ -292,10 +295,13 @@ const PagarProducto = () => {
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
                 <div className="text-xs text-muted-foreground">Precio</div>
-                <div className="text-2xl font-bold text-brand-orange">
-                  {displayPrice != null ? formatPriceEUR(Number(displayPrice)) : "—"}
-                </div>
+                <LocalizedPrice
+                  priceId={dbProduct?.paddle_price_id || (slug ? PADDLE_PRICE_IDS[slug] : null)}
+                  fallbackEur={Number(displayPrice ?? 0)}
+                  className="text-2xl font-bold text-brand-orange"
+                />
               </div>
+
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
                 <div className="text-xs text-muted-foreground">Email comprador</div>
                 <div className="text-sm text-foreground truncate">
