@@ -20,6 +20,7 @@ import PagarProducto from "./pages/PagarProducto";
 // Zona privada de clientes (Fase 1 — mock)
 import { AuthProvider } from "./lib/auth/AuthProvider";
 import { RegionProvider } from "./lib/region/RegionContext";
+import DevCountrySwitcher from "./components/dev/DevCountrySwitcher";
 import ProtectedRoute from "./components/app/ProtectedRoute";
 import AppLayout from "./components/app/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
@@ -137,10 +138,12 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <DevCountrySwitcher />
           </RegionProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
+
   </QueryClientProvider>
 );
 
