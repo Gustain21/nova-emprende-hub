@@ -229,10 +229,13 @@ const Checkout = () => {
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
                 <div className="text-xs text-muted-foreground">Precio</div>
-                <div className="text-2xl font-bold text-brand-orange">
-                  {displayPrice != null ? formatPrice(Number(displayPrice), displayCurrency) : "—"}
-                </div>
+                <LocalizedPrice
+                  priceId={dbProduct?.paddle_price_id}
+                  fallbackEur={Number(displayPrice ?? 0)}
+                  className="text-2xl font-bold text-brand-orange"
+                />
               </div>
+
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
                 <div className="text-xs text-muted-foreground">Email</div>
                 <div className="text-sm text-foreground truncate">
