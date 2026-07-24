@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
-import { getEffectivePricing } from "@/lib/offer";
-import { useRegion, formatPrice } from "@/lib/region/RegionContext";
+import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
+import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+
 
 const iconMap: Record<string, React.ReactNode> = {
   BookOpen: <BookOpen className="w-6 h-6" />,
@@ -27,7 +30,8 @@ const Producto = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const product = getProductById(id || "");
-  const { currency } = useRegion();
+  const priceId = product ? PADDLE_PRICE_IDS[product.slug] : null;
+  const { currencyCode, formattedPrice } = useLocalizedPaddlePrice(priceId);
 
   if (!product) {
     return (
@@ -44,8 +48,10 @@ const Producto = () => {
     );
   }
 
-  const { price, originalPrice, offerActive } = getEffectivePricing(product, currency);
+  const offerActive = isOfferActive(product.offerEndDate, product.saleActive);
+  const originalPrice = offerActive ? product.originalPrice : undefined;
   const isEbook = product.id === "ebook";
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -109,15 +115,18 @@ const Producto = () => {
 
               {/* Pricing */}
               <div className="flex items-baseline gap-3 mb-4">
-                <span className="text-4xl md:text-5xl font-black text-brand-orange">
-                  {formatPrice(price, currency)}
-                </span>
+                <LocalizedPrice
+                  priceId={priceId}
+                  fallbackEur={product.price}
+                  className="text-4xl md:text-5xl font-black text-brand-orange"
+                />
                 {originalPrice != null && (
                   <span className="text-xl text-muted-foreground line-through">
-                    antes {formatPrice(originalPrice, currency)}
+                    antes {formatByCurrency(originalPrice, currencyCode)}
                   </span>
                 )}
               </div>
+
               <p className="text-xs text-muted-foreground mb-6">
                 Los impuestos y moneda final pueden ajustarse en el checkout según tu país.
               </p>
@@ -211,7 +220,7 @@ const Producto = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="hero" size="xl" asChild>
                 <Link to={`/pagar/${product.slug}`}>
-                  Comprar por {formatPrice(price, currency)}
+                  Comprar por {formattedPrice || formatByCurrency(product.price, currencyCode || "EUR")}
                   <ExternalLink className="w-5 h-5" />
                 </Link>
               </Button>

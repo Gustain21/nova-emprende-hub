@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Check, Star, Rocket, Zap, Crown, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { packs, type Pack, EBOOK_OFFER_END } from "@/data/products";
-import { useRegion, formatPrice } from "@/lib/region/RegionContext";
 import { isOfferActive, formatOfferDate } from "@/lib/offer";
+import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 
 const iconForPack = (id: string) =>
   id === "base" ? <Rocket className="w-6 h-6" /> :
@@ -12,13 +14,15 @@ const iconForPack = (id: string) =>
   <Crown className="w-6 h-6" />;
 
 const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
-  const { currency } = useRegion();
-  const price = currency === "EUR" ? pack.price : pack.priceUsd;
-  const original = currency === "EUR" ? pack.originalPrice : pack.originalPriceUsd;
-  const savings = original - price;
-  const savingsPercent = Math.round((savings / original) * 100);
+  const priceId = PADDLE_PRICE_IDS[pack.slug];
+  const { currencyCode } = useLocalizedPaddlePrice(priceId);
+  // Los importes originales/ahorro son numéricamente idénticos en EUR y USD.
+  const original = pack.originalPrice;
+  const savings = pack.originalPrice - pack.price;
+  const savingsPercent = Math.round((savings / pack.originalPrice) * 100);
   const includesEbook = pack.productIds.includes("ebook");
   const ebookOfferLive = includesEbook && isOfferActive(EBOOK_OFFER_END, true);
+
 
   return (
     <motion.div
@@ -81,12 +85,17 @@ const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
 
       <div className="mt-auto">
         <div className="flex items-baseline gap-2 mb-1 flex-wrap">
-          <span className="text-3xl font-black text-foreground">{formatPrice(price, currency)}</span>
-          <span className="text-base text-muted-foreground line-through">{formatPrice(original, currency)}</span>
+          <LocalizedPrice
+            priceId={priceId}
+            fallbackEur={pack.price}
+            className="text-3xl font-black text-foreground"
+          />
+          <span className="text-base text-muted-foreground line-through">{formatByCurrency(original, currencyCode)}</span>
         </div>
         <div className="text-xs text-brand-orange font-semibold mb-4">
-          Ahorras {formatPrice(savings, currency)} ({savingsPercent}% descuento)
+          Ahorras {formatByCurrency(savings, currencyCode)} ({savingsPercent}% descuento)
         </div>
+
         <p className="text-xs text-muted-foreground mb-4">
           Acceso inmediato. Impuestos y moneda final se ajustan en el checkout según tu país.
         </p>

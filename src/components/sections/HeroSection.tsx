@@ -4,9 +4,12 @@ import { BookOpen, Compass, Sparkles, CheckCircle2, ArrowRight } from "lucide-re
 import { Link } from "react-router-dom";
 import ebookCover from "@/assets/ebook-cover.jpg";
 import { ebookProduct } from "@/data/products";
-import { getEffectivePricing } from "@/lib/offer";
-import { useRegion, formatPrice } from "@/lib/region/RegionContext";
+import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
+import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+
 
 const stats = [
   { num: "1", text: "guía principal para empezar con claridad" },
@@ -21,8 +24,11 @@ const bullets = [
 ];
 
 const HeroSection = () => {
-  const { currency } = useRegion();
-  const { price, originalPrice, offerActive } = getEffectivePricing(ebookProduct, currency);
+  const ebookPriceId = PADDLE_PRICE_IDS[ebookProduct.slug];
+  const { currencyCode } = useLocalizedPaddlePrice(ebookPriceId);
+  const offerActive = isOfferActive(ebookProduct.offerEndDate, ebookProduct.saleActive);
+  const originalPrice = offerActive ? ebookProduct.originalPrice : undefined;
+
 
   return (
     <section id="inicio" className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden brand-hero-gradient">
@@ -128,13 +134,18 @@ const HeroSection = () => {
                     {offerActive ? "Precio lanzamiento" : "Precio"}
                   </p>
                   <div className="flex items-baseline gap-2 flex-wrap">
-                    <p className="text-2xl font-black text-brand-orange">{formatPrice(price, currency)}</p>
+                    <LocalizedPrice
+                      priceId={ebookPriceId}
+                      fallbackEur={ebookProduct.price}
+                      className="text-2xl font-black text-brand-orange"
+                    />
                     {originalPrice != null && (
                       <p className="text-sm text-muted-foreground line-through">
-                        antes {formatPrice(originalPrice, currency)}
+                        antes {formatByCurrency(originalPrice, currencyCode)}
                       </p>
                     )}
                   </div>
+
                 </div>
               </div>
 
