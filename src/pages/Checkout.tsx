@@ -8,7 +8,9 @@ import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useRegion, formatPrice } from "@/lib/region/RegionContext";
+import { useRegion } from "@/lib/region/RegionContext";
+import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+
 
 interface DbProduct {
   id: string;
