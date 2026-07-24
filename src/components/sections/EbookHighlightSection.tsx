@@ -4,9 +4,12 @@ import { CheckCircle2, ArrowRight, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import ebookCover from "@/assets/ebook-cover.jpg";
 import { ebookProduct } from "@/data/products";
-import { getEffectivePricing } from "@/lib/offer";
-import { useRegion, formatPrice } from "@/lib/region/RegionContext";
+import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
+import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+
 
 const bullets = [
   "Metodología paso a paso para validar tu idea de negocio",
@@ -16,8 +19,11 @@ const bullets = [
 ];
 
 const EbookHighlightSection = () => {
-  const { currency } = useRegion();
-  const { price, originalPrice, offerActive } = getEffectivePricing(ebookProduct, currency);
+  const ebookPriceId = PADDLE_PRICE_IDS[ebookProduct.slug];
+  const { currencyCode } = useLocalizedPaddlePrice(ebookPriceId);
+  const offerActive = isOfferActive(ebookProduct.offerEndDate, ebookProduct.saleActive);
+  const originalPrice = offerActive ? ebookProduct.originalPrice : undefined;
+
 
   return (
     <section id="ebook" className="brand-section bg-background">
