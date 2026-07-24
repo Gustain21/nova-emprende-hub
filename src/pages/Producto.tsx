@@ -4,7 +4,7 @@ import { ArrowLeft, Check, ExternalLink, ShieldCheck, BookOpen, Calendar, Lightb
 import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { getProductById, packs } from "@/data/products";
+import { getProductById } from "@/data/products";
 import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
 import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
