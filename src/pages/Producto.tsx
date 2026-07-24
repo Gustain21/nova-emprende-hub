@@ -4,10 +4,13 @@ import { ArrowLeft, Check, ExternalLink, ShieldCheck, BookOpen, Calendar, Lightb
 import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { getProductById } from "@/data/products";
-import { getEffectivePricing } from "@/lib/offer";
-import { useRegion, formatPrice } from "@/lib/region/RegionContext";
+import { getProductById, packs } from "@/data/products";
+import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
+import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+
 
 const iconMap: Record<string, React.ReactNode> = {
   BookOpen: <BookOpen className="w-6 h-6" />,
