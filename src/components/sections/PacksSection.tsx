@@ -4,7 +4,7 @@ import { Check, Star, Rocket, Zap, Crown, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { packs, type Pack, EBOOK_OFFER_END } from "@/data/products";
 import { isOfferActive, formatOfferDate } from "@/lib/offer";
-import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 
@@ -14,7 +14,7 @@ const iconForPack = (id: string) =>
   <Crown className="w-6 h-6" />;
 
 const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
-  const priceId = PADDLE_PRICE_IDS[pack.slug];
+  const priceId = usePaddlePriceId(pack.slug);
   const { currencyCode } = useLocalizedPaddlePrice(priceId);
   // Los importes originales/ahorro son numéricamente idénticos en EUR y USD.
   const original = pack.originalPrice;

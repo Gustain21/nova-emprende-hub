@@ -1,4 +1,5 @@
-// NOVA EMPRENDE — paddle-webhook (scaffold, modo sandbox)
+// NOVA EMPRENDE — paddle-webhook (compatible Sandbox y Live)
+// El entorno lo determina PADDLE_ENVIRONMENT; el secret usado es PADDLE_WEBHOOK_SECRET.
 // Procesa eventos Paddle: transaction.paid, transaction.completed,
 // transaction.canceled, transaction.payment_failed, transaction.refunded.
 // Requiere PADDLE_WEBHOOK_SECRET configurada en Lovable Cloud secrets.
@@ -11,18 +12,35 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-// Verifica la firma HMAC-SHA256 del webhook Paddle.
-// Header: paddle-signature: ts=...;h1=...
+// Verificación oficial Paddle: header `paddle-signature: ts=<unix>;h1=<hex>`
+// HMAC-SHA256 sobre `${ts}:${rawBody}` con el webhook secret, comparación
+// en tiempo constante y validación de timestamp para evitar replay.
+const MAX_SIGNATURE_AGE_SECONDS = 5 * 60;
+
+const timingSafeEqualHex = (a: string, b: string) => {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+};
+
 async function verifyPaddleSignature(rawBody: string, header: string, secret: string) {
-  const parts = Object.fromEntries(
-    header.split(";").map((p) => {
-      const [k, v] = p.split("=");
-      return [k.trim(), v?.trim() ?? ""];
-    }),
-  );
+  const parts: Record<string, string> = {};
+  for (const p of header.split(";")) {
+    const idx = p.indexOf("=");
+    if (idx === -1) continue;
+    parts[p.slice(0, idx).trim()] = p.slice(idx + 1).trim();
+  }
   const ts = parts["ts"];
-  const h1 = parts["h1"];
-  if (!ts || !h1) return false;
+  const h1 = (parts["h1"] || "").toLowerCase();
+  if (!ts || !h1 || !/^\d+$/.test(ts) || !/^[0-9a-f]{64}$/.test(h1)) return false;
+
+  // Anti-replay: rechaza marcas de tiempo demasiado antiguas o futuras.
+  const age = Math.abs(Math.floor(Date.now() / 1000) - Number(ts));
+  if (!Number.isFinite(age) || age > MAX_SIGNATURE_AGE_SECONDS) {
+    console.warn("[paddle-webhook] timestamp fuera de ventana", { age });
+    return false;
+  }
 
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
@@ -36,7 +54,7 @@ async function verifyPaddleSignature(rawBody: string, header: string, secret: st
   const computed = Array.from(new Uint8Array(sig))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
-  return computed === h1;
+  return timingSafeEqualHex(computed, h1);
 }
 
 Deno.serve(async (req) => {
@@ -50,7 +68,9 @@ Deno.serve(async (req) => {
   const sigHeader = req.headers.get("paddle-signature");
   const rawBody = await req.text();
   if (!sigHeader || !(await verifyPaddleSignature(rawBody, sigHeader, webhookSecret))) {
-    return new Response("Firma Paddle inválida", { status: 400 });
+    // Se rechaza ANTES de procesar cualquier evento.
+    console.warn("[paddle-webhook] firma inválida, evento descartado");
+    return new Response("Firma Paddle inválida", { status: 401 });
   }
 
   const event = JSON.parse(rawBody);

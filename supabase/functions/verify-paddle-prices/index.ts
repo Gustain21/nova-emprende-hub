@@ -3,6 +3,7 @@
 // Solo lectura. No modifica nada.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { paddleApiBase, paddleEnvironment } from "../_shared/currencyRule.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,9 +30,8 @@ Deno.serve(async (req) => {
       return json({ error: "config_error", detail: "Supabase env missing" }, 500);
     }
 
-    const paddleEnv = (Deno.env.get("PADDLE_ENVIRONMENT") || "sandbox").toLowerCase();
-    const paddleBase =
-      paddleEnv === "live" ? "https://api.paddle.com" : "https://sandbox-api.paddle.com";
+    const paddleEnv = paddleEnvironment();
+    const paddleBase = paddleApiBase(paddleEnv);
 
     const supa = createClient(supabaseUrl, serviceKey);
     const { data: products, error: dbErr } = await supa
