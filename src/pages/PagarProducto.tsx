@@ -190,8 +190,9 @@ const PagarProducto = () => {
     setDebugBuyerEmail(null);
     if (!dbProduct) return setError("Producto no disponible.");
     if (!hasPaddle) return setError("Este producto no tiene Paddle configurado.");
-    if (!acceptLegal) return setError("Debes aceptar los Términos y Condiciones y la Política de Privacidad.");
+    if (!acceptLegal) return setError("Debes aceptar los Términos y Condiciones y la Política de Reembolsos, y declarar haber leído la Política de Privacidad.");
     if (!acceptDigital) return setError("Debes confirmar el consentimiento de acceso inmediato al contenido digital.");
+
 
 
     // SOURCE OF TRUTH: only the manually-typed input. No session/localStorage fallback.
