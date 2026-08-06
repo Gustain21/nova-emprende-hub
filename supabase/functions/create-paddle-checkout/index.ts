@@ -57,6 +57,16 @@ Deno.serve(async (req) => {
     }
     const email = rawEmail;
 
+    // El consentimiento legal es obligatorio también en servidor.
+    const consentIn = (body?.consent ?? {}) as Record<string, unknown>;
+    if (consentIn.accept_terms !== true || consentIn.accept_immediate_access !== true) {
+      return json(
+        { error: "consent_required", detail: "Debes aceptar las casillas legales obligatorias." },
+        400,
+      );
+    }
+
+
     // Optional auth (user_id si hay sesión)
     let userId: string | null = null;
     const authHeader = req.headers.get("Authorization");
