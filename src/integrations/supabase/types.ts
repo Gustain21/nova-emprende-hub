@@ -252,6 +252,71 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_consents: {
+        Row: {
+          accept_immediate_access: boolean
+          accept_refunds: boolean
+          accept_terms: boolean
+          acknowledge_withdrawal_loss: boolean
+          consent_text: string | null
+          country: string | null
+          created_at: string
+          email: string
+          id: string
+          legal_version: string
+          paddle_transaction_id: string | null
+          product_id: string | null
+          product_slug: string | null
+          read_privacy: boolean
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          accept_immediate_access?: boolean
+          accept_refunds?: boolean
+          accept_terms?: boolean
+          acknowledge_withdrawal_loss?: boolean
+          consent_text?: string | null
+          country?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          legal_version?: string
+          paddle_transaction_id?: string | null
+          product_id?: string | null
+          product_slug?: string | null
+          read_privacy?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          accept_immediate_access?: boolean
+          accept_refunds?: boolean
+          accept_terms?: boolean
+          acknowledge_withdrawal_loss?: boolean
+          consent_text?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          legal_version?: string
+          paddle_transaction_id?: string | null
+          product_id?: string | null
+          product_slug?: string | null
+          read_privacy?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_consents_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       planner_progress: {
         Row: {
           config: Json

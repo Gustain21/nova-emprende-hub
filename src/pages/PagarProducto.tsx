@@ -190,8 +190,9 @@ const PagarProducto = () => {
     setDebugBuyerEmail(null);
     if (!dbProduct) return setError("Producto no disponible.");
     if (!hasPaddle) return setError("Este producto no tiene Paddle configurado.");
-    if (!acceptLegal) return setError("Debes aceptar los Términos y Condiciones y la Política de Privacidad.");
+    if (!acceptLegal) return setError("Debes aceptar los Términos y Condiciones y la Política de Reembolsos, y declarar haber leído la Política de Privacidad.");
     if (!acceptDigital) return setError("Debes confirmar el consentimiento de acceso inmediato al contenido digital.");
+
 
 
     // SOURCE OF TRUTH: only the manually-typed input. No session/localStorage fallback.
@@ -208,8 +209,22 @@ const PagarProducto = () => {
       initPaddle().catch((e) => console.warn("[pagar] paddle preinit warn", e));
 
       const { data, error: fnError } = await supabase.functions.invoke("create-paddle-checkout", {
-        body: { slug: dbProduct.slug, email: emailToSend, country },
+        body: {
+          slug: dbProduct.slug,
+          email: emailToSend,
+          country,
+          consent: {
+            accept_terms: true,
+            accept_refunds: true,
+            read_privacy: true,
+            accept_immediate_access: true,
+            acknowledge_withdrawal_loss: true,
+            legal_version: "2026-08-06",
+            user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : null,
+          },
+        },
       });
+
       if (fnError) throw fnError;
 
 
@@ -349,9 +364,10 @@ const PagarProducto = () => {
                 />
                 <span className="text-sm text-muted-foreground leading-relaxed">
                   He leído y acepto los{" "}
-                  <Link to="/terminos" className="text-brand-orange hover:underline">Términos y Condiciones</Link>,
-                  la <Link to="/privacidad" className="text-brand-orange hover:underline">Política de Privacidad</Link>{" "}
-                  y la <Link to="/reembolsos" className="text-brand-orange hover:underline">Política de Reembolsos</Link>.
+                  <Link to="/terminos" className="text-brand-orange hover:underline">Términos y Condiciones</Link>{" "}
+                  y la <Link to="/reembolsos" className="text-brand-orange hover:underline">Política de Reembolsos</Link>,
+                  y declaro haber leído la{" "}
+                  <Link to="/privacidad" className="text-brand-orange hover:underline">Política de Privacidad</Link>.
                 </span>
               </label>
               <label className="flex items-start gap-3 cursor-pointer">
@@ -362,9 +378,12 @@ const PagarProducto = () => {
                   className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--brand-orange))]"
                 />
                 <span className="text-sm text-muted-foreground leading-relaxed">
-                  Solicito y consiento que el suministro del contenido digital comience inmediatamente tras la compra y
-                  reconozco que, en consecuencia, perderé mi derecho de desistimiento una vez iniciado el acceso o la descarga.
+                  Solicito expresamente que el contenido digital adquirido esté disponible de forma inmediata, antes de que
+                  finalice el plazo de desistimiento que pudiera corresponderme, y reconozco que, una vez iniciada la descarga,
+                  el acceso o la utilización del contenido, puedo perder mi derecho de desistimiento cuando así lo establezca
+                  la legislación aplicable.
                 </span>
+
               </label>
             </div>
 
