@@ -53,9 +53,11 @@ export async function initPaddle(): Promise<any> {
   if (paddleInitialized) return Paddle;
   const { token, environment } = await fetchPaddleClientConfig();
   if (!token) throw new Error("Falta el client-side token de Paddle.");
+  // Sólo en sandbox. En Live NO se llama a Environment.set: Paddle.js usa producción por defecto.
   if (environment === "sandbox" && typeof Paddle.Environment?.set === "function") {
     Paddle.Environment.set("sandbox");
   }
+  console.log("[paddle] init", { environment });
   Paddle.Initialize({ token });
   paddleInitialized = true;
   return Paddle;
