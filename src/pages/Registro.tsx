@@ -139,12 +139,11 @@ const Registro = () => {
                   />
                   <span className="text-sm text-muted-foreground leading-relaxed">
                     He leído y acepto los{" "}
-                    <Link to="/terminos" className="text-brand-orange hover:underline">Términos y Condiciones</Link>,
-                    la{" "}
-                    <Link to="/privacidad" className="text-brand-orange hover:underline">Política de Privacidad</Link>{" "}
-                    y la{" "}
-                    <Link to="/cookies" className="text-brand-orange hover:underline">Política de Cookies</Link>.
+                    <Link to="/terminos" className="text-brand-orange hover:underline">Términos y Condiciones</Link>{" "}
+                    y declaro haber leído la{" "}
+                    <Link to="/privacidad" className="text-brand-orange hover:underline">Política de Privacidad</Link>.
                   </span>
+
                 </label>
 
                 <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting || !acceptLegal}>
