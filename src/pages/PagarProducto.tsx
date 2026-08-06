@@ -125,6 +125,8 @@ const PagarProducto = () => {
   // must be exactly what is typed in the form for this transaction.
   const [buyerEmail, setBuyerEmail] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [acceptLegal, setAcceptLegal] = useState(false);
+  const [acceptDigital, setAcceptDigital] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [debugBuyerEmail, setDebugBuyerEmail] = useState<string | null>(null);
   const autoOpenedRef = useRef(false);
