@@ -15,7 +15,7 @@ const corsHeaders = {
 // Verificación oficial Paddle: header `paddle-signature: ts=<unix>;h1=<hex>`
 // HMAC-SHA256 sobre `${ts}:${rawBody}` con el webhook secret, comparación
 // en tiempo constante y validación de timestamp para evitar replay.
-const MAX_SIGNATURE_AGE_SECONDS = 5 * 60;
+const MAX_SIGNATURE_AGE_SECONDS = 5;
 
 const timingSafeEqualHex = (a: string, b: string) => {
   if (a.length !== b.length) return false;
