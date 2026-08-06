@@ -350,6 +350,8 @@ export type Database = {
           id: string
           name: string
           paddle_price_id: string | null
+          paddle_price_id_eur: string | null
+          paddle_price_id_usd: string | null
           paddle_tax_category: string | null
           payment_provider_eu: string | null
           payment_provider_intl: string | null
@@ -384,6 +386,8 @@ export type Database = {
           id?: string
           name: string
           paddle_price_id?: string | null
+          paddle_price_id_eur?: string | null
+          paddle_price_id_usd?: string | null
           paddle_tax_category?: string | null
           payment_provider_eu?: string | null
           payment_provider_intl?: string | null
@@ -418,6 +422,8 @@ export type Database = {
           id?: string
           name?: string
           paddle_price_id?: string | null
+          paddle_price_id_eur?: string | null
+          paddle_price_id_usd?: string | null
           paddle_tax_category?: string | null
           payment_provider_eu?: string | null
           payment_provider_intl?: string | null
