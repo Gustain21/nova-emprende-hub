@@ -83,11 +83,14 @@ const Footer = () => {
             <Link to="/privacidad" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               Política de Privacidad
             </Link>
-            <Link to="/privacidad" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/cookies" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               Política de Cookies
             </Link>
             <Link to="/terminos" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               Términos y Condiciones
+            </Link>
+            <Link to="/reembolsos" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Reembolsos
             </Link>
           </div>
         </div>

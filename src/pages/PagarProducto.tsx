@@ -125,6 +125,8 @@ const PagarProducto = () => {
   // must be exactly what is typed in the form for this transaction.
   const [buyerEmail, setBuyerEmail] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [acceptLegal, setAcceptLegal] = useState(false);
+  const [acceptDigital, setAcceptDigital] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [debugBuyerEmail, setDebugBuyerEmail] = useState<string | null>(null);
   const autoOpenedRef = useRef(false);
@@ -188,6 +190,9 @@ const PagarProducto = () => {
     setDebugBuyerEmail(null);
     if (!dbProduct) return setError("Producto no disponible.");
     if (!hasPaddle) return setError("Este producto no tiene Paddle configurado.");
+    if (!acceptLegal) return setError("Debes aceptar los Términos y Condiciones y la Política de Privacidad.");
+    if (!acceptDigital) return setError("Debes confirmar el consentimiento de acceso inmediato al contenido digital.");
+
 
     // SOURCE OF TRUTH: only the manually-typed input. No session/localStorage fallback.
     const emailToSend = buyerEmail.trim().toLowerCase();
@@ -332,6 +337,35 @@ const PagarProducto = () => {
                   </>
                 )}
               </p>
+            </div>
+
+            <div className="space-y-3 mb-6">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptLegal}
+                  onChange={(e) => setAcceptLegal(e.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--brand-orange))]"
+                />
+                <span className="text-sm text-muted-foreground leading-relaxed">
+                  He leído y acepto los{" "}
+                  <Link to="/terminos" className="text-brand-orange hover:underline">Términos y Condiciones</Link>,
+                  la <Link to="/privacidad" className="text-brand-orange hover:underline">Política de Privacidad</Link>{" "}
+                  y la <Link to="/reembolsos" className="text-brand-orange hover:underline">Política de Reembolsos</Link>.
+                </span>
+              </label>
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptDigital}
+                  onChange={(e) => setAcceptDigital(e.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--brand-orange))]"
+                />
+                <span className="text-sm text-muted-foreground leading-relaxed">
+                  Solicito y consiento que el suministro del contenido digital comience inmediatamente tras la compra y
+                  reconozco que, en consecuencia, perderé mi derecho de desistimiento una vez iniciado el acceso o la descarga.
+                </span>
+              </label>
             </div>
 
 

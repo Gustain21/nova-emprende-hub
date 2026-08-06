@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { Link } from "react-router-dom";
 
 const AvisoLegal = () => {
   return (
@@ -16,84 +17,112 @@ const AvisoLegal = () => {
               Aviso <span className="text-brand-orange">legal</span>
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed mb-12 max-w-3xl">
-              Aquí se recoge la información general de titularidad, condiciones de uso, acceso al área privada y protección de los contenidos, recursos y herramientas digitales de NOVA EMPRENDE.
+              Última actualización: 6 de agosto de 2026
             </p>
 
             <div className="border border-border rounded-2xl p-8 md:p-12 space-y-10 text-muted-foreground">
               <section className="space-y-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">1. Titularidad del sitio web</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">1. Identificación del titular</h2>
                 <p>
-                  Este sitio web, sus subdominios, áreas privadas y entornos asociados son titularidad de <strong className="text-foreground">Editorial Nova Emprende SL</strong>, sociedad dedicada a la edición, comercialización y distribución de contenidos, recursos, herramientas y aplicaciones digitales para emprendedores.
+                  En cumplimiento de la normativa aplicable a los servicios de la sociedad de la información, se informa de los datos identificativos del responsable de este sitio web:
                 </p>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li><strong className="text-foreground">Denominación social:</strong> Editorial Nova Emprende SL</li>
-                  <li><strong className="text-foreground">Email de contacto:</strong> <span className="text-brand-orange">hola@editorialnovaemprende.com</span></li>
-                  <li><strong className="text-foreground">Ámbito de actividad:</strong> contenidos editoriales, descargables, recursos digitales, apps web y productos formativos o prácticos vinculados al ecosistema NOVA EMPRENDE</li>
-                  <li><strong className="text-foreground">Domicilio social:</strong> España</li>
+                  <li><strong className="text-foreground">Titular:</strong> Gustavo Eduardo Romero</li>
+                  <li><strong className="text-foreground">NIF:</strong> 60767754Y</li>
+                  <li><strong className="text-foreground">Nombre comercial:</strong> Editorial Nova Emprende</li>
+                  <li><strong className="text-foreground">Domicilio:</strong> Calle Joan Pereyra i Morante 6, 07800 Eivissa, Islas Baleares, España</li>
+                  <li>
+                    <strong className="text-foreground">Correo electrónico:</strong>{" "}
+                    <a href="mailto:hola@editorialnovaemprende.com" className="text-brand-orange hover:underline">hola@editorialnovaemprende.com</a>
+                  </li>
+                  <li>
+                    <strong className="text-foreground">Sitio web:</strong>{" "}
+                    <a href="https://www.editorialnovaemprende.com" target="_blank" rel="noopener noreferrer" className="text-brand-orange hover:underline">www.editorialnovaemprende.com</a>
+                  </li>
                 </ul>
                 <p>
-                  En esta versión de trabajo se ha optado por una presentación pública discreta de los datos identificativos, sin perjuicio de completar o adaptar la información formal exigible antes de la publicación operativa definitiva.
+                  Editorial Nova Emprende es el nombre comercial bajo el que el titular desarrolla este proyecto editorial y digital.
                 </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">2. Objeto y alcance</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">2. Objeto del sitio web</h2>
                 <p>
-                  El presente Aviso Legal regula el acceso, navegación y uso de esta web, así como la utilización de sus contenidos, formularios, recursos, servicios, áreas privadas y herramientas digitales asociadas a NOVA EMPRENDE.
+                  Editorial Nova Emprende ofrece contenidos editoriales, recursos formativos y herramientas digitales orientados a emprendedores, profesionales independientes, autoempleados y pequeños negocios.
+                </p>
+                <p>
+                  El sitio permite consultar información sobre los productos disponibles, adquirir productos digitales a través del sistema de compra habilitado y acceder, cuando corresponda, a los contenidos asociados a la cuenta del usuario.
                 </p>
               </section>
 
               <section className="space-y-4">
                 <h2 className="text-2xl md:text-3xl font-bold text-foreground">3. Condiciones de uso</h2>
                 <p>
-                  El usuario se compromete a utilizar el sitio de forma lícita, diligente y conforme a la buena fe. Queda prohibido el uso del sitio, del área privada o de las apps con fines ilícitos, fraudulentos, lesivos para terceros o que puedan perjudicar el funcionamiento normal del sistema.
+                  El acceso al sitio web implica el compromiso de utilizarlo de forma lícita y respetando la legislación aplicable, los derechos de terceros y las presentes condiciones.
+                </p>
+                <p>
+                  El usuario se compromete a no utilizar el sitio para realizar actividades ilícitas, intentar acceder sin autorización a sistemas o cuentas de terceros, interferir en el funcionamiento de la plataforma o vulnerar las medidas de seguridad implementadas.
                 </p>
               </section>
 
               <section className="space-y-4">
                 <h2 className="text-2xl md:text-3xl font-bold text-foreground">4. Propiedad intelectual e industrial</h2>
                 <p>
-                  Los textos, diseños, estructuras, logotipos, nombres comerciales, descargables, documentos, apps, materiales y demás contenidos de NOVA EMPRENDE están protegidos por la normativa aplicable en materia de propiedad intelectual e industrial.
+                  Salvo que se indique expresamente lo contrario, los textos, contenidos, diseños, materiales editoriales, metodologías, herramientas, documentos, recursos descargables y demás elementos propios publicados bajo Editorial Nova Emprende están protegidos por la normativa aplicable en materia de propiedad intelectual e industrial.
                 </p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li>La compra de un producto no implica cesión de derechos de propiedad intelectual.</li>
-                  <li>El usuario adquiere únicamente el derecho de acceso o la licencia de uso que se describa en cada producto, pack o condición de compra.</li>
-                  <li>Queda prohibida la reproducción, distribución, comunicación pública, reventa, cesión a terceros o explotación no autorizada de los contenidos.</li>
-                </ul>
-              </section>
-
-              <section className="space-y-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">5. Área privada y accesos</h2>
                 <p>
-                  Determinados recursos, descargas y herramientas están reservados a clientes autorizados. El usuario es responsable de custodiar sus credenciales de acceso y de no compartirlas con terceros. NOVA EMPRENDE podrá limitar, suspender o revisar accesos cuando detecte un uso anómalo, indebido o contrario a estas condiciones.
+                  La adquisición de un producto no implica la cesión de los derechos de propiedad intelectual sobre el mismo.
+                </p>
+                <p>
+                  Los usos permitidos de los productos adquiridos se especifican en los{" "}
+                  <Link to="/terminos" className="text-brand-orange hover:underline">Términos y Condiciones</Link>.
                 </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">6. Responsabilidad</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">5. Enlaces externos</h2>
                 <p>
-                  NOVA EMPRENDE adoptará medidas razonables para procurar la disponibilidad y el buen funcionamiento del sitio, pero no garantiza la ausencia absoluta de errores, interrupciones, incidencias técnicas o caídas temporales. Tampoco responderá de daños derivados del uso indebido del servicio, de accesos no autorizados atribuibles al usuario o de incidencias ajenas a su control razonable.
+                  El sitio puede contener enlaces a páginas, plataformas o servicios gestionados por terceros.
+                </p>
+                <p>
+                  Editorial Nova Emprende no controla de forma general dichos servicios externos y no responde de sus contenidos, disponibilidad, políticas o prácticas, sin perjuicio de las responsabilidades que legalmente pudieran corresponder.
                 </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">7. Enlaces a terceros</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">6. Disponibilidad del sitio</h2>
                 <p>
-                  En caso de que la web incluya enlaces a servicios, herramientas o sitios de terceros, NOVA EMPRENDE no será responsable de sus contenidos, políticas, disponibilidad ni prácticas externas, sin perjuicio de retirar o revisar dichos enlaces cuando resulte conveniente.
+                  Se adoptarán medidas razonables para mantener el sitio y los productos digitales accesibles y operativos.
+                </p>
+                <p>
+                  No obstante, pueden producirse interrupciones temporales debidas a mantenimiento, actualizaciones, incidencias técnicas, problemas de proveedores tecnológicos u otras circunstancias ajenas al control razonable del titular.
                 </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">8. Protección de datos y cookies</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">7. Compras y pagos</h2>
+                <p>Las compras de productos digitales se procesan mediante Paddle.</p>
                 <p>
-                  El tratamiento de datos personales y el uso de cookies se rigen por las políticas específicas de privacidad y cookies accesibles desde este sitio web, así como por la normativa que resulte aplicable en cada momento.
+                  Paddle actúa como Merchant of Record y reseller autorizado en la transacción, por lo que gestiona el proceso de pago y los impuestos aplicables a la compra de acuerdo con sus propias condiciones.
+                </p>
+                <p>
+                  Antes de finalizar una compra, el usuario podrá conocer el precio y los importes aplicables en el correspondiente proceso de compra.
+                </p>
+                <p>
+                  Las condiciones específicas de utilización de los productos de Editorial Nova Emprende se encuentran en los{" "}
+                  <Link to="/terminos" className="text-brand-orange hover:underline">Términos y Condiciones</Link>.
                 </p>
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">9. Legislación aplicable y fuero</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">8. Legislación y derechos del consumidor</h2>
+                <p>El uso de este sitio se regirá por la normativa que resulte aplicable.</p>
                 <p>
-                  Este Aviso Legal se regirá por la legislación española. En caso de conflicto o controversia, las partes se someterán a los juzgados y tribunales que resulten competentes conforme a la normativa aplicable, especialmente en materia de consumo cuando proceda.
+                  Cuando el usuario tenga la condición legal de consumidor, ninguna disposición de este Aviso Legal limitará los derechos imperativos que le reconozca la legislación de protección de consumidores correspondiente a su lugar de residencia.
+                </p>
+                <p>
+                  Para cualquier consulta relacionada con Editorial Nova Emprende puede escribirse a{" "}
+                  <a href="mailto:hola@editorialnovaemprende.com" className="text-brand-orange hover:underline">hola@editorialnovaemprende.com</a>.
                 </p>
               </section>
             </div>

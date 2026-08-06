@@ -13,6 +13,7 @@ import { PasswordField, isPasswordValid } from "@/components/auth/PasswordField"
 const Registro = () => {
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [acceptLegal, setAcceptLegal] = useState(false);
   const { signUp, user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -22,6 +23,10 @@ const Registro = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!acceptLegal) {
+      toast.error("Debes aceptar los Términos y Condiciones y la Política de Privacidad.");
+      return;
+    }
     if (!isPasswordValid(formData.password)) {
       toast.error("Tu contraseña todavía no cumple los requisitos mínimos de seguridad.");
       return;
@@ -125,7 +130,24 @@ const Registro = () => {
                   />
                 </div>
 
-                <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acceptLegal}
+                    onChange={(e) => setAcceptLegal(e.target.checked)}
+                    className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--brand-orange))]"
+                  />
+                  <span className="text-sm text-muted-foreground leading-relaxed">
+                    He leído y acepto los{" "}
+                    <Link to="/terminos" className="text-brand-orange hover:underline">Términos y Condiciones</Link>,
+                    la{" "}
+                    <Link to="/privacidad" className="text-brand-orange hover:underline">Política de Privacidad</Link>{" "}
+                    y la{" "}
+                    <Link to="/cookies" className="text-brand-orange hover:underline">Política de Cookies</Link>.
+                  </span>
+                </label>
+
+                <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting || !acceptLegal}>
                   {submitting ? "Creando cuenta..." : "Crear cuenta"}
                   <ArrowRight className="w-5 h-5" />
                 </Button>
