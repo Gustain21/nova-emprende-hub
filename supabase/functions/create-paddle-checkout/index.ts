@@ -143,6 +143,37 @@ Deno.serve(async (req) => {
     const checkout_url: string | undefined = txJson?.data?.checkout?.url;
     console.log("paddle transaction created", { transaction_id });
 
+    // Registro de evidencia de consentimiento legal (servidor, service role).
+    try {
+      const c = (body?.consent ?? {}) as Record<string, unknown>;
+      const consentText =
+        "Términos y Condiciones + Política de Reembolsos aceptados; Política de Privacidad leída. " +
+        "Solicito expresamente que el contenido digital adquirido esté disponible de forma inmediata, antes de que " +
+        "finalice el plazo de desistimiento que pudiera corresponderme, y reconozco que, una vez iniciada la descarga, " +
+        "el acceso o la utilización del contenido, puedo perder mi derecho de desistimiento cuando así lo establezca la " +
+        "legislación aplicable.";
+
+      const { error: consentErr } = await supabaseAdmin.from("legal_consents").insert({
+        user_id: userId,
+        email,
+        product_id: product.id,
+        product_slug: product.slug,
+        paddle_transaction_id: transaction_id ?? null,
+        legal_version: typeof c.legal_version === "string" ? c.legal_version : "2026-08-06",
+        accept_terms: c.accept_terms === true,
+        accept_refunds: c.accept_refunds === true,
+        read_privacy: c.read_privacy === true,
+        accept_immediate_access: c.accept_immediate_access === true,
+        acknowledge_withdrawal_loss: c.acknowledge_withdrawal_loss === true,
+        consent_text: consentText,
+        country: country,
+        user_agent: typeof c.user_agent === "string" ? c.user_agent.slice(0, 500) : null,
+      });
+      if (consentErr) console.error("consent insert error", consentErr);
+    } catch (e) {
+      console.error("consent insert fatal", e);
+    }
+
     return json({
       transaction_id,
       checkout_url,
@@ -150,6 +181,7 @@ Deno.serve(async (req) => {
       mode: paddleEnv,
       debug_buyer_email: email,
     });
+
   } catch (err: any) {
     console.error("create-paddle-checkout fatal", err);
     return json({ error: "internal_error", detail: err?.message || "Error interno" }, 500);
