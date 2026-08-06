@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
 import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
-import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 
@@ -30,7 +30,8 @@ const Producto = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const product = getProductById(id || "");
-  const priceId = product ? PADDLE_PRICE_IDS[product.slug] : null;
+  const idMap = usePaddlePriceIds();
+  const priceId = product ? idMap[product.slug] ?? null : null;
   const { currencyCode, formattedPrice } = useLocalizedPaddlePrice(priceId);
 
   if (!product) {

@@ -7,7 +7,7 @@ import { ebookProduct } from "@/data/products";
 import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
 import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
-import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 
 
@@ -24,7 +24,7 @@ const bullets = [
 ];
 
 const HeroSection = () => {
-  const ebookPriceId = PADDLE_PRICE_IDS[ebookProduct.slug];
+  const ebookPriceId = usePaddlePriceId(ebookProduct.slug);
   const { currencyCode } = useLocalizedPaddlePrice(ebookPriceId);
   const offerActive = isOfferActive(ebookProduct.offerEndDate, ebookProduct.saleActive);
   const originalPrice = offerActive ? ebookProduct.originalPrice : undefined;

@@ -4,7 +4,7 @@ import { ExternalLink, FileText, BookOpen, Lightbulb, PieChart, Calendar } from 
 import { Link } from "react-router-dom";
 import { products, type Product } from "@/data/products";
 import { isOfferActive } from "@/lib/offer";
-import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { usePaddlePriceId, usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrices, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 
@@ -18,7 +18,7 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 const ProductCard = ({ product, index, currencyCode }: { product: Product; index: number; currencyCode: string | null }) => {
-  const priceId = PADDLE_PRICE_IDS[product.slug];
+  const priceId = usePaddlePriceId(product.slug);
   const offerActive = isOfferActive(product.offerEndDate, product.saleActive);
   const originalPrice = offerActive ? product.originalPrice : undefined;
 
@@ -83,7 +83,8 @@ const ProductCard = ({ product, index, currencyCode }: { product: Product; index
 };
 
 const ProductsSection = () => {
-  const priceIds = products.map((p) => PADDLE_PRICE_IDS[p.slug]).filter(Boolean);
+  const idMap = usePaddlePriceIds();
+  const priceIds = products.map((p) => idMap[p.slug]).filter(Boolean);
   const prices = useLocalizedPaddlePrices(priceIds);
   const currencyCode =
     Object.values(prices).find((p) => p.currencyCode)?.currencyCode ?? null;
