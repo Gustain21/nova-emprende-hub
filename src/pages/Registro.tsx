@@ -13,6 +13,7 @@ import { PasswordField, isPasswordValid } from "@/components/auth/PasswordField"
 const Registro = () => {
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [acceptLegal, setAcceptLegal] = useState(false);
   const { signUp, user, loading } = useAuth();
   const navigate = useNavigate();
 
