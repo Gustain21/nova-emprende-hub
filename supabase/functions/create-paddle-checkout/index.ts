@@ -3,6 +3,13 @@
 // La activación de entitlements se hace exclusivamente desde paddle-webhook.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  countryFromHeaders,
+  currencyForCountry,
+  normalizeCountry,
+  paddleApiBase,
+  paddleEnvironment,
+} from "../_shared/currencyRule.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,14 +47,17 @@ Deno.serve(async (req) => {
       return json({ error: "config_error", detail: "Supabase env missing" }, 500);
     }
 
-    const paddleEnv = (Deno.env.get("PADDLE_ENVIRONMENT") || "sandbox").toLowerCase();
-    const paddleBase =
-      paddleEnv === "live" ? "https://api.paddle.com" : "https://sandbox-api.paddle.com";
+    const paddleEnv = paddleEnvironment();
+    const paddleBase = paddleApiBase(paddleEnv);
 
     const body = await req.json().catch(() => ({}));
     const slug = (body?.slug || body?.product_slug) as string | undefined;
     const rawEmail = (body?.email as string | undefined)?.trim().toLowerCase();
-    const country = (body?.country as string | undefined)?.toUpperCase() ?? null;
+    // El país de headers de red (mismos que geo-detect) prevalece sobre el del cliente.
+    const headerCountry = countryFromHeaders(req.headers);
+    const clientCountry = normalizeCountry(body?.country);
+    const country = headerCountry ?? clientCountry;
+    const currency = currencyForCountry(country);
     console.log("Checkout buyer email:", rawEmail);
     console.log("Checkout product slug:", slug);
 
@@ -86,7 +96,7 @@ Deno.serve(async (req) => {
     const supabaseAdmin = createClient(supabaseUrl, serviceKey);
     const { data: product, error: prodErr } = await supabaseAdmin
       .from("products")
-      .select("id, slug, name, price, currency, paddle_price_id, active")
+      .select("id, slug, name, price, currency, paddle_price_id, paddle_price_id_eur, paddle_price_id_usd, active")
       .eq("slug", slug)
       .maybeSingle();
 
@@ -96,11 +106,22 @@ Deno.serve(async (req) => {
     if (!product.active) {
       return json({ error: "product_inactive", detail: "Producto no activo" }, 400);
     }
-    if (!product.paddle_price_id) {
-      return json({ error: "missing_paddle_price_id", detail: "Producto sin paddle_price_id" }, 400);
+    // Selección de Price ID EN SERVIDOR (fuente de verdad: tabla products).
+    const selectedPriceId =
+      paddleEnv === "live"
+        ? currency === "EUR"
+          ? product.paddle_price_id_eur
+          : product.paddle_price_id_usd
+        : product.paddle_price_id;
+
+    if (!selectedPriceId) {
+      return json(
+        { error: "missing_paddle_price_id", detail: `Producto sin price_id para ${paddleEnv}/${currency}` },
+        400,
+      );
     }
     console.log("product found", { id: product.id, slug: product.slug });
-    console.log("paddle_price_id found");
+    console.log("price id selected", { env: paddleEnv, currency, country });
 
     const origin =
       req.headers.get("origin") ||
@@ -116,7 +137,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        items: [{ price_id: product.paddle_price_id, quantity: 1 }],
+        items: [{ price_id: selectedPriceId, quantity: 1 }],
         customer: { email },
         checkout: { url: checkoutReturnUrl },
         custom_data: {
@@ -125,6 +146,7 @@ Deno.serve(async (req) => {
           buyer_email: email,
           user_id: userId,
           country: country ?? "",
+          currency,
           source: "public_pagar_checkout",
         },
       }),
