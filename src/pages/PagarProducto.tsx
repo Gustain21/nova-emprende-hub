@@ -334,6 +334,35 @@ const PagarProducto = () => {
               </p>
             </div>
 
+            <div className="space-y-3 mb-6">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptLegal}
+                  onChange={(e) => setAcceptLegal(e.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--brand-orange))]"
+                />
+                <span className="text-sm text-muted-foreground leading-relaxed">
+                  He leído y acepto los{" "}
+                  <Link to="/terminos" className="text-brand-orange hover:underline">Términos y Condiciones</Link>,
+                  la <Link to="/privacidad" className="text-brand-orange hover:underline">Política de Privacidad</Link>{" "}
+                  y la <Link to="/reembolsos" className="text-brand-orange hover:underline">Política de Reembolsos</Link>.
+                </span>
+              </label>
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptDigital}
+                  onChange={(e) => setAcceptDigital(e.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--brand-orange))]"
+                />
+                <span className="text-sm text-muted-foreground leading-relaxed">
+                  Solicito y consiento que el suministro del contenido digital comience inmediatamente tras la compra y
+                  reconozco que, en consecuencia, perderé mi derecho de desistimiento una vez iniciado el acceso o la descarga.
+                </span>
+              </label>
+            </div>
+
 
             <div className="p-3 rounded-lg border border-border bg-muted/20 text-sm mb-6">
               <div className="text-muted-foreground">Proveedor de pago</div>
