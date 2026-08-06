@@ -10,7 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRegion } from "@/lib/region/RegionContext";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
-import { PADDLE_PRICE_IDS } from "@/lib/pricing/paddlePriceIds";
+import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
+import { initPaddle, openPaddleCheckout } from "@/lib/paddle/paddleClient";
 
 
 interface DbProduct {
@@ -23,23 +24,6 @@ interface DbProduct {
   paddle_price_id?: string | null;
 }
 
-const PADDLE_JS_SRC = "https://cdn.paddle.com/paddle/v2/paddle.js";
-
-let paddleClientConfig: { token: string; environment: string } | null = null;
-let paddleClientConfigPromise: Promise<{ token: string; environment: string }> | null = null;
-async function fetchPaddleClientConfig() {
-  if (paddleClientConfig) return paddleClientConfig;
-  if (paddleClientConfigPromise) return paddleClientConfigPromise;
-  paddleClientConfigPromise = (async () => {
-    const { data, error } = await supabase.functions.invoke("get-paddle-client-token", { body: {} });
-    if (error) throw error;
-    if (!data?.token) throw new Error(data?.detail || "No se pudo obtener el token de Paddle.");
-    paddleClientConfig = { token: data.token, environment: data.environment || "sandbox" };
-    return paddleClientConfig;
-  })();
-  return paddleClientConfigPromise;
-}
-
 function extractPtxnFromUrl(url: string | undefined | null): string | null {
   if (!url) return null;
   try {
@@ -50,67 +34,6 @@ function extractPtxnFromUrl(url: string | undefined | null): string | null {
   }
 }
 
-let paddleLoaderPromise: Promise<any> | null = null;
-function loadPaddle(): Promise<any> {
-  if (typeof window === "undefined") return Promise.reject(new Error("no window"));
-  const w = window as any;
-  if (w.Paddle) return Promise.resolve(w.Paddle);
-  if (paddleLoaderPromise) return paddleLoaderPromise;
-  console.log("[pagar] Paddle.js loading");
-  paddleLoaderPromise = new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[src="${PADDLE_JS_SRC}"]`) as HTMLScriptElement | null;
-    const onReady = () => (w.Paddle ? resolve(w.Paddle) : reject(new Error("Paddle.js cargado pero objeto Paddle no disponible")));
-    if (existing) {
-      existing.addEventListener("load", onReady);
-      existing.addEventListener("error", () => reject(new Error("No se pudo cargar Paddle.js")));
-      if (w.Paddle) resolve(w.Paddle);
-      return;
-    }
-    const s = document.createElement("script");
-    s.src = PADDLE_JS_SRC;
-    s.async = true;
-    s.onload = onReady;
-    s.onerror = () => reject(new Error("No se pudo cargar Paddle.js"));
-    document.head.appendChild(s);
-  });
-  return paddleLoaderPromise;
-}
-
-let paddleInitialized = false;
-async function initPaddle(): Promise<any> {
-  const Paddle = await loadPaddle();
-  if (paddleInitialized) return Paddle;
-  const { token, environment } = await fetchPaddleClientConfig();
-  if (!token) {
-    throw new Error("Falta el client-side token de Paddle (PADDLE_CLIENT_TOKEN).");
-  }
-  try {
-    if (environment === "sandbox" && typeof Paddle.Environment?.set === "function") {
-      Paddle.Environment.set("sandbox");
-    }
-    Paddle.Initialize({ token });
-    paddleInitialized = true;
-    console.log("[pagar] Paddle initialized", { env: environment });
-    return Paddle;
-  } catch (e) {
-    paddleInitialized = false;
-    throw e;
-  }
-}
-
-async function openPaddleCheckout(transactionId: string) {
-  const Paddle = await initPaddle();
-  console.log("[pagar] opening Paddle checkout with transactionId", transactionId);
-  Paddle.Checkout.open({
-    transactionId,
-    settings: {
-      displayMode: "overlay",
-      theme: "dark",
-      locale: "es",
-    },
-  });
-}
-
 const PagarProducto = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -118,6 +41,7 @@ const PagarProducto = () => {
   const { region } = useRegion();
   const country = region === "EU" ? "ES" : region === "LATAM" ? "MX" : "US";
 
+  const paddlePriceId = usePaddlePriceId(slug);
   const localProduct = slug ? getProductById(slug) : undefined;
   const [dbProduct, setDbProduct] = useState<DbProduct | null>(null);
   const [loadingProduct, setLoadingProduct] = useState(true);
@@ -316,7 +240,7 @@ const PagarProducto = () => {
               <div className="p-4 rounded-xl bg-muted/30 border border-border">
                 <div className="text-xs text-muted-foreground">Precio</div>
                 <LocalizedPrice
-                  priceId={dbProduct?.paddle_price_id || (slug ? PADDLE_PRICE_IDS[slug] : null)}
+                  priceId={paddlePriceId || dbProduct?.paddle_price_id || null}
                   fallbackEur={Number(displayPrice ?? 0)}
                   className="text-2xl font-bold text-brand-orange"
                 />
