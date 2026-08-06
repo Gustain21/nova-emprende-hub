@@ -24,7 +24,7 @@ const Registro = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!acceptLegal) {
-      toast.error("Debes aceptar los Términos y Condiciones y la Política de Privacidad.");
+      toast.error("Debes aceptar los Términos y Condiciones y declarar haber leído la Política de Privacidad.");
       return;
     }
     if (!isPasswordValid(formData.password)) {
