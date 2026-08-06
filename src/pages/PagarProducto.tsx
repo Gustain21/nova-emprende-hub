@@ -209,8 +209,22 @@ const PagarProducto = () => {
       initPaddle().catch((e) => console.warn("[pagar] paddle preinit warn", e));
 
       const { data, error: fnError } = await supabase.functions.invoke("create-paddle-checkout", {
-        body: { slug: dbProduct.slug, email: emailToSend, country },
+        body: {
+          slug: dbProduct.slug,
+          email: emailToSend,
+          country,
+          consent: {
+            accept_terms: true,
+            accept_refunds: true,
+            read_privacy: true,
+            accept_immediate_access: true,
+            acknowledge_withdrawal_loss: true,
+            legal_version: "2026-08-06",
+            user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : null,
+          },
+        },
       });
+
       if (fnError) throw fnError;
 
 
