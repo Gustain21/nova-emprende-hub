@@ -1,7 +1,7 @@
 // NOVA EMPRENDE — paddle-webhook (compatible Sandbox y Live)
 // El entorno lo determina PADDLE_ENVIRONMENT; el secret usado es PADDLE_WEBHOOK_SECRET.
 // Procesa eventos Paddle: transaction.paid, transaction.completed,
-// transaction.canceled, transaction.payment_failed, transaction.refunded.
+// transaction.canceled, transaction.payment_failed, adjustment.created, adjustment.updated.
 // Requiere PADDLE_WEBHOOK_SECRET configurada en Lovable Cloud secrets.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -204,16 +204,45 @@ Deno.serve(async (req) => {
       if (purchaseId) {
         await supabase.from("purchases").update({ status: "failed" }).eq("id", purchaseId);
       }
-    } else if (eventType === "transaction.refunded") {
-      if (purchaseId) {
-        await supabase.from("purchases").update({ status: "refunded" }).eq("id", purchaseId);
-      }
-      if (userId && productId) {
-        const { error: revErr } = await supabase.rpc("revoke_purchase_entitlements", {
-          p_user_id: userId,
-          p_product_id: productId,
-        });
-        if (revErr) console.error("[paddle-webhook] revoke rpc error", revErr);
+    } else if (eventType === "adjustment.created" || eventType === "adjustment.updated") {
+      const action = data?.action as string | undefined;
+      const status = data?.status as string | undefined;
+      const adjTransactionId = data?.transaction_id as string | undefined;
+
+      if (action !== "refund" || status !== "approved") {
+        console.log("[paddle-webhook] adjustment ignorado", { action, status, adjTransactionId });
+      } else if (!adjTransactionId) {
+        console.warn("[paddle-webhook] adjustment refund sin transaction_id");
+      } else {
+        const { data: purchase } = await supabase
+          .from("purchases")
+          .select("id, user_id, product_id")
+          .eq("provider", "paddle")
+          .eq("provider_payment_id", adjTransactionId)
+          .maybeSingle();
+
+        const targetPurchaseId = purchase?.id ?? purchaseId ?? null;
+        const targetUserId = purchase?.user_id ?? userId ?? null;
+        const targetProductId = purchase?.product_id ?? productId ?? null;
+
+        if (targetPurchaseId) {
+          await supabase
+            .from("purchases")
+            .update({ status: "refunded" })
+            .eq("id", targetPurchaseId);
+        } else {
+          console.warn("[paddle-webhook] compra no encontrada para adjustment", adjTransactionId);
+        }
+
+        if (targetUserId && targetProductId) {
+          const { error: revErr } = await supabase.rpc("revoke_purchase_entitlements", {
+            p_user_id: targetUserId,
+            p_product_id: targetProductId,
+          });
+          if (revErr) console.error("[paddle-webhook] revoke rpc error", revErr);
+        } else {
+          console.warn("[paddle-webhook] no se pudo revocar: faltan user_id/product_id");
+        }
       }
     }
 
