@@ -1,7 +1,7 @@
 // NOVA EMPRENDE — paddle-webhook (compatible Sandbox y Live)
 // El entorno lo determina PADDLE_ENVIRONMENT; el secret usado es PADDLE_WEBHOOK_SECRET.
 // Procesa eventos Paddle: transaction.paid, transaction.completed,
-// transaction.canceled, transaction.payment_failed, transaction.refunded.
+// transaction.canceled, transaction.payment_failed, adjustment.created, adjustment.updated.
 // Requiere PADDLE_WEBHOOK_SECRET configurada en Lovable Cloud secrets.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
