@@ -220,7 +220,7 @@ Deno.serve(async (req) => {
       } else {
         const { data: purchase } = await supabase
           .from("purchases")
-          .select("id, user_id, product_id")
+          .select("id, user_id, product_id, status")
           .eq("provider", "paddle")
           .eq("provider_payment_id", adjTransactionId)
           .maybeSingle();
@@ -228,6 +228,15 @@ Deno.serve(async (req) => {
         const targetPurchaseId = purchase?.id ?? purchaseId ?? null;
         const targetUserId = purchase?.user_id ?? userId ?? null;
         const targetProductId = purchase?.product_id ?? productId ?? null;
+
+        if (purchase?.status === "refunded") {
+          // Idempotencia: el reembolso ya fue procesado (adjustment.created +
+          // adjustment.updated o reintento del mismo evento). No repetimos nada.
+          console.log("[paddle-webhook] adjustment ya procesado, no-op", adjTransactionId);
+          return new Response(JSON.stringify({ received: true, idempotent: true }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
 
         if (targetPurchaseId) {
           await supabase
