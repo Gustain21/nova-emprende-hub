@@ -3,7 +3,7 @@
 // Solo lectura. No modifica nada.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { paddleApiBase, paddleEnvironment } from "../_shared/currencyRule.ts";
+import { paddleApiBase, paddleApiKey, paddleApiKeyName, paddleEnvironment } from "../_shared/currencyRule.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,17 +21,22 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const paddleKey = Deno.env.get("PADDLE_API_KEY");
+    const paddleEnv = paddleEnvironment();
+    const paddleBase = paddleApiBase(paddleEnv);
+    const paddleKeyName = paddleApiKeyName(paddleEnv);
+    const paddleKey = paddleApiKey(paddleEnv);
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!paddleKey) return json({ error: "config_error", detail: "PADDLE_API_KEY missing" }, 500);
+    if (!paddleKey) {
+      return json(
+        { error: "config_error", detail: `${paddleKeyName} missing para el entorno "${paddleEnv}"` },
+        500,
+      );
+    }
     if (!supabaseUrl || !serviceKey) {
       return json({ error: "config_error", detail: "Supabase env missing" }, 500);
     }
-
-    const paddleEnv = paddleEnvironment();
-    const paddleBase = paddleApiBase(paddleEnv);
 
     const supa = createClient(supabaseUrl, serviceKey);
     const { data: products, error: dbErr } = await supa
