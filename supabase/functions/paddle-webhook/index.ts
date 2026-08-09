@@ -60,9 +60,13 @@ async function verifyPaddleSignature(rawBody: string, header: string, secret: st
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  const webhookSecret = Deno.env.get("PADDLE_WEBHOOK_SECRET");
+  const paddleEnv =
+    (Deno.env.get("PADDLE_ENVIRONMENT") || "sandbox").toLowerCase() === "live" ? "live" : "sandbox";
+  const secretName = paddleEnv === "live" ? "PADDLE_WEBHOOK_SECRET_LIVE" : "PADDLE_WEBHOOK_SECRET";
+  const webhookSecret = Deno.env.get(secretName);
   if (!webhookSecret) {
-    return new Response("PADDLE_WEBHOOK_SECRET pendiente de configurar.", { status: 503 });
+    console.error("[paddle-webhook] secret ausente", { paddleEnv, secretName });
+    return new Response(`${secretName} pendiente de configurar.`, { status: 503 });
   }
 
   const sigHeader = req.headers.get("paddle-signature");

@@ -8,6 +8,8 @@ import {
   currencyForCountry,
   normalizeCountry,
   paddleApiBase,
+  paddleApiKey,
+  paddleApiKeyName,
   paddleEnvironment,
 } from "../_shared/currencyRule.ts";
 
@@ -31,24 +33,33 @@ Deno.serve(async (req) => {
   try {
     console.log("create-paddle-checkout called");
 
-    const paddleKey = Deno.env.get("PADDLE_API_KEY");
+    const paddleEnv = paddleEnvironment();
+    const paddleBase = paddleApiBase(paddleEnv);
+    const paddleKeyName = paddleApiKeyName(paddleEnv);
+    const paddleKey = paddleApiKey(paddleEnv);
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
 
     console.log("env presence", {
-      PADDLE_API_KEY: !!paddleKey,
+      paddle_environment: paddleEnv,
+      [paddleKeyName]: !!paddleKey,
       SUPABASE_URL: !!supabaseUrl,
       SUPABASE_SERVICE_ROLE_KEY: !!serviceKey,
     });
 
-    if (!paddleKey) return json({ error: "config_error", detail: "PADDLE_API_KEY missing" }, 500);
+    if (!paddleKey) {
+      return json(
+        {
+          error: "config_error",
+          detail: `${paddleKeyName} missing para el entorno Paddle "${paddleEnv}"`,
+        },
+        500,
+      );
+    }
     if (!supabaseUrl || !serviceKey) {
       return json({ error: "config_error", detail: "Supabase env missing" }, 500);
     }
-
-    const paddleEnv = paddleEnvironment();
-    const paddleBase = paddleApiBase(paddleEnv);
 
     const body = await req.json().catch(() => ({}));
     const slug = (body?.slug || body?.product_slug) as string | undefined;

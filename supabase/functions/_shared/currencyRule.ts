@@ -37,3 +37,10 @@ export const paddleEnvironment = (): "sandbox" | "live" =>
 
 export const paddleApiBase = (env = paddleEnvironment()) =>
   env === "live" ? "https://api.paddle.com" : "https://sandbox-api.paddle.com";
+
+/** API key de Paddle según entorno (nunca se expone al navegador). */
+export const paddleApiKey = (env = paddleEnvironment()): string | undefined =>
+  env === "live" ? Deno.env.get("PADDLE_API_KEY_LIVE") : Deno.env.get("PADDLE_API_KEY");
+
+export const paddleApiKeyName = (env = paddleEnvironment()) =>
+  env === "live" ? "PADDLE_API_KEY_LIVE" : "PADDLE_API_KEY";
