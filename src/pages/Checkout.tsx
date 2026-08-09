@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRegion } from "@/lib/region/RegionContext";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+import { fetchPaddleClientConfig } from "@/lib/paddle/paddleClient";
 
 
 interface DbProduct {
@@ -52,6 +53,18 @@ const Checkout = () => {
 
   const { region } = useRegion();
   const country = region === "EU" ? "ES" : region === "LATAM" ? "MX" : "US";
+
+  const [paddleEnv, setPaddleEnv] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancel = false;
+    fetchPaddleClientConfig()
+      .then((c) => !cancel && setPaddleEnv((c.environment || "sandbox").toLowerCase()))
+      .catch(() => !cancel && setPaddleEnv(null));
+    return () => {
+      cancel = true;
+    };
+  }, []);
 
   const [dbProduct, setDbProduct] = useState<DbProduct | null>(null);
   const [loadingProduct, setLoadingProduct] = useState(true);
@@ -216,10 +229,12 @@ const Checkout = () => {
             animate={{ opacity: 1, y: 0 }}
             className="brand-card"
           >
-            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-brand-orange mb-4">
-              <span className="inline-block w-2 h-2 rounded-full bg-brand-orange" />
-              Checkout · modo test / sandbox
-            </div>
+            {paddleEnv === "sandbox" && (
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-brand-orange mb-4">
+                <span className="inline-block w-2 h-2 rounded-full bg-brand-orange" />
+                Checkout · modo test / sandbox
+              </div>
+            )}
 
             <h1 className="text-3xl md:text-4xl font-black text-foreground mb-2">{displayName}</h1>
             {displayDescription && (
