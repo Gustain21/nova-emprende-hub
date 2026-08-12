@@ -8,6 +8,7 @@ import PacksSection from "@/components/sections/PacksSection";
 import TestimonialsPreview from "@/components/sections/TestimonialsPreview";
 import FaqSection from "@/components/sections/FaqSection";
 import CTASection from "@/components/sections/CTASection";
+import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
 
 const Index = () => {
   return (
@@ -16,6 +17,9 @@ const Index = () => {
       <main>
         <HeroSection />
         <WhatIsSection />
+        <section className="brand-container pb-4">
+          <DiagnosticCTA source="inicio" />
+        </section>
         <EbookHighlightSection />
         <ProductsSection />
         <PacksSection />

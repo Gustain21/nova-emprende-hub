@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { Instagram, Linkedin, Youtube } from "lucide-react";
+import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
 
 const Footer = () => {
   return (
+    <>
+    <DiagnosticCTA source="footer" variant="strip" />
     <footer className="bg-card border-t border-border">
       <div className="brand-container py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">

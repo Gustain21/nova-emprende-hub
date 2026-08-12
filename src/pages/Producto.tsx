@@ -205,6 +205,8 @@ const Producto = () => {
             </motion.div>
           </div>
 
+          {isEbook && <DiagnosticCTA source="ebook" className="mb-16" />}
+
           {/* Bottom CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
