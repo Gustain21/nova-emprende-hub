@@ -7,6 +7,7 @@ import { isOfferActive } from "@/lib/offer";
 import { usePaddlePriceId, usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrices, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
 
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -92,6 +93,7 @@ const ProductsSection = () => {
   return (
     <section id="ecosistema" className="brand-section bg-background">
       <div className="brand-container">
+        <DiagnosticCTA source="ecosistema" className="mb-14" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

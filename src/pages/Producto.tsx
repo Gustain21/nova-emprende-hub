@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
 import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
+import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
 import { usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
@@ -204,6 +205,8 @@ const Producto = () => {
               </ul>
             </motion.div>
           </div>
+
+          {isEbook && <DiagnosticCTA source="ebook" className="mb-16" />}
 
           {/* Bottom CTA */}
           <motion.div
