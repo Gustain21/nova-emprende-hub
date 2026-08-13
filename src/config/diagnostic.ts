@@ -3,7 +3,7 @@
  * Sustituir aquí cuando el diagnóstico se integre en producción.
  */
 export const DIAGNOSTIC_URL =
-  "https://id-preview--d010bdde-8905-4f42-a742-37908d84ce20.lovable.app/diagnostico-big-bang";
+  "https://big-bang-launchpad.lovable.app/diagnostico-big-bang";
 
 export const DIAGNOSTIC_COPY = {
   title: "¿No sabes por dónde empezar con tu idea o negocio?",
