@@ -165,12 +165,11 @@ async function flush() {
     for (const li of lineItems) {
       const priceId = li?.price?.id;
       if (!priceId) continue;
-      const formatted =
-        li?.formattedTotals?.total ??
-        li?.formattedUnitTotals?.total ??
-        null;
       const rawAmount = li?.totals?.total;
       const amount = rawAmount != null ? Number(rawAmount) / 100 : null;
+      // Presentación visual normalizada (Intl); el importe numérico es
+      // exactamente el devuelto por Paddle.
+      const formatted = amount != null ? formatByCurrency(amount, currencyCode) : null;
       cache.set(keyFor(priceId, country), {
         formattedPrice: formatted,
         currencyCode,
@@ -251,8 +250,13 @@ export function formatByCurrency(amount: number, code: string | null | undefined
       }).format(amount);
     }
     if (currency === "USD") {
-      // Formato exigido: "US$ 19.99"
-      return `US$ ${amount.toFixed(2)}`;
+      // Formato exigido: "$55.99"
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount);
     }
     return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amount);
   } catch {
