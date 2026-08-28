@@ -27,6 +27,45 @@ const typeBadge: Record<string, { label: string; color: string }> = {
   excel: { label: "EXCEL", color: "bg-green-500/20 text-green-400" },
 };
 
+/** Títulos SEO específicos por producto. */
+const seoTitles: Record<string, string> = {
+  ebook: "El Big Bang de los Negocios | Método para emprender",
+  bitacora: "Bitácora del Capitán | Organiza y ejecuta tu negocio",
+  prompts: "Guía de Prompts para Emprendedores | Nova Emprende",
+  dashboard: "Dashboard Financiero para Emprendedores | Nova Emprende",
+  planner: "Planner de 90 Días para Emprendedores | Nova Emprende",
+  "excel-infoproducto": "Plan Financiero para Infoproductos | Nova Emprende",
+  "excel-ecomochilas": "Plan Financiero para E-commerce | Nova Emprende",
+};
+
+/** Relación de cada herramienta con el método del libro. */
+const methodLinks: Record<string, { title: string; text: string }> = {
+  bitacora: {
+    title: "Del método a la acción",
+    text: "El libro te ayuda a definir y estructurar tu negocio. La Bitácora convierte esa reflexión en decisiones, ejercicios y seguimiento durante 30 días.",
+  },
+  prompts: {
+    title: "IA aplicada al método",
+    text: "La Guía de Prompts te ayuda a investigar, analizar, crear y tomar decisiones en las distintas etapas desarrolladas en El Big Bang de los Negocios.",
+  },
+  dashboard: {
+    title: "Convierte la planificación financiera en control real",
+    text: "El libro introduce la viabilidad económica del negocio. El Dashboard permite registrar, visualizar y analizar sus números para tomar decisiones con mayor claridad.",
+  },
+  planner: {
+    title: "Transforma prioridades en un plan de ejecución",
+    text: "Después de definir el negocio con el método Big Bang, el Planner organiza objetivos, acciones y seguimiento durante los próximos 90 días.",
+  },
+  "excel-infoproducto": {
+    title: "Comprueba la viabilidad antes de escalar",
+    text: "Modela precios, costes, ventas y escenarios económicos de un ebook, curso, membresía, plantilla u otro producto digital.",
+  },
+  "excel-ecomochilas": {
+    title: "Decide con márgenes, costes y escenarios reales",
+    text: "Calcula la estructura económica de un comercio electrónico antes de invertir o aumentar las ventas.",
+  },
+};
+
 const Producto = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
