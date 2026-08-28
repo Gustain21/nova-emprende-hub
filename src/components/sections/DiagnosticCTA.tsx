@@ -11,9 +11,19 @@ interface DiagnosticCTAProps {
   source: DiagnosticSource;
   variant?: "block" | "strip";
   className?: string;
+  title?: string;
+  text?: string;
+  cta?: string;
 }
 
-const DiagnosticCTA = ({ source, variant = "block", className = "" }: DiagnosticCTAProps) => {
+const DiagnosticCTA = ({
+  source,
+  variant = "block",
+  className = "",
+  title = DIAGNOSTIC_COPY.title,
+  text = DIAGNOSTIC_COPY.text,
+  cta = DIAGNOSTIC_COPY.cta,
+}: DiagnosticCTAProps) => {
   const handleClick = () => trackDiagnosticClick(source);
 
   if (variant === "strip") {
