@@ -8,6 +8,7 @@ import { getProductById } from "@/data/products";
 import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
 import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
+import Seo from "@/components/Seo";
 import { usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
@@ -25,6 +26,45 @@ const typeBadge: Record<string, { label: string; color: string }> = {
   ebook: { label: "PDF", color: "bg-brand-gold/20 text-brand-gold" },
   app: { label: "APP WEB", color: "bg-brand-orange/20 text-brand-orange" },
   excel: { label: "EXCEL", color: "bg-green-500/20 text-green-400" },
+};
+
+/** Títulos SEO específicos por producto. */
+const seoTitles: Record<string, string> = {
+  ebook: "El Big Bang de los Negocios | Método para emprender",
+  bitacora: "Bitácora del Capitán | Organiza y ejecuta tu negocio",
+  prompts: "Guía de Prompts para Emprendedores | Nova Emprende",
+  dashboard: "Dashboard Financiero para Emprendedores | Nova Emprende",
+  planner: "Planner de 90 Días para Emprendedores | Nova Emprende",
+  "excel-infoproducto": "Plan Financiero para Infoproductos | Nova Emprende",
+  "excel-ecomochilas": "Plan Financiero para E-commerce | Nova Emprende",
+};
+
+/** Relación de cada herramienta con el método del libro. */
+const methodLinks: Record<string, { title: string; text: string }> = {
+  bitacora: {
+    title: "Del método a la acción",
+    text: "El libro te ayuda a definir y estructurar tu negocio. La Bitácora convierte esa reflexión en decisiones, ejercicios y seguimiento durante 30 días.",
+  },
+  prompts: {
+    title: "IA aplicada al método",
+    text: "La Guía de Prompts te ayuda a investigar, analizar, crear y tomar decisiones en las distintas etapas desarrolladas en El Big Bang de los Negocios.",
+  },
+  dashboard: {
+    title: "Convierte la planificación financiera en control real",
+    text: "El libro introduce la viabilidad económica del negocio. El Dashboard permite registrar, visualizar y analizar sus números para tomar decisiones con mayor claridad.",
+  },
+  planner: {
+    title: "Transforma prioridades en un plan de ejecución",
+    text: "Después de definir el negocio con el método Big Bang, el Planner organiza objetivos, acciones y seguimiento durante los próximos 90 días.",
+  },
+  "excel-infoproducto": {
+    title: "Comprueba la viabilidad antes de escalar",
+    text: "Modela precios, costes, ventas y escenarios económicos de un ebook, curso, membresía, plantilla u otro producto digital.",
+  },
+  "excel-ecomochilas": {
+    title: "Decide con márgenes, costes y escenarios reales",
+    text: "Calcula la estructura económica de un comercio electrónico antes de invertir o aumentar las ventas.",
+  },
 };
 
 const Producto = () => {
@@ -53,10 +93,15 @@ const Producto = () => {
   const offerActive = isOfferActive(product.offerEndDate, product.saleActive);
   const originalPrice = offerActive ? product.originalPrice : undefined;
   const isEbook = product.id === "ebook";
+  const methodLink = methodLinks[product.id];
 
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title={seoTitles[product.id] ?? `${product.title} | Nova Emprende`}
+        description={product.description}
+      />
       <Header />
       <main className="pt-24 pb-16">
         <div className="brand-container">
@@ -206,7 +251,34 @@ const Producto = () => {
             </motion.div>
           </div>
 
-          {isEbook && <DiagnosticCTA source="ebook" className="mb-16" />}
+          {isEbook && (
+            <DiagnosticCTA
+              source="ebook"
+              className="mb-16"
+              title="¿Te interesa El Big Bang, pero todavía no sabes por dónde empezar?"
+              text="Haz el Diagnóstico Big Bang y descubre en qué etapa se encuentra tu idea o negocio, qué áreas necesitan atención y cuál puede ser tu próximo paso."
+              cta="Descubrir en qué punto estoy"
+            />
+          )}
+
+          {methodLink && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="brand-card mb-16 border-brand-gold/20 bg-gradient-to-br from-brand-gold/10 to-transparent"
+            >
+              <h2 className="text-2xl font-bold text-foreground mb-3">{methodLink.title}</h2>
+              <p className="text-muted-foreground leading-relaxed max-w-3xl mb-4">{methodLink.text}</p>
+              <Link
+                to="/producto/ebook"
+                className="inline-flex items-center gap-2 text-sm font-medium text-brand-sand hover:text-brand-orange transition-colors"
+              >
+                <BookOpen className="w-4 h-4" />
+                Conocer El Big Bang de los Negocios
+              </Link>
+            </motion.div>
+          )}
 
           {/* Bottom CTA */}
           <motion.div
