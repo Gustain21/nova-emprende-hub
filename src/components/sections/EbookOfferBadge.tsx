@@ -15,7 +15,7 @@ const EbookOfferBadge = ({ compact = false, className = "" }: Props) => {
     >
       <Clock className="w-3.5 h-3.5 text-red-400 shrink-0" />
       <span className={`font-bold text-red-400 ${compact ? "text-[11px]" : "text-xs"}`}>
-        Oferta de lanzamiento · 30% OFF hasta el {formatOfferDate(EBOOK_OFFER_END)}
+        Oferta de lanzamiento · 30% de descuento hasta el {formatOfferDate(EBOOK_OFFER_END)}
       </span>
     </div>
   );

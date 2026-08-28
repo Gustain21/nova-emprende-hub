@@ -77,7 +77,7 @@ const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
           <div className="mt-3 flex items-start gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/30">
             <Clock className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
             <span className="text-[11px] font-medium text-red-400 leading-snug">
-              Incluye el ebook con oferta de lanzamiento · 30% OFF hasta el {formatOfferDate(EBOOK_OFFER_END)}
+              Incluye el ebook con oferta de lanzamiento · 30% de descuento hasta el {formatOfferDate(EBOOK_OFFER_END)}
             </span>
           </div>
         )}

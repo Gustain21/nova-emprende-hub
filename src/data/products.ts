@@ -32,7 +32,7 @@ export interface Product {
 }
 
 // Vigencia común de la promoción de lanzamiento del ebook
-export const EBOOK_OFFER_END = "2026-08-31";
+export const EBOOK_OFFER_END = "2026-12-31";
 
 export const ebookProduct: Product = {
   id: "ebook",
