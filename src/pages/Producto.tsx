@@ -8,6 +8,7 @@ import { getProductById } from "@/data/products";
 import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
 import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
+import Seo from "@/components/Seo";
 import { usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
@@ -92,10 +93,15 @@ const Producto = () => {
   const offerActive = isOfferActive(product.offerEndDate, product.saleActive);
   const originalPrice = offerActive ? product.originalPrice : undefined;
   const isEbook = product.id === "ebook";
+  const methodLink = methodLinks[product.id];
 
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title={seoTitles[product.id] ?? `${product.title} | Nova Emprende`}
+        description={product.description}
+      />
       <Header />
       <main className="pt-24 pb-16">
         <div className="brand-container">
@@ -245,7 +251,34 @@ const Producto = () => {
             </motion.div>
           </div>
 
-          {isEbook && <DiagnosticCTA source="ebook" className="mb-16" />}
+          {isEbook && (
+            <DiagnosticCTA
+              source="ebook"
+              className="mb-16"
+              title="¿Te interesa El Big Bang, pero todavía no sabes por dónde empezar?"
+              text="Haz el Diagnóstico Big Bang y descubre en qué etapa se encuentra tu idea o negocio, qué áreas necesitan atención y cuál puede ser tu próximo paso."
+              cta="Descubrir en qué punto estoy"
+            />
+          )}
+
+          {methodLink && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="brand-card mb-16 border-brand-gold/20 bg-gradient-to-br from-brand-gold/10 to-transparent"
+            >
+              <h2 className="text-2xl font-bold text-foreground mb-3">{methodLink.title}</h2>
+              <p className="text-muted-foreground leading-relaxed max-w-3xl mb-4">{methodLink.text}</p>
+              <Link
+                to="/producto/ebook"
+                className="inline-flex items-center gap-2 text-sm font-medium text-brand-sand hover:text-brand-orange transition-colors"
+              >
+                <BookOpen className="w-4 h-4" />
+                Conocer El Big Bang de los Negocios
+              </Link>
+            </motion.div>
+          )}
 
           {/* Bottom CTA */}
           <motion.div
