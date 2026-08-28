@@ -62,6 +62,59 @@ export function setCountryOverride(cc: string | null) {
 
 const keyFor = (priceId: string, country: string | null) => `${country || "auto"}::${priceId}`;
 
+// ---------- País efectivo y moneda esperada ----------
+// Sin address, Paddle.PricePreview resuelve el país por IP; si ese país no
+// coincide con la moneda de los Price IDs enviados, la API responde 400.
+// Por eso resolvemos SIEMPRE un país explícito y filtramos los IDs por moneda.
+let resolvedCountry: string | null = null;
+let resolvingCountry: Promise<string | null> | null = null;
+
+async function effectiveCountry(): Promise<string | null> {
+  const override = normalizeCountry(getCountryOverride());
+  if (override) return override;
+  if (resolvedCountry) return resolvedCountry;
+  if (!resolvingCountry) {
+    resolvingCountry = (async () => {
+      try {
+        const { data } = await supabase.functions.invoke("geo-detect");
+        resolvedCountry = normalizeCountry((data as any)?.country);
+      } catch {
+        resolvedCountry = null;
+      }
+      return resolvedCountry;
+    })();
+  }
+  return resolvingCountry;
+}
+
+// priceId -> moneda ("EUR" | "USD") según la tabla products (fuente de verdad).
+let idCurrency: Record<string, PaddleCurrency> | null = null;
+let idCurrencyPromise: Promise<Record<string, PaddleCurrency>> | null = null;
+
+async function priceIdCurrencyMap(): Promise<Record<string, PaddleCurrency>> {
+  if (idCurrency) return idCurrency;
+  if (!idCurrencyPromise) {
+    idCurrencyPromise = (async () => {
+      const out: Record<string, PaddleCurrency> = {};
+      try {
+        const { data } = await supabase
+          .from("products")
+          .select("paddle_price_id_eur, paddle_price_id_usd")
+          .eq("active", true);
+        for (const r of (data || []) as any[]) {
+          if (r.paddle_price_id_eur) out[r.paddle_price_id_eur] = "EUR";
+          if (r.paddle_price_id_usd) out[r.paddle_price_id_usd] = "USD";
+        }
+      } catch {
+        /* sin mapa: no filtramos */
+      }
+      idCurrency = out;
+      return out;
+    })();
+  }
+  return idCurrencyPromise;
+}
+
 async function flush() {
   flushTimer = null;
   const country = getCountryOverride();
@@ -74,15 +127,38 @@ async function flush() {
   notify();
 
   try {
-    const Paddle = await initPaddle();
+    const [Paddle, cc, curMap] = await Promise.all([
+      initPaddle(),
+      effectiveCountry(),
+      priceIdCurrencyMap(),
+    ]);
+    const expected = currencyForCountry(cc);
+
+    // Sólo pedimos los Price IDs de la moneda esperada: mezclar monedas
+    // (o pedir EUR con país USD) provoca el 400 de PricePreview.
+    const known = Object.keys(curMap).length > 0;
+    const requestIds = known ? toFetch.filter((id) => curMap[id] === expected) : toFetch;
+    const skipped = toFetch.filter((id) => !requestIds.includes(id));
+    for (const id of skipped) {
+      cache.set(keyFor(id, country), {
+        ...DEFAULT,
+        loading: false,
+        error: "currency_mismatch",
+      });
+    }
+    if (!requestIds.length) {
+      notify();
+      return;
+    }
+
     const body: any = {
-      items: toFetch.map((priceId) => ({ priceId, quantity: 1 })),
+      items: requestIds.map((priceId) => ({ priceId, quantity: 1 })),
     };
-    if (country) body.address = { countryCode: country };
-    // Paddle.PricePreview detects country by IP when no address is provided.
+    if (cc) body.address = { countryCode: cc };
     const res = await Paddle.PricePreview(body);
     const lineItems: any[] = res?.data?.details?.lineItems || [];
-    const currencyCode: string | null = res?.data?.currencyCode ?? null;
+    const currencyCode: string | null = res?.data?.currencyCode ?? expected;
+
 
     for (const li of lineItems) {
       const priceId = li?.price?.id;
