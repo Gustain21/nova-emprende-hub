@@ -1,11 +1,9 @@
 import { Link } from "react-router-dom";
 import { Instagram, Linkedin, Youtube } from "lucide-react";
-import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
 
 const Footer = () => {
   return (
     <>
-    <DiagnosticCTA source="footer" variant="strip" />
     <footer className="bg-card border-t border-border">
       <div className="brand-container py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -62,15 +60,15 @@ const Footer = () => {
               hola@editorialnovaemprende.com
             </a>
             <div className="flex items-center gap-3 pt-1">
-              <a href="#" aria-label="Instagram" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-brand-orange hover:border-brand-orange transition-colors">
+              <span aria-label="Instagram (próximamente)" title="Próximamente" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-brand-orange hover:border-brand-orange transition-colors opacity-40 cursor-default pointer-events-none">
                 <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" aria-label="LinkedIn" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-brand-orange hover:border-brand-orange transition-colors">
+              </span>
+              <span aria-label="LinkedIn (próximamente)" title="Próximamente" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-brand-orange hover:border-brand-orange transition-colors opacity-40 cursor-default pointer-events-none">
                 <Linkedin className="w-5 h-5" />
-              </a>
-              <a href="#" aria-label="YouTube" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-brand-orange hover:border-brand-orange transition-colors">
+              </span>
+              <span aria-label="YouTube (próximamente)" title="Próximamente" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-brand-orange hover:border-brand-orange transition-colors opacity-40 cursor-default pointer-events-none">
                 <Youtube className="w-5 h-5" />
-              </a>
+              </span>
             </div>
           </div>
         </div>

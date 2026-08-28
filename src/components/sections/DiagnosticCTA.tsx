@@ -32,15 +32,15 @@ const DiagnosticCTA = ({
         <div className="brand-container py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
           <div className="max-w-2xl">
             <p className="text-base md:text-lg font-semibold text-foreground mb-1">
-              {DIAGNOSTIC_COPY.title}
+              {title}
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">{DIAGNOSTIC_COPY.text}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
             <p className="mt-2 text-xs text-muted-foreground">{DIAGNOSTIC_COPY.trust}</p>
           </div>
           <Button variant="outline" size="lg" className="w-full md:w-auto shrink-0" asChild>
             <a href={DIAGNOSTIC_URL} onClick={handleClick}>
               <Compass className="w-4 h-4" />
-              {DIAGNOSTIC_COPY.cta}
+              {cta}
             </a>
           </Button>
         </div>
@@ -59,17 +59,17 @@ const DiagnosticCTA = ({
             Diagnóstico gratuito
           </span>
           <h2 className="font-sans text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-3 leading-tight">
-            {DIAGNOSTIC_COPY.title}
+            {title}
           </h2>
           <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-2xl">
-            {DIAGNOSTIC_COPY.text}
+            {text}
           </p>
           <p className="mt-3 text-xs md:text-sm text-muted-foreground">{DIAGNOSTIC_COPY.trust}</p>
         </div>
         <div className="w-full md:w-auto">
           <Button variant="heroOutline" size="xl" className="w-full md:w-auto" asChild>
             <a href={DIAGNOSTIC_URL} onClick={handleClick}>
-              {DIAGNOSTIC_COPY.cta}
+              {cta}
               <ArrowRight className="w-5 h-5" />
             </a>
           </Button>
