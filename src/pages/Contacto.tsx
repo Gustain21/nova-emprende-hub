@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import Seo from "@/components/Seo";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ const Contacto = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="Contacto | Editorial Nova Emprende" description="Escríbenos: resolvemos dudas sobre el libro, las herramientas y los packs de Nova Emprende." />
       <Header />
       <main className="pt-20">
         {/* Hero */}

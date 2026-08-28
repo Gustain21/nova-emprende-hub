@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import Seo from "@/components/Seo";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ShieldCheck, AlertTriangle, Loader2, CheckCircle2, XCircle } from "lucide-react";
@@ -204,6 +205,7 @@ const PagarProducto = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title={`Finalizar compra — ${displayName} | Nova Emprende`} noindex />
       <Header />
       <main className="pt-24 pb-16">
         <div className="brand-container max-w-3xl">

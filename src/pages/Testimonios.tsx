@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import Seo from "@/components/Seo";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -71,6 +72,7 @@ const allTestimonials = [
 const Testimonios = () => {
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="Opiniones y experiencias | Nova Emprende" description="Testimonios reales de lectores y usuarios de El Big Bang de los Negocios y las herramientas de Nova Emprende." />
       <Header />
       <main className="pt-20">
         {/* Hero */}

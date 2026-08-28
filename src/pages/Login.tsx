@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import Seo from "@/components/Seo";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="Acceso de clientes | Nova Emprende" description="Entra a tu área privada de Nova Emprende para acceder a tus productos, herramientas y descargas." noindex />
       <Header />
       <main className="pt-24 pb-16">
         <div className="brand-container py-10">
