@@ -6,6 +6,8 @@
 
 import { useEffect, useState } from "react";
 import { initPaddle } from "@/lib/paddle/paddleClient";
+import { supabase } from "@/integrations/supabase/client";
+import { currencyForCountry, normalizeCountry, type PaddleCurrency } from "./currencyRule";
 
 export type LocalizedPrice = {
   formattedPrice: string | null;
