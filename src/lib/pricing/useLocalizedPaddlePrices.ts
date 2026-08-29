@@ -65,29 +65,14 @@ export function setCountryOverride(cc: string | null) {
 const keyFor = (priceId: string, country: string | null) => `${country || "auto"}::${priceId}`;
 
 // ---------- País efectivo y moneda esperada ----------
-// Sin address, Paddle.PricePreview resuelve el país por IP; si ese país no
-// coincide con la moneda de los Price IDs enviados, la API responde 400.
-// Por eso resolvemos SIEMPRE un país explícito y filtramos los IDs por moneda.
-let resolvedCountry: string | null = null;
-let resolvingCountry: Promise<string | null> | null = null;
-
+// Resolución compartida (override → geo-detect → región del navegador →
+// fallback comercial ES). Ver src/lib/region/resolveCountry.ts.
 async function effectiveCountry(): Promise<string | null> {
-  const override = normalizeCountry(getCountryOverride());
-  if (override) return override;
-  if (resolvedCountry) return resolvedCountry;
-  if (!resolvingCountry) {
-    resolvingCountry = (async () => {
-      try {
-        const { data } = await supabase.functions.invoke("geo-detect");
-        resolvedCountry = normalizeCountry((data as any)?.country);
-      } catch {
-        resolvedCountry = null;
-      }
-      return resolvedCountry;
-    })();
-  }
-  return resolvingCountry;
+  const { resolveRegion } = await import("@/lib/region/resolveCountry");
+  const r = await resolveRegion();
+  return r.country;
 }
+
 
 // priceId -> moneda ("EUR" | "USD") según la tabla products (fuente de verdad).
 let idCurrency: Record<string, PaddleCurrency> | null = null;

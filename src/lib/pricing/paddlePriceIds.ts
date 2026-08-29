@@ -9,8 +9,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchPaddleClientConfig } from "@/lib/paddle/paddleClient";
-import { currencyForCountry, normalizeCountry, type PaddleCurrency } from "./currencyRule";
-import { getCountryOverride } from "./useLocalizedPaddlePrices";
+import { currencyForCountry, type PaddleCurrency } from "./currencyRule";
+
 
 type Row = {
   slug: string;
@@ -26,15 +26,10 @@ const listeners = new Set<() => void>();
 const notify = () => listeners.forEach((l) => l());
 
 async function detectCountry(): Promise<string | null> {
-  const override = normalizeCountry(getCountryOverride());
-  if (override) return override;
-  try {
-    const { data } = await supabase.functions.invoke("geo-detect");
-    return normalizeCountry((data as any)?.country);
-  } catch {
-    return null;
-  }
+  const { resolveRegion } = await import("@/lib/region/resolveCountry");
+  return (await resolveRegion()).country;
 }
+
 
 async function load() {
   const [{ data: rows }, config, country] = await Promise.all([

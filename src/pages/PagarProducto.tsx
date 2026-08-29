@@ -9,7 +9,7 @@ import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useRegion } from "@/lib/region/RegionContext";
+import { resolveRegion, resolveRegionSync } from "@/lib/region/resolveCountry";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
 import { initPaddle, openPaddleCheckout } from "@/lib/paddle/paddleClient";
@@ -39,8 +39,18 @@ const PagarProducto = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { region } = useRegion();
-  const country = region === "EU" ? "ES" : region === "LATAM" ? "MX" : "US";
+  // País/moneda: misma resolución compartida que los precios visibles.
+  const [country, setCountry] = useState<string>(() => resolveRegionSync().country);
+  useEffect(() => {
+    let cancelled = false;
+    resolveRegion().then((r) => {
+      if (!cancelled) setCountry(r.country);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
 
   const paddlePriceId = usePaddlePriceId(slug);
   const localProduct = slug ? getProductById(slug) : undefined;
