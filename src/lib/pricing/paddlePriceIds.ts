@@ -9,8 +9,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchPaddleClientConfig } from "@/lib/paddle/paddleClient";
-import { currencyForCountry, normalizeCountry, type PaddleCurrency } from "./currencyRule";
-import { getCountryOverride } from "./useLocalizedPaddlePrices";
+import { currencyForCountry, type PaddleCurrency } from "./currencyRule";
+
 
 type Row = {
   slug: string;
