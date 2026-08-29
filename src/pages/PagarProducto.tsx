@@ -9,7 +9,7 @@ import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useRegion } from "@/lib/region/RegionContext";
+import { resolveRegion, resolveRegionSync } from "@/lib/region/resolveCountry";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
 import { initPaddle, openPaddleCheckout } from "@/lib/paddle/paddleClient";
