@@ -24,6 +24,7 @@ import PagarProducto from "./pages/PagarProducto";
 import { AuthProvider } from "./lib/auth/AuthProvider";
 import { RegionProvider } from "./lib/region/RegionContext";
 import DevCountrySwitcher from "./components/dev/DevCountrySwitcher";
+import CookieConsent from "./components/consent/CookieConsent";
 import ProtectedRoute from "./components/app/ProtectedRoute";
 import AppLayout from "./components/app/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
@@ -153,6 +154,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           <DevCountrySwitcher />
+          <CookieConsent />
           </RegionProvider>
         </AuthProvider>
       </BrowserRouter>
