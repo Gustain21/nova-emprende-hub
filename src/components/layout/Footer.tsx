@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Instagram, Linkedin, Youtube } from "lucide-react";
+import { openCookiePreferences } from "@/lib/consent/consent";
 
 const Footer = () => {
   return (
@@ -93,6 +94,13 @@ const Footer = () => {
             <Link to="/reembolsos" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               Reembolsos
             </Link>
+            <button
+              type="button"
+              onClick={openCookiePreferences}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
+            >
+              Configurar cookies
+            </button>
           </div>
         </div>
 
