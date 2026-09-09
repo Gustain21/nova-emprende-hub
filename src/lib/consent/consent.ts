@@ -30,6 +30,7 @@ export const CONSENT_EVENT = "nova:consent-change";
 declare global {
   interface Window {
     dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
     __novaGtmLoaded?: boolean;
   }
 }
@@ -82,16 +83,21 @@ export function writeConsent(analytics: boolean, marketing: boolean): ConsentSta
 
 /* --------------------------------------------------------- consent signals */
 
-function pushDataLayer(args: unknown[]) {
+/** Inicializa la API oficial de gtag sin cargar gtag.js. */
+function ensureGtag() {
   window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push(args);
+  window.gtag = window.gtag || function gtag(..._args: unknown[]) {
+    // Google Consent Mode requiere insertar el objeto Arguments, no un array.
+    // eslint-disable-next-line prefer-rest-params
+    window.dataLayer?.push(arguments);
+  };
 }
 
 /** Estado inicial denegado. Se ejecuta antes de cargar cualquier herramienta. */
 export function initConsentDefaults() {
   if (typeof window === "undefined") return;
-  window.dataLayer = window.dataLayer || [];
-  pushDataLayer([
+  ensureGtag();
+  window.gtag?.(
     "consent",
     "default",
     {
@@ -102,11 +108,12 @@ export function initConsentDefaults() {
       security_storage: "granted",
       wait_for_update: 500,
     },
-  ]);
+  );
 }
 
 function updateConsentSignals(state: ConsentState) {
-  pushDataLayer([
+  ensureGtag();
+  window.gtag?.(
     "consent",
     "update",
     {
@@ -115,7 +122,7 @@ function updateConsentSignals(state: ConsentState) {
       ad_user_data: state.marketing ? "granted" : "denied",
       ad_personalization: state.marketing ? "granted" : "denied",
     },
-  ]);
+  );
 }
 
 /* ------------------------------------------------------------- GTM loading */
