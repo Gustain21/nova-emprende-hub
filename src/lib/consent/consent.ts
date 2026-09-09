@@ -87,6 +87,8 @@ export function writeConsent(analytics: boolean, marketing: boolean): ConsentSta
 function ensureGtag() {
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function gtag(..._args: unknown[]) {
+    // Google Consent Mode requiere insertar el objeto Arguments, no un array.
+    // eslint-disable-next-line prefer-rest-params
     window.dataLayer?.push(arguments);
   };
 }
