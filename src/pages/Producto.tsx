@@ -13,7 +13,7 @@ import Seo from "@/components/Seo";
 import { usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
-import { trackViewItem, trackSelectItem } from "@/lib/analytics/track";
+import { trackViewItem } from "@/lib/analytics/track";
 
 
 const iconMap: Record<string, React.ReactNode> = {
