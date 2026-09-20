@@ -79,6 +79,7 @@ const App = () => (
         <AuthProvider>
           <RegionProvider>
           <ScrollToTop />
+          <AnalyticsRouteTracker />
           <Routes>
             {/* Públicas — intactas */}
             <Route path="/" element={<Index />} />
