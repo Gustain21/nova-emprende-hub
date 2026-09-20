@@ -14,23 +14,7 @@ export const DIAGNOSTIC_COPY = {
 
 export type DiagnosticSource = "inicio" | "ebook" | "ecosistema" | "footer";
 
-/** Registra el evento solo si ya existe analítica en la página. */
+/** Registra el evento mediante la utilidad central (respeta el consentimiento). */
 export function trackDiagnosticClick(source: DiagnosticSource) {
-  const payload = { source_page: source };
-  const w = window as unknown as {
-    gtag?: (...args: unknown[]) => void;
-    dataLayer?: unknown[];
-    plausible?: (name: string, opts?: unknown) => void;
-  };
-  try {
-    if (typeof w.gtag === "function") {
-      w.gtag("event", "diagnostic_cta_clicked", payload);
-    } else if (Array.isArray(w.dataLayer)) {
-      w.dataLayer.push({ event: "diagnostic_cta_clicked", ...payload });
-    } else if (typeof w.plausible === "function") {
-      w.plausible("diagnostic_cta_clicked", { props: payload });
-    }
-  } catch {
-    /* noop */
-  }
+  trackEvent("diagnostic_cta_clicked", { source_page: source });
 }
