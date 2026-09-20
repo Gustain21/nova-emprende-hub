@@ -63,6 +63,12 @@ const ScrollToTop = () => {
   return null;
 };
 
+/** page_view en cada cambio real de ruta (solo con consentimiento analítico). */
+const AnalyticsRouteTracker = () => {
+  usePageViews();
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
