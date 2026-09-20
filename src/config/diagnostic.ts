@@ -1,3 +1,5 @@
+import { trackEvent } from "@/lib/analytics/track";
+
 /**
  * URL única y centralizada del Diagnóstico Big Bang.
  * Sustituir aquí cuando el diagnóstico se integre en producción.
