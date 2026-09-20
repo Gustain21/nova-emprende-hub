@@ -3,13 +3,17 @@
 // visible y el país enviado a create-paddle-checkout.
 //
 // Orden de resolución (estricto):
-//  1. Override explícito ?country=XX (o sessionStorage) — SOLO pruebas.
-//  2. País válido devuelto por la edge function geo-detect.
-//  3. Código regional EXACTO de navigator.language / navigator.languages
-//     (es-ES → ES, es-AR → AR, es-MX → MX, en-US → US). Nunca se convierte
-//     "es" a España: sin región explícita el idioma se ignora.
-//  4. Fallback comercial único de Nova Emprende: ES (EUR). Mercado principal
-//     y editorial con sede en España.
+//  1. Preferencia explícita del usuario: ?country=XX, sessionStorage de pruebas
+//     o preferencia guardada (localStorage).
+//  2. País válido devuelto por la edge function geo-detect (señal fiable de red).
+//  3. Señales del navegador:
+//     3a. Código regional EXACTO de navigator.language / navigator.languages
+//         (es-ES → ES, es-AR → AR, en-US → US). Nunca se convierte "es" a
+//         España: sin región explícita el idioma se ignora.
+//     3b. Zona horaria IANA (America/Argentina/* → AR, Europe/Madrid → ES…).
+//         Imprescindible porque muchos navegadores de Hispanoamérica informan
+//         "es", "es-419" o "es-ES" aunque el usuario esté en Argentina.
+//  4. Fallback comercial único de Nova Emprende: ES (EUR).
 //
 // No se usan servicios externos de geolocalización ni cf-connecting-ip.
 // No se registran IPs ni datos personales.
@@ -21,11 +25,39 @@ import { getCountryOverride } from "@/lib/pricing/useLocalizedPaddlePrices";
 /** Fallback comercial único (documentado): España → EUR. */
 export const FALLBACK_COUNTRY = "ES";
 
+/** Preferencia de país elegida explícitamente por el usuario (persistente). */
+export const COUNTRY_PREFERENCE_KEY = "nova_country_preference";
+
+export type RegionSource = "preference" | "override" | "geo" | "navigator" | "timezone" | "fallback";
+
 export type ResolvedRegion = {
   country: string;
   currency: PaddleCurrency;
-  source: "override" | "geo" | "navigator" | "fallback";
+  source: RegionSource;
 };
+
+/** Preferencia explícita guardada por el usuario; null si no existe. */
+export function getCountryPreference(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return normalizeCountry(window.localStorage.getItem(COUNTRY_PREFERENCE_KEY));
+  } catch {
+    return null;
+  }
+}
+
+/** Guarda (o borra con null) la preferencia explícita de país del usuario. */
+export function setCountryPreference(cc: string | null) {
+  if (typeof window === "undefined") return;
+  try {
+    const c = normalizeCountry(cc);
+    if (c) window.localStorage.setItem(COUNTRY_PREFERENCE_KEY, c);
+    else window.localStorage.removeItem(COUNTRY_PREFERENCE_KEY);
+  } catch {
+    /* ignore */
+  }
+  resetResolvedRegion();
+}
 
 /** Región exacta del idioma del navegador; null si el idioma no lleva país. */
 export function countryFromNavigator(): string | null {
@@ -45,6 +77,78 @@ export function countryFromNavigator(): string | null {
   return null;
 }
 
+// Zonas horarias IANA → país. Se cubren los mercados relevantes de Nova
+// Emprende; cualquier zona no listada simplemente no aporta señal.
+const TIMEZONE_PREFIX_COUNTRY: Array<[string, string]> = [
+  ["america/argentina/", "AR"],
+  ["america/buenos_aires", "AR"],
+  ["america/cordoba", "AR"],
+  ["america/mendoza", "AR"],
+  ["america/rosario", "AR"],
+  ["america/catamarca", "AR"],
+  ["america/jujuy", "AR"],
+];
+
+const TIMEZONE_COUNTRY: Record<string, string> = {
+  "europe/madrid": "ES",
+  "atlantic/canary": "ES",
+  "africa/ceuta": "ES",
+  "europe/lisbon": "PT",
+  "atlantic/madeira": "PT",
+  "europe/paris": "FR",
+  "europe/berlin": "DE",
+  "europe/rome": "IT",
+  "europe/amsterdam": "NL",
+  "europe/brussels": "BE",
+  "europe/dublin": "IE",
+  "europe/vienna": "AT",
+  "europe/london": "GB",
+  "america/montevideo": "UY",
+  "america/santiago": "CL",
+  "america/asuncion": "PY",
+  "america/la_paz": "BO",
+  "america/lima": "PE",
+  "america/bogota": "CO",
+  "america/caracas": "VE",
+  "america/guayaquil": "EC",
+  "america/mexico_city": "MX",
+  "america/monterrey": "MX",
+  "america/cancun": "MX",
+  "america/tijuana": "MX",
+  "america/guatemala": "GT",
+  "america/costa_rica": "CR",
+  "america/panama": "PA",
+  "america/santo_domingo": "DO",
+  "america/sao_paulo": "BR",
+  "america/new_york": "US",
+  "america/chicago": "US",
+  "america/denver": "US",
+  "america/los_angeles": "US",
+};
+
+/** País deducido de la zona horaria del dispositivo; null si no se reconoce. */
+export function countryFromTimeZone(tz?: string | null): string | null {
+  try {
+    const zone = (tz ?? Intl.DateTimeFormat().resolvedOptions().timeZone ?? "").toLowerCase();
+    if (!zone) return null;
+    for (const [prefix, cc] of TIMEZONE_PREFIX_COUNTRY) {
+      if (zone.startsWith(prefix)) return cc;
+    }
+    return TIMEZONE_COUNTRY[zone] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Señales locales del navegador, en orden: idioma con región → zona horaria. */
+function countryFromBrowser(): { country: string; source: RegionSource } | null {
+  const nav = countryFromNavigator();
+  if (nav) return { country: nav, source: "navigator" };
+  const tz = countryFromTimeZone();
+  if (tz) return { country: tz, source: "timezone" };
+  return null;
+}
+
 let cached: ResolvedRegion | null = null;
 let inflight: Promise<ResolvedRegion> | null = null;
 
@@ -53,26 +157,41 @@ export function resetResolvedRegion() {
   inflight = null;
 }
 
+function explicitChoice(): ResolvedRegion | null {
+  const preference = getCountryPreference();
+  if (preference) {
+    return { country: preference, currency: currencyForCountry(preference), source: "preference" };
+  }
+  const override = normalizeCountry(getCountryOverride());
+  if (override) {
+    return { country: override, currency: currencyForCountry(override), source: "override" };
+  }
+  return null;
+}
+
 /** Resolución asíncrona completa (incluye geo-detect). Cacheada por sesión. */
 export async function resolveRegion(): Promise<ResolvedRegion> {
-  const override = normalizeCountry(getCountryOverride());
-  if (override) return { country: override, currency: currencyForCountry(override), source: "override" };
+  const explicit = explicitChoice();
+  if (explicit) return explicit;
 
   if (cached) return cached;
   if (!inflight) {
     inflight = (async () => {
       let country: string | null = null;
-      let source: ResolvedRegion["source"] = "fallback";
+      let source: RegionSource = "fallback";
       try {
         const { data } = await supabase.functions.invoke("geo-detect");
-        country = normalizeCountry((data as any)?.country);
+        country = normalizeCountry((data as { country?: unknown } | null)?.country);
         if (country) source = "geo";
       } catch {
         /* silencioso */
       }
       if (!country) {
-        country = countryFromNavigator();
-        if (country) source = "navigator";
+        const browser = countryFromBrowser();
+        if (browser) {
+          country = browser.country;
+          source = browser.source;
+        }
       }
       if (!country) country = FALLBACK_COUNTRY;
       const resolved: ResolvedRegion = { country, currency: currencyForCountry(country), source };
@@ -85,10 +204,12 @@ export async function resolveRegion(): Promise<ResolvedRegion> {
 
 /** Resolución sincrónica (sin geo-detect) para el primer render. */
 export function resolveRegionSync(): ResolvedRegion {
-  const override = normalizeCountry(getCountryOverride());
-  if (override) return { country: override, currency: currencyForCountry(override), source: "override" };
+  const explicit = explicitChoice();
+  if (explicit) return explicit;
   if (cached) return cached;
-  const nav = countryFromNavigator();
-  if (nav) return { country: nav, currency: currencyForCountry(nav), source: "navigator" };
+  const browser = countryFromBrowser();
+  if (browser) {
+    return { country: browser.country, currency: currencyForCountry(browser.country), source: browser.source };
+  }
   return { country: FALLBACK_COUNTRY, currency: currencyForCountry(FALLBACK_COUNTRY), source: "fallback" };
 }
