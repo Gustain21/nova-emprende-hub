@@ -51,8 +51,9 @@ export function loadPaddle(): Promise<any> {
 /**
  * Callback oficial de Paddle Checkout.
  * Solo se usa para analítica: la fuente real de venta y acceso sigue siendo el
- * webhook + base de datos. No se inventan importes: si Paddle no los envía, se
- * omiten del evento.
+ * webhook + base de datos. No se inventan importes: Paddle envía los importes en
+ * unidad mínima (céntimos) y se convierten con la misma regla que el webhook; si
+ * el payload no permite determinarlos con seguridad, se omiten del evento.
  */
 function handlePaddleEvent(event: any) {
   if (!event || event.name !== "checkout.completed") return;
@@ -61,19 +62,19 @@ function handlePaddleEvent(event: any) {
   if (!transactionId) return;
 
   const rawTotal = d.totals?.total ?? d.payment?.amount ?? null;
-  const value = rawTotal == null || rawTotal === "" ? null : Number(rawTotal);
+  const value = paddleMinorToMajor(rawTotal);
 
   const items: AnalyticsItem[] = Array.isArray(d.items)
     ? d.items
         .map((it: any) => {
           const itemId = it?.price?.product?.id || it?.price_id || it?.price?.id;
           if (!itemId) return null;
-          const price = it?.totals?.total ?? it?.price?.unit_price?.amount ?? null;
+          const price = paddleMinorToMajor(it?.totals?.total ?? it?.price?.unit_price?.amount ?? null);
           return {
             item_id: String(itemId),
             item_name: String(it?.price?.product?.name || it?.price?.name || itemId),
             quantity: typeof it?.quantity === "number" ? it.quantity : 1,
-            ...(price == null || Number.isNaN(Number(price)) ? {} : { price: Number(price) }),
+            ...(price == null ? {} : { price }),
           } as AnalyticsItem;
         })
         .filter(Boolean)
@@ -82,10 +83,11 @@ function handlePaddleEvent(event: any) {
   trackPurchase({
     transactionId: String(transactionId),
     currency: d.currency_code ?? null,
-    value: value != null && !Number.isNaN(value) ? value : null,
+    value,
     items,
   });
 }
+
 
 let paddleInitialized = false;
 export async function initPaddle(): Promise<any> {
