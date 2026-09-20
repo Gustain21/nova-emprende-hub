@@ -140,14 +140,20 @@ export function countryFromTimeZone(tz?: string | null): string | null {
   }
 }
 
-/** Señales locales del navegador, en orden: idioma con región → zona horaria. */
+/**
+ * Señales locales del dispositivo. La zona horaria va primero porque indica
+ * dónde está el usuario, mientras que el idioma solo indica en qué lengua
+ * prefiere navegar (un navegador en "es-ES" o "es-419" desde Argentina debe
+ * resolver AR).
+ */
 function countryFromBrowser(): { country: string; source: RegionSource } | null {
-  const nav = countryFromNavigator();
-  if (nav) return { country: nav, source: "navigator" };
   const tz = countryFromTimeZone();
   if (tz) return { country: tz, source: "timezone" };
+  const nav = countryFromNavigator();
+  if (nav) return { country: nav, source: "navigator" };
   return null;
 }
+
 
 let cached: ResolvedRegion | null = null;
 let inflight: Promise<ResolvedRegion> | null = null;
