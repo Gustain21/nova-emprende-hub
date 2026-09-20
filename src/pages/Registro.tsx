@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { PasswordField, isPasswordValid } from "@/components/auth/PasswordField";
+import { trackSignUp } from "@/lib/analytics/track";
 
 const Registro = () => {
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" });
