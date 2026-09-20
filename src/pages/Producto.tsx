@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Check, ExternalLink, ShieldCheck, BookOpen, Calendar, Lightbulb, PieChart, FileSpreadsheet, Sparkles } from "lucide-react";
@@ -12,6 +13,7 @@ import Seo from "@/components/Seo";
 import { usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+import { trackViewItem, trackSelectItem } from "@/lib/analytics/track";
 
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -74,6 +76,21 @@ const Producto = () => {
   const idMap = usePaddlePriceIds();
   const priceId = product ? idMap[product.slug] ?? null : null;
   const { currencyCode, formattedPrice } = useLocalizedPaddlePrice(priceId);
+
+  useEffect(() => {
+    if (!product) return;
+    trackViewItem({
+      currency: currencyCode,
+      value: product.price,
+      item: {
+        item_id: product.slug,
+        item_name: product.title,
+        item_category: product.type,
+        price: product.price,
+        quantity: 1,
+      },
+    });
+  }, [product, currencyCode]);
 
   if (!product) {
     return (
