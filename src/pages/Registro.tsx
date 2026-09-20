@@ -39,6 +39,7 @@ const Registro = () => {
       toast.error("No se pudo crear la cuenta", { description: error });
       return;
     }
+    trackSignUp("password");
     if (needsConfirmation) {
       toast.success("Cuenta creada", {
         description: "Revisa tu email para confirmar tu cuenta antes de acceder.",
