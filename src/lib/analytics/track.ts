@@ -135,24 +135,36 @@ let lastPageViewPath: string | null = null;
 let initialPageViewSkipped = false;
 
 /**
- * page_view en SPA. La primera ruta tras la carga del contenedor ya la mide la
- * etiqueta de configuración de GA4 dentro de GTM, por lo que se omite aquí.
+ * page_view en SPA.
+ *
+ * La primera ruta de la sesión ya la mide la etiqueta de configuración de GA4
+ * cuando GTM se carga, así que aquí se omite. Esa primera ruta se recuerda
+ * SIEMPRE, incluso sin consentimiento: si el usuario acepta más tarde, GTM mide
+ * la ruta en la que está en ese momento y el siguiente cambio real de ruta debe
+ * emitir su page_view sin perderse por el mecanismo de omisión inicial.
  */
 export function trackPageView(path: string, title?: string): boolean {
-  if (!hasAnalyticsConsent()) return false;
+  const consented = hasAnalyticsConsent();
+
   if (!initialPageViewSkipped) {
     initialPageViewSkipped = true;
     lastPageViewPath = path;
     return false;
   }
   if (path === lastPageViewPath) return false;
+
+  // Sin consentimiento no se emite nada, pero se sigue recordando la ruta
+  // actual: es la que GTM/GA4 medirán automáticamente si se acepta después.
   lastPageViewPath = path;
+  if (!consented) return false;
+
   return trackEvent("page_view", {
     page_path: path,
     page_title: title ?? (typeof document !== "undefined" ? document.title : undefined),
     page_location: typeof window !== "undefined" ? window.location.href : undefined,
   });
 }
+
 
 /* ------------------------------------------------------- eventos de negocio */
 
