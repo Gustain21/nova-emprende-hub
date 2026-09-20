@@ -17,7 +17,7 @@ const ProductoPrivado = () => {
   const handleDownload = async (fileId: string, fileName: string) => {
     setPendingId(fileId);
     try {
-      await downloadProtectedFile(fileId, fileName);
+      await downloadProtectedFile(fileId, fileName, productId);
     } catch {
       // toast ya mostrado
     } finally {
