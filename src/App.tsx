@@ -19,6 +19,7 @@ import Registro from "./pages/Registro";
 import ResetPassword from "./pages/ResetPassword";
 import Checkout from "./pages/Checkout";
 import PagarProducto from "./pages/PagarProducto";
+import { usePageViews } from "@/lib/analytics/usePageViews";
 
 // Zona privada de clientes (Fase 1 — mock)
 import { AuthProvider } from "./lib/auth/AuthProvider";
@@ -63,6 +64,12 @@ const ScrollToTop = () => {
   return null;
 };
 
+/** page_view en cada cambio real de ruta (solo con consentimiento analítico). */
+const AnalyticsRouteTracker = () => {
+  usePageViews();
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -72,6 +79,7 @@ const App = () => (
         <AuthProvider>
           <RegionProvider>
           <ScrollToTop />
+          <AnalyticsRouteTracker />
           <Routes>
             {/* Públicas — intactas */}
             <Route path="/" element={<Index />} />

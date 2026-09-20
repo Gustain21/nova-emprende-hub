@@ -6,6 +6,7 @@
 
 import { getSignedDownloadUrl } from "@/hooks/usePurchases";
 import { toast } from "sonner";
+import { trackFileDownload } from "@/lib/analytics/track";
 
 function isIOS(): boolean {
   if (typeof navigator === "undefined") return false;
@@ -20,7 +21,11 @@ function isSafari(): boolean {
   return /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
 }
 
-export async function downloadProtectedFile(fileId: string, fileName: string): Promise<void> {
+export async function downloadProtectedFile(
+  fileId: string,
+  fileName: string,
+  productSlug?: string | null,
+): Promise<void> {
   let url: string;
   try {
     url = await getSignedDownloadUrl(fileId, 120);
@@ -33,6 +38,14 @@ export async function downloadProtectedFile(fileId: string, fileName: string): P
     toast.error(msg);
     throw err;
   }
+
+  // Descarga autorizada y URL firmada obtenida correctamente: evento analítico
+  // (sin datos personales; solo nombre de archivo y slug del producto).
+  trackFileDownload({
+    fileName,
+    fileExtension: fileName.includes(".") ? fileName.split(".").pop() : null,
+    productSlug: productSlug ?? null,
+  });
 
   // Safari (iPhone/iPad/desktop): navegación directa — la signed URL viene con
   // Content-Disposition: attachment por la opción `download` en createSignedUrl.

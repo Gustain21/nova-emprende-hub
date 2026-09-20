@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, FileText, BookOpen, Lightbulb, PieChart, Calendar } from "lucide-react";
@@ -8,6 +9,7 @@ import { usePaddlePriceId, usePaddlePriceIds } from "@/lib/pricing/paddlePriceId
 import { useLocalizedPaddlePrices, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
+import { trackViewItemList, trackSelectItem } from "@/lib/analytics/track";
 
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -72,7 +74,23 @@ const ProductCard = ({ product, index, currencyCode }: { product: Product; index
           )}
         </div>
 
-        <Link to={`/producto/${product.id}`}>
+        <Link
+          to={`/producto/${product.id}`}
+          onClick={() =>
+            trackSelectItem({
+              listId: "ecosistema",
+              listName: "Ecosistema de productos",
+              currency: currencyCode,
+              item: {
+                item_id: product.slug,
+                item_name: product.title,
+                item_category: product.type,
+                price: product.price,
+                quantity: 1,
+              },
+            })
+          }
+        >
           <Button variant="cta" size="sm">
             Ver más
             <ExternalLink className="w-3.5 h-3.5" />
@@ -89,6 +107,21 @@ const ProductsSection = () => {
   const prices = useLocalizedPaddlePrices(priceIds);
   const currencyCode =
     Object.values(prices).find((p) => p.currencyCode)?.currencyCode ?? null;
+
+  useEffect(() => {
+    trackViewItemList({
+      listId: "ecosistema",
+      listName: "Ecosistema de productos",
+      currency: currencyCode,
+      items: products.map((p) => ({
+        item_id: p.slug,
+        item_name: p.title,
+        item_category: p.type,
+        price: p.price,
+        quantity: 1,
+      })),
+    });
+  }, [currencyCode]);
 
   return (
     <section id="ecosistema" className="brand-section bg-background">

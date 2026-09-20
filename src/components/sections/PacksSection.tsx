@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check, Star, Rocket, Zap, Crown, Clock } from "lucide-react";
@@ -7,6 +8,7 @@ import { isOfferActive, formatOfferDate } from "@/lib/offer";
 import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+import { trackViewItemList, trackSelectItem } from "@/lib/analytics/track";
 
 const iconForPack = (id: string) =>
   id === "base" ? <Rocket className="w-6 h-6" /> :
@@ -100,7 +102,25 @@ const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
           Acceso inmediato. Impuestos y moneda final se ajustan en el checkout según tu país.
         </p>
         <Button variant={pack.featured ? "hero" : "cta"} size="lg" className="w-full" asChild>
-          <Link to={`/pagar/${pack.slug}`}>Elegir {pack.name}</Link>
+          <Link
+            to={`/pagar/${pack.slug}`}
+            onClick={() =>
+              trackSelectItem({
+                listId: "packs",
+                listName: "Packs",
+                currency: currencyCode,
+                item: {
+                  item_id: pack.slug,
+                  item_name: pack.name,
+                  item_category: "pack",
+                  price: pack.price,
+                  quantity: 1,
+                },
+              })
+            }
+          >
+            Elegir {pack.name}
+          </Link>
         </Button>
       </div>
     </motion.div>
@@ -108,6 +128,20 @@ const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
 };
 
 const PacksSection = () => {
+  useEffect(() => {
+    trackViewItemList({
+      listId: "packs",
+      listName: "Packs",
+      items: packs.map((p) => ({
+        item_id: p.slug,
+        item_name: p.name,
+        item_category: "pack",
+        price: p.price,
+        quantity: 1,
+      })),
+    });
+  }, []);
+
   return (
     <section id="packs" className="brand-section bg-background">
       <div className="brand-container">

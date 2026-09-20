@@ -8,10 +8,10 @@ const Descargas = () => {
   const { resources, loading } = usePurchases();
   const [pendingId, setPendingId] = useState<string | null>(null);
 
-  const handleDownload = async (fileId: string, fileName: string) => {
+  const handleDownload = async (fileId: string, fileName: string, productSlug?: string) => {
     setPendingId(fileId);
     try {
-      await downloadProtectedFile(fileId, fileName);
+      await downloadProtectedFile(fileId, fileName, productSlug);
     } catch {
       // toast ya mostrado
     } finally {
@@ -50,7 +50,7 @@ const Descargas = () => {
               <Button
                 variant="cta"
                 size="sm"
-                onClick={() => handleDownload(r.id, r.title)}
+                onClick={() => handleDownload(r.id, r.title, r.productId)}
                 disabled={pendingId === r.id}
               >
                 {pendingId === r.id ? (

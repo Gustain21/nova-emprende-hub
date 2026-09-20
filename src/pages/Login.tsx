@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { PasswordField } from "@/components/auth/PasswordField";
+import { trackLogin } from "@/lib/analytics/track";
 
 const features = [
   {
@@ -61,6 +62,7 @@ const Login = () => {
       toast.error(friendly);
       return;
     }
+    trackLogin("password");
     toast.success("Acceso correcto", {
       description: "Bienvenido a tu área de clientes.",
     });

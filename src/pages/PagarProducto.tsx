@@ -13,6 +13,7 @@ import { resolveRegion, resolveRegionSync } from "@/lib/region/resolveCountry";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
 import { initPaddle, openPaddleCheckout } from "@/lib/paddle/paddleClient";
+import { trackBeginCheckout } from "@/lib/analytics/track";
 
 
 interface DbProduct {
@@ -137,6 +138,19 @@ const PagarProducto = () => {
       return setError("Introduce un email válido para continuar.");
     }
     console.log("[pagar] buyer email to send to Paddle:", emailToSend);
+
+    // Analítica: intención de compra (sin datos personales).
+    trackBeginCheckout({
+      currency: displayCurrency,
+      value: displayPrice != null ? Number(displayPrice) : null,
+      item: {
+        item_id: dbProduct.slug,
+        item_name: displayName,
+        item_category: localProduct?.type ?? "pack",
+        price: displayPrice != null ? Number(displayPrice) : undefined,
+        quantity: 1,
+      },
+    });
 
     setSubmitting(true);
     try {
