@@ -61,6 +61,7 @@ const Login = () => {
       toast.error(friendly);
       return;
     }
+    trackLogin("password");
     toast.success("Acceso correcto", {
       description: "Bienvenido a tu área de clientes.",
     });
