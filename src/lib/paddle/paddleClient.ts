@@ -3,6 +3,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { trackPurchase, type AnalyticsItem } from "@/lib/analytics/track";
+import { paddleMinorToMajor } from "@/lib/analytics/money";
 
 const PADDLE_JS_SRC = "https://cdn.paddle.com/paddle/v2/paddle.js";
 
