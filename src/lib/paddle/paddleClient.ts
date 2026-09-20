@@ -2,6 +2,7 @@
 // function, inicializa entorno (sandbox/live) y expone helpers de checkout.
 
 import { supabase } from "@/integrations/supabase/client";
+import { trackPurchase, type AnalyticsItem } from "@/lib/analytics/track";
 
 const PADDLE_JS_SRC = "https://cdn.paddle.com/paddle/v2/paddle.js";
 
@@ -47,6 +48,45 @@ export function loadPaddle(): Promise<any> {
   return paddleLoaderPromise;
 }
 
+/**
+ * Callback oficial de Paddle Checkout.
+ * Solo se usa para analítica: la fuente real de venta y acceso sigue siendo el
+ * webhook + base de datos. No se inventan importes: si Paddle no los envía, se
+ * omiten del evento.
+ */
+function handlePaddleEvent(event: any) {
+  if (!event || event.name !== "checkout.completed") return;
+  const d = event.data || {};
+  const transactionId: string | undefined = d.transaction_id || d.id;
+  if (!transactionId) return;
+
+  const rawTotal = d.totals?.total ?? d.payment?.amount ?? null;
+  const value = rawTotal == null || rawTotal === "" ? null : Number(rawTotal);
+
+  const items: AnalyticsItem[] = Array.isArray(d.items)
+    ? d.items
+        .map((it: any) => {
+          const itemId = it?.price?.product?.id || it?.price_id || it?.price?.id;
+          if (!itemId) return null;
+          const price = it?.totals?.total ?? it?.price?.unit_price?.amount ?? null;
+          return {
+            item_id: String(itemId),
+            item_name: String(it?.price?.product?.name || it?.price?.name || itemId),
+            quantity: typeof it?.quantity === "number" ? it.quantity : 1,
+            ...(price == null || Number.isNaN(Number(price)) ? {} : { price: Number(price) }),
+          } as AnalyticsItem;
+        })
+        .filter(Boolean)
+    : [];
+
+  trackPurchase({
+    transactionId: String(transactionId),
+    currency: d.currency_code ?? null,
+    value: value != null && !Number.isNaN(value) ? value : null,
+    items,
+  });
+}
+
 let paddleInitialized = false;
 export async function initPaddle(): Promise<any> {
   const Paddle = await loadPaddle();
@@ -58,7 +98,7 @@ export async function initPaddle(): Promise<any> {
     Paddle.Environment.set("sandbox");
   }
   console.log("[paddle] init", { environment });
-  Paddle.Initialize({ token });
+  Paddle.Initialize({ token, eventCallback: handlePaddleEvent });
   paddleInitialized = true;
   return Paddle;
 }
