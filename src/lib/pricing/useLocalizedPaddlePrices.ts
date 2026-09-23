@@ -7,7 +7,8 @@
 import { useEffect, useState } from "react";
 import { initPaddle } from "@/lib/paddle/paddleClient";
 import { supabase } from "@/integrations/supabase/client";
-import { currencyForCountry, normalizeCountry, type PaddleCurrency } from "./currencyRule";
+import { currencyForCountry, type PaddleCurrency } from "./currencyRule";
+import { getCountryOverride, resolveRegion, subscribeRegion } from "@/lib/region/resolveCountry";
 
 export type LocalizedPrice = {
   formattedPrice: string | null;
@@ -32,35 +33,24 @@ let flushTimer: number | null = null;
 
 const notify = () => listeners.forEach((l) => l());
 
-// ---------- Country override (solo pruebas) ----------
-export function getCountryOverride(): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const sp = new URLSearchParams(window.location.search);
-    const q = sp.get("country");
-    if (q) {
-      const cc = q.toUpperCase();
-      window.sessionStorage.setItem("__lp_country", cc);
-      return cc;
-    }
-    return window.sessionStorage.getItem("__lp_country");
-  } catch {
-    return null;
-  }
-}
+// ---------- Country override (solo pruebas): vive en resolveCountry ----------
+export { getCountryOverride, setCountryOverride } from "@/lib/region/resolveCountry";
 
-export function setCountryOverride(cc: string | null) {
-  if (typeof window === "undefined") return;
-  try {
-    if (cc) window.sessionStorage.setItem("__lp_country", cc.toUpperCase());
-    else window.sessionStorage.removeItem("__lp_country");
-  } catch {
-    /* ignore */
-  }
+/** Vacía la caché de PricePreview (p. ej. al volver a AUTO). */
+export function clearLocalizedPriceCache() {
   cache.clear();
   pending.clear();
   notify();
 }
+
+// Si la región efectiva cambia, los precios cacheados dejan de ser válidos.
+let lastCountry: string | null = null;
+subscribeRegion((r) => {
+  if (r.country !== lastCountry) {
+    lastCountry = r.country;
+    clearLocalizedPriceCache();
+  }
+});
 
 const keyFor = (priceId: string, country: string | null) => `${country || "auto"}::${priceId}`;
 
