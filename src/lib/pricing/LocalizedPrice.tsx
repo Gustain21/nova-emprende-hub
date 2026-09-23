@@ -1,11 +1,13 @@
-// Componente auxiliar: renderiza un precio localizado desde Paddle.PricePreview
-// con skeleton discreto durante la carga y fallback EUR si falla la consulta.
+// Renderiza un precio localizado desde Paddle.PricePreview. Durante la carga o
+// si la consulta falla, muestra el importe base con la MONEDA EFECTIVA de la
+// región resuelta (USD para AR, EUR para UE). No convierte importes.
 
-import { useLocalizedPaddlePrice } from "./useLocalizedPaddlePrices";
-import { formatPriceEUR } from "@/lib/region/RegionContext";
+import { formatByCurrency, useLocalizedPaddlePrice } from "./useLocalizedPaddlePrices";
+import { useResolvedRegion } from "@/lib/region/useResolvedRegion";
 
 interface Props {
   priceId?: string | null;
+  /** Importe base (numéricamente igual en EUR y USD según la configuración). */
   fallbackEur: number;
   className?: string;
   skeletonClassName?: string;
@@ -13,9 +15,11 @@ interface Props {
 
 export const LocalizedPrice = ({ priceId, fallbackEur, className, skeletonClassName }: Props) => {
   const { formattedPrice, loading, error } = useLocalizedPaddlePrice(priceId);
+  const { currency } = useResolvedRegion();
+  const fallback = formatByCurrency(fallbackEur, currency);
 
   if (!priceId || error) {
-    return <span className={className}>{formatPriceEUR(fallbackEur)}</span>;
+    return <span className={className}>{fallback}</span>;
   }
   if (loading || !formattedPrice) {
     return (
@@ -23,7 +27,7 @@ export const LocalizedPrice = ({ priceId, fallbackEur, className, skeletonClassN
         className={`${className || ""} ${skeletonClassName || "opacity-60"} inline-block`}
         aria-busy="true"
       >
-        {formatPriceEUR(fallbackEur)}
+        {fallback}
       </span>
     );
   }
