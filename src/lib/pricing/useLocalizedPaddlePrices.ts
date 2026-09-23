@@ -58,7 +58,6 @@ const keyFor = (priceId: string, country: string | null) => `${country || "auto"
 // Resolución compartida (override → geo-detect → región del navegador →
 // fallback comercial ES). Ver src/lib/region/resolveCountry.ts.
 async function effectiveCountry(): Promise<string | null> {
-  const { resolveRegion } = await import("@/lib/region/resolveCountry");
   const r = await resolveRegion();
   return r.country;
 }
