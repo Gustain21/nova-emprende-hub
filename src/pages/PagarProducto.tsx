@@ -109,7 +109,6 @@ const PagarProducto = () => {
   const displayName = dbProduct?.name ?? localProduct?.title ?? "Producto";
   const displayDescription = dbProduct?.description ?? localProduct?.description ?? "";
   const displayPrice = dbProduct?.price ?? localProduct?.price ?? null;
-  const displayCurrency = dbProduct?.currency ?? "EUR";
   const hasPaddle = !!dbProduct?.paddle_price_id;
 
   const handleContinue = async () => {
@@ -132,7 +131,7 @@ const PagarProducto = () => {
 
     // Analítica: intención de compra (sin datos personales).
     trackBeginCheckout({
-      currency: displayCurrency,
+      currency: resolvedCurrency,
       value: displayPrice != null ? Number(displayPrice) : null,
       item: {
         item_id: dbProduct.slug,
