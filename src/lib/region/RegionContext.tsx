@@ -1,111 +1,42 @@
-// Detección automática de región/moneda.
-// Orden: país real del request (edge function geo-detect basada en headers tipo cf-ipcountry)
-// → navigator.language/languages → fallback EU/EUR.
-// No hay selector visible. No se pide geolocalización. No se guardan datos personales.
+// Contexto de región/moneda. Deriva EXCLUSIVAMENTE de resolveCountry.ts
+// (fuente única): sin detección propia, sin caché propia.
 
-import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createContext, useContext, useMemo, ReactNode } from "react";
+import { EUR_COUNTRIES } from "@/lib/pricing/currencyRule";
+import { setCountryOverride } from "./resolveCountry";
+import { useResolvedRegion } from "./useResolvedRegion";
 
 export type Region = "EU" | "LATAM" | "INTL";
 export type Currency = "EUR" | "USD";
 
-const EU_COUNTRIES = new Set([
-  "ES","DE","AT","BE","BG","CY","HR","DK","SK","SI","EE","FI","FR","GR","HU",
-  "IE","IT","LV","LT","LU","MT","NL","PL","PT","CZ","RO","SE",
-]);
 const LATAM_COUNTRIES = new Set([
   "AR","BO","CL","CO","CR","EC","SV","GT","HN","MX","NI","PA","PY","PE","DO","UY","VE",
 ]);
 
-const CACHE_KEY = "nova_region_cache_v2";
-const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24 h
-
-const regionToCurrency = (r: Region): Currency => (r === "EU" ? "EUR" : "USD");
-
-const countryToRegion = (cc: string | null | undefined): Region | null => {
-  if (!cc) return null;
-  const c = cc.toUpperCase();
-  if (EU_COUNTRIES.has(c)) return "EU";
-  if (LATAM_COUNTRIES.has(c)) return "LATAM";
-  return "INTL";
-};
-
-const detectFromLocale = (): Region | null => {
-  try {
-    if (typeof navigator === "undefined") return null;
-    const langs = [navigator.language, ...(navigator.languages || [])];
-    for (const l of langs) {
-      if (!l) continue;
-      const parts = l.split("-");
-      const region = (parts[1] || "").toUpperCase();
-      const fromCountry = countryToRegion(region);
-      if (fromCountry) return fromCountry;
-      const lang = parts[0]?.toLowerCase();
-      if (lang === "es") return "EU";
-    }
-  } catch { /* ignore */ }
-  return null;
-};
+const countryToRegion = (cc: string): Region =>
+  EUR_COUNTRIES.has(cc) ? "EU" : LATAM_COUNTRIES.has(cc) ? "LATAM" : "INTL";
 
 interface RegionContextValue {
   region: Region;
+  country: string;
   currency: Currency;
-  /** Sin selector visible: setter expuesto solo por compatibilidad interna. */
+  /** Compatibilidad: fija un override de pruebas representativo. */
   setRegion: (r: Region) => void;
 }
 
 const RegionContext = createContext<RegionContextValue | undefined>(undefined);
 
 export const RegionProvider = ({ children }: { children: ReactNode }) => {
-  // Estado inicial sincrónico: cache reciente → locale → EU.
-  const initial = (() => {
-    try {
-      if (typeof window !== "undefined") {
-        const raw = localStorage.getItem(CACHE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw) as { region: Region; ts: number };
-          if (parsed?.region && Date.now() - parsed.ts < CACHE_TTL_MS) return parsed.region;
-        }
-      }
-    } catch { /* ignore */ }
-    return detectFromLocale() ?? "EU";
-  })();
-
-  const [region, setRegionState] = useState<Region>(initial);
-
-  // Detección autoritativa por país real (edge function basada en headers de red).
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke("geo-detect");
-        if (cancelled || error || !data) return;
-        const r = countryToRegion((data as any).country);
-        if (r) {
-          setRegionState(r);
-          try {
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ region: r, ts: Date.now() }));
-          } catch { /* ignore */ }
-        }
-      } catch { /* silencioso: ya tenemos fallback de locale */ }
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  const setRegion = (r: Region) => {
-    setRegionState(r);
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ region: r, ts: Date.now() }));
-    } catch { /* ignore */ }
-  };
-
-
-
+  const resolved = useResolvedRegion();
   const value = useMemo<RegionContextValue>(
-    () => ({ region, currency: regionToCurrency(region), setRegion }),
-    [region],
+    () => ({
+      region: countryToRegion(resolved.country),
+      country: resolved.country,
+      currency: resolved.currency,
+      setRegion: (r) => setCountryOverride(r === "EU" ? "ES" : r === "LATAM" ? "AR" : "US"),
+    }),
+    [resolved.country, resolved.currency],
   );
-
   return <RegionContext.Provider value={value}>{children}</RegionContext.Provider>;
 };
 

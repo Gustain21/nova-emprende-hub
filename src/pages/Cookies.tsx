@@ -21,10 +21,10 @@ const necessaryRows = [
     duration: "Hasta que el usuario cierra sesión o borra el almacenamiento del navegador.",
   },
   {
-    name: "nova_region_cache_v2",
+    name: "nova_region_v3",
     provider: "Editorial Nova Emprende",
     purpose:
-      "Recordar la región detectada del visitante para mostrar el precio y la moneda correspondientes sin repetir la detección en cada visita.",
+      "Recordar el país detectado por la conexión del visitante para mostrar el precio y la moneda correspondientes sin repetir la detección en cada visita.",
     type: "Almacenamiento local (localStorage) · Estrictamente necesaria para la funcionalidad solicitada",
     duration: "24 horas.",
   },

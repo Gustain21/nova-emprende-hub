@@ -3,24 +3,21 @@
 
 import { useEffect, useState } from "react";
 import { Globe } from "lucide-react";
-import { getCountryOverride, setCountryOverride } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { getCountryOverride, setCountryOverride } from "@/lib/region/resolveCountry";
+import { useResolvedRegion } from "@/lib/region/useResolvedRegion";
 
 const OPTIONS = ["AUTO", "ES", "AR", "MX", "CO", "CL", "US"];
 
 function isPreviewEnv(): boolean {
   if (typeof window === "undefined") return false;
   const h = window.location.hostname;
-  return (
-    import.meta.env.DEV ||
-    h.includes("lovable.app") ||
-    h === "localhost" ||
-    h.startsWith("127.")
-  );
+  return import.meta.env.DEV || h.includes("lovable.app") || h === "localhost" || h.startsWith("127.");
 }
 
 const DevCountrySwitcher = () => {
   const [current, setCurrent] = useState<string>("AUTO");
   const [mounted, setMounted] = useState(false);
+  const region = useResolvedRegion();
 
   useEffect(() => {
     setMounted(true);
@@ -29,6 +26,8 @@ const DevCountrySwitcher = () => {
 
   if (!mounted || !isPreviewEnv()) return null;
 
+  // AUTO: borra override, caché v3 y estado heredado; los precios y Price IDs
+  // se reinician al notificarse el cambio de región.
   const change = (cc: string) => {
     setCurrent(cc);
     setCountryOverride(cc === "AUTO" ? null : cc);
@@ -39,6 +38,7 @@ const DevCountrySwitcher = () => {
       <Globe className="w-3.5 h-3.5 text-brand-orange" />
       <span className="text-white/60">Preview país:</span>
       <select
+        aria-label="Preview país"
         value={current}
         onChange={(e) => change(e.target.value)}
         className="bg-transparent text-white text-xs focus:outline-none"
@@ -49,6 +49,9 @@ const DevCountrySwitcher = () => {
           </option>
         ))}
       </select>
+      <span className="text-white/60" data-testid="resolved-region">
+        {region.country} · {region.currency}
+      </span>
     </div>
   );
 };

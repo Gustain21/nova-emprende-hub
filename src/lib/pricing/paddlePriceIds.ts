@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchPaddleClientConfig } from "@/lib/paddle/paddleClient";
 import { currencyForCountry, type PaddleCurrency } from "./currencyRule";
+import { resolveRegion, subscribeRegion } from "@/lib/region/resolveCountry";
 
 
 type Row = {
@@ -25,24 +26,19 @@ let loadPromise: Promise<void> | null = null;
 const listeners = new Set<() => void>();
 const notify = () => listeners.forEach((l) => l());
 
-async function detectCountry(): Promise<string | null> {
-  const { resolveRegion } = await import("@/lib/region/resolveCountry");
-  return (await resolveRegion()).country;
-}
-
-
 async function load() {
-  const [{ data: rows }, config, country] = await Promise.all([
+  const [{ data: rows }, config, region] = await Promise.all([
     supabase
       .from("products")
       .select("slug, paddle_price_id, paddle_price_id_eur, paddle_price_id_usd")
       .eq("active", true),
     fetchPaddleClientConfig().catch(() => ({ token: "", environment: "sandbox" })),
-    detectCountry(),
+    resolveRegion(),
   ]);
 
   const environment = (config?.environment || "sandbox").toLowerCase();
-  currency = currencyForCountry(country);
+  currency = currencyForCountry(region.country);
+  loadedCountry = region.country;
 
   const next: Record<string, string> = {};
   for (const r of (rows || []) as Row[]) {
@@ -62,6 +58,21 @@ function ensureLoaded() {
   if (!loadPromise) loadPromise = load().catch((e) => console.error("[paddle-price-ids]", e));
   return loadPromise;
 }
+
+let loadedCountry: string | null = null;
+
+/** Fuerza recargar los Price IDs con la región actual. */
+export function resetPaddlePriceIds() {
+  loadPromise = null;
+  map = {};
+  notify();
+  if (listeners.size) ensureLoaded();
+}
+
+// Si la región efectiva cambia, se recalculan los Price IDs (moneda correcta).
+subscribeRegion((r) => {
+  if (loadedCountry && r.country !== loadedCountry) resetPaddlePriceIds();
+});
 
 /** Mapa slug -> price_id vigente (vacío en el primer render, se rellena al cargar). */
 export function usePaddlePriceIds(): Record<string, string> {
