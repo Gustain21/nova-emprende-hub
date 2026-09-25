@@ -4,7 +4,9 @@
 //
 // Orden de resolución (estricto):
 //  1. Override explícito de pruebas: ?country=XX o sessionStorage __lp_country.
-//  2. País válido devuelto por geo-detect (señal de red), cacheado en v3.
+//  2. Caché de red vigente (nova_region_v4, solo resultados de red).
+//  3. country.is directo desde el navegador (source "ip"), timeout corto.
+//  4. geo-detect del backend como respaldo (source "geo").
 //  3. Señales del dispositivo: zona horaria IANA primero
 //     (America/Argentina/* → AR) y después región exacta del idioma
 //     (es-AR → AR). "es" sin región nunca se convierte en España.
@@ -19,12 +21,20 @@ import { currencyForCountry, normalizeCountry, type PaddleCurrency } from "@/lib
 
 export const FALLBACK_COUNTRY = "ES";
 export const OVERRIDE_KEY = "__lp_country";
-export const LEGACY_KEYS = ["nova_country_preference", "nova_region_cache_v2"] as const;
-export const REGION_CACHE_KEY = "nova_region_v3";
-const REGION_CACHE_VERSION = 3;
+export const LEGACY_KEYS = [
+  "nova_country_preference",
+  "nova_region_cache_v2",
+  "nova_region_cache",
+  "nova_region_v2",
+  "nova_region_v3",
+] as const;
+export const REGION_CACHE_KEY = "nova_region_v4";
+const REGION_CACHE_VERSION = 4;
+export const COUNTRY_IS_URL = "https://api.country.is/";
+const COUNTRY_IS_TIMEOUT_MS = 2500;
 const REGION_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
 
-export type RegionSource = "override" | "geo" | "timezone" | "navigator" | "fallback";
+export type RegionSource = "override" | "ip" | "geo" | "timezone" | "navigator" | "fallback";
 
 export type ResolvedRegion = {
   country: string;
@@ -77,16 +87,16 @@ function readCache(): ResolvedRegion | null {
     if (!raw) return null;
     const p = JSON.parse(raw) as Partial<CacheEntry>;
     const cc = normalizeCountry(p?.country);
-    if (p?.v !== REGION_CACHE_VERSION || !cc || p.source !== "geo" || typeof p.ts !== "number") return null;
+    if (p?.v !== REGION_CACHE_VERSION || !cc || (p.source !== "geo" && p.source !== "ip") || typeof p.ts !== "number") return null;
     if (Date.now() - p.ts > REGION_CACHE_TTL_MS) return null;
-    return make(cc, "geo");
+    return make(cc, p.source);
   } catch {
     return null;
   }
 }
 
 function writeCache(r: ResolvedRegion) {
-  if (typeof window === "undefined" || r.source !== "geo") return;
+  if (typeof window === "undefined" || (r.source !== "geo" && r.source !== "ip")) return;
   try {
     const entry: CacheEntry = { v: REGION_CACHE_VERSION, country: r.country, source: r.source, ts: Date.now() };
     window.localStorage.setItem(REGION_CACHE_KEY, JSON.stringify(entry));
@@ -157,6 +167,34 @@ function fromDevice(): ResolvedRegion {
   return make(FALLBACK_COUNTRY, "fallback");
 }
 
+/* ------------------------------------------------------------- red */
+
+/** Consulta directa a country.is (el proveedor recibe la IP; no se almacena). */
+export async function countryFromCountryIs(timeoutMs = COUNTRY_IS_TIMEOUT_MS): Promise<string | null> {
+  if (typeof fetch === "undefined") return null;
+  const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const timer = setTimeout(() => ctrl?.abort(), timeoutMs);
+  try {
+    const res = await fetch(COUNTRY_IS_URL, { signal: ctrl?.signal, cache: "no-store", credentials: "omit" });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { country?: unknown } | null;
+    return normalizeCountry(data?.country);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function countryFromGeoDetect(): Promise<string | null> {
+  try {
+    const { data } = await supabase.functions.invoke("geo-detect");
+    return normalizeCountry((data as { country?: unknown } | null)?.country);
+  } catch {
+    return null;
+  }
+}
+
 /* ------------------------------------------------------------- resolución */
 
 let cached: ResolvedRegion | null = null;
@@ -196,6 +234,7 @@ export function resetRegionState({ keepOverride = false } = {}) {
   }
   resetResolvedRegion();
   emit(resolveRegionSync());
+  if (!keepOverride) void resolveRegion(); // AUTO: redetecta por red y notifica
 }
 
 /** Fija (o borra con null) el override de pruebas y reinicia la resolución. */
@@ -230,12 +269,11 @@ export async function resolveRegion(): Promise<ResolvedRegion> {
   if (!inflight) {
     const p = (async () => {
       let resolved: ResolvedRegion | null = null;
-      try {
-        const { data } = await supabase.functions.invoke("geo-detect");
-        const cc = normalizeCountry((data as { country?: unknown } | null)?.country);
-        if (cc) resolved = make(cc, "geo");
-      } catch {
-        /* silencioso */
+      const ip = await countryFromCountryIs();
+      if (ip) resolved = make(ip, "ip");
+      if (!resolved) {
+        const geo = await countryFromGeoDetect();
+        if (geo) resolved = make(geo, "geo");
       }
       if (!resolved) resolved = fromDevice();
       if (inflight !== p) return resolved; // se reinició mientras tanto

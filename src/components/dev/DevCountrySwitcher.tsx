@@ -26,7 +26,7 @@ const DevCountrySwitcher = () => {
 
   if (!mounted || !isPreviewEnv()) return null;
 
-  // AUTO: borra override, caché v3 y estado heredado; los precios y Price IDs
+  // AUTO: borra override, caché v4 y estado heredado; los precios y Price IDs
   // se reinician al notificarse el cambio de región.
   const change = (cc: string) => {
     setCurrent(cc);
@@ -50,7 +50,7 @@ const DevCountrySwitcher = () => {
         ))}
       </select>
       <span className="text-white/60" data-testid="resolved-region">
-        {region.country} · {region.currency}
+        {region.country} · {region.currency} · {region.source}
       </span>
     </div>
   );

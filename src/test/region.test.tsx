@@ -5,8 +5,9 @@ const hoisted = vi.hoisted(() => ({
   price: { formattedPrice: null as string | null, currencyCode: null, amount: null, loading: true, error: null as string | null },
 }));
 
+const geo = vi.hoisted(() => ({ country: null as string | null }));
 vi.mock("@/integrations/supabase/client", () => ({
-  supabase: { functions: { invoke: vi.fn(async () => ({ data: { country: null } })) } },
+  supabase: { functions: { invoke: vi.fn(async () => ({ data: { country: geo.country } })) } },
 }));
 vi.mock("@/lib/pricing/useLocalizedPaddlePrices", async (orig) => {
   const actual = await orig<typeof import("@/lib/pricing/useLocalizedPaddlePrices")>();
@@ -34,6 +35,11 @@ function mockTimeZone(timeZone: string | undefined) {
     () => ({ resolvedOptions: () => ({ timeZone }) }) as unknown as Intl.DateTimeFormat,
   );
 }
+function mockCountryIs(country: string | null) {
+  return vi.spyOn(globalThis, "fetch").mockImplementation(async () =>
+    country ? new Response(JSON.stringify({ ip: "x", country })) : Promise.reject(new Error("net")),
+  );
+}
 const argentina = () => {
   mockTimeZone("America/Argentina/Buenos_Aires");
   mockNavigator("es-ES", ["es-ES", "es"]);
@@ -46,6 +52,8 @@ beforeEach(() => {
   mockNavigator(undefined, []);
   mockTimeZone(undefined);
   resetResolvedRegion();
+  geo.country = null;
+  mockCountryIs(null);
   hoisted.price = { formattedPrice: null, currencyCode: null, amount: null, loading: true, error: null };
 });
 
@@ -84,10 +92,46 @@ describe("resolución de país y moneda", () => {
     expect(window.localStorage.getItem("nova_region_cache_v2")).toBeNull();
   });
 
-  it("cache v3 de otra versión se ignora", () => {
-    window.localStorage.setItem(REGION_CACHE_KEY, JSON.stringify({ v: 2, country: "ES", source: "geo", ts: Date.now() }));
+  it("cache nova_region_v3=ES se elimina y no sobrevive", () => {
+    window.localStorage.setItem("nova_region_v3", JSON.stringify({ v: 4, country: "ES", source: "geo", ts: Date.now() }));
     argentina();
     expect(resolveRegionSync().country).toBe("AR");
+    expect(window.localStorage.getItem("nova_region_v3")).toBeNull();
+  });
+
+  it("country.is=AR + Europe/Madrid + es-ES => AR/USD/ip y se cachea en v4", async () => {
+    mockTimeZone("Europe/Madrid");
+    mockNavigator("es-ES", ["es-ES"]);
+    mockCountryIs("AR");
+    expect(await resolveRegion()).toMatchObject({ country: "AR", currency: "USD", source: "ip" });
+    expect(JSON.parse(window.localStorage.getItem(REGION_CACHE_KEY)!)).toMatchObject({ v: 4, country: "AR", source: "ip" });
+  });
+
+  it("country.is falla + backend=AR => AR/geo", async () => {
+    mockTimeZone("Europe/Madrid");
+    geo.country = "AR";
+    expect(await resolveRegion()).toMatchObject({ country: "AR", currency: "USD", source: "geo" });
+  });
+
+  it("ambas redes fallan + Buenos Aires => AR por zona horaria, sin caché", async () => {
+    argentina();
+    expect(await resolveRegion()).toMatchObject({ country: "AR", source: "timezone" });
+    expect(window.localStorage.getItem(REGION_CACHE_KEY)).toBeNull();
+  });
+
+  it("España real por IP => ES/EUR", async () => {
+    mockTimeZone("Europe/Madrid");
+    mockCountryIs("ES");
+    expect(await resolveRegion()).toMatchObject({ country: "ES", currency: "EUR", source: "ip" });
+  });
+
+  it("AUTO redetecta por red tras un override", async () => {
+    mockTimeZone("Europe/Madrid");
+    setCountryOverride("ES");
+    mockCountryIs("AR");
+    setCountryOverride(null);
+    expect(await resolveRegion()).toMatchObject({ country: "AR", source: "ip" });
+    expect(resolveRegionSync()).toMatchObject({ country: "AR", currency: "USD" });
   });
 
   it("el override de pruebas manda; AUTO lo borra junto al estado heredado", () => {
@@ -96,7 +140,7 @@ describe("resolución de país y moneda", () => {
     expect(resolveRegionSync()).toMatchObject({ country: "ES", source: "override" });
     window.localStorage.setItem("nova_country_preference", "ES");
     window.localStorage.setItem("nova_region_cache_v2", "{}");
-    window.localStorage.setItem(REGION_CACHE_KEY, JSON.stringify({ v: 3, country: "ES", source: "geo", ts: Date.now() }));
+    window.localStorage.setItem(REGION_CACHE_KEY, JSON.stringify({ v: 4, country: "ES", source: "geo", ts: Date.now() }));
     setCountryOverride(null); // AUTO
     expect(window.sessionStorage.getItem("__lp_country")).toBeNull();
     expect(window.localStorage.getItem("nova_country_preference")).toBeNull();
