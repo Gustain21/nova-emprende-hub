@@ -50,7 +50,7 @@ const DevCountrySwitcher = () => {
         ))}
       </select>
       <span className="text-white/60" data-testid="resolved-region">
-        {region.country} · {region.currency}
+        {region.country} · {region.currency} · {region.source}
       </span>
     </div>
   );

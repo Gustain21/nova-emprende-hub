@@ -21,10 +21,10 @@ const necessaryRows = [
     duration: "Hasta que el usuario cierra sesión o borra el almacenamiento del navegador.",
   },
   {
-    name: "nova_region_v3",
+    name: "nova_region_v4",
     provider: "Editorial Nova Emprende",
     purpose:
-      "Recordar el país detectado por la conexión del visitante para mostrar el precio y la moneda correspondientes sin repetir la detección en cada visita.",
+      "Recordar el país detectado por la conexión del visitante para mostrar el precio y la moneda correspondientes sin repetir la detección en cada visita. Para detectarlo se consulta al proveedor country.is el país asociado a la IP, únicamente para seleccionar la moneda; Editorial Nova Emprende no almacena la IP, solo el código de país.",
     type: "Almacenamiento local (localStorage) · Estrictamente necesaria para la funcionalidad solicitada",
     duration: "24 horas.",
   },

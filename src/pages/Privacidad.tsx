@@ -110,6 +110,9 @@ const Privacidad = () => {
                 <p>
                   Paddle se identifica expresamente debido a su intervención directa en las transacciones.
                 </p>
+                <p>
+                  Para mostrar los precios en la moneda adecuada, el navegador consulta al proveedor country.is (api.country.is) el país asociado a la dirección IP de la conexión, únicamente para seleccionar la moneda. Ese proveedor recibe la IP para devolver solo el código del país; Editorial Nova Emprende no almacena la dirección IP y solo guarda en el navegador el país resultante durante 24 horas.
+                </p>
               </section>
 
               <section className="space-y-4">
