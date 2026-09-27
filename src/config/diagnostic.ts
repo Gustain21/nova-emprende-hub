@@ -14,7 +14,13 @@ export const DIAGNOSTIC_COPY = {
   trust: "Gratuito · 3 minutos · 12 preguntas · Resultado personalizado",
 } as const;
 
-export type DiagnosticSource = "inicio" | "ebook" | "ecosistema" | "footer";
+export type DiagnosticSource =
+  | "inicio"
+  | "ebook"
+  | "ecosistema"
+  | "footer"
+  | "header_desktop"
+  | "header_mobile";
 
 /** Registra el evento mediante la utilidad central (respeta el consentimiento). */
 export function trackDiagnosticClick(source: DiagnosticSource) {
