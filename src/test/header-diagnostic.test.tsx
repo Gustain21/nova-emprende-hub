@@ -35,6 +35,8 @@ describe("Header — acceso al Diagnóstico", () => {
     expect(links).toHaveLength(1);
     expect(links[0]).toHaveAttribute("href", DIAGNOSTIC_URL);
     expect(links[0]).not.toHaveAttribute("target");
+    expect(links[0].className).toContain("rounded-full");
+    expect(links[0].className).toContain("border-brand-orange");
   });
 
   it("registra diagnostic_cta_clicked con source_page header_desktop", () => {
@@ -68,6 +70,8 @@ describe("Header — acceso al Diagnóstico", () => {
     )!;
     expect(link).toHaveAttribute("href", DIAGNOSTIC_URL);
     expect(link).not.toHaveAttribute("target");
+    expect(link.className).toContain("rounded-full");
+    expect(link.className).toContain("w-full");
     fireEvent.click(link);
     expect(trackEventMock).toHaveBeenCalledWith("diagnostic_cta_clicked", {
       source_page: "header_mobile",
