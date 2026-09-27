@@ -4,6 +4,8 @@ import {
   trackEcommerce,
   trackPurchase,
   trackViewItem,
+  trackViewItemList,
+  trackBeginCheckout,
   trackPageView,
   trackFileDownload,
   hasAnalyticsConsent,

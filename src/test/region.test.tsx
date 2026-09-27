@@ -11,7 +11,12 @@ vi.mock("@/integrations/supabase/client", () => ({
 }));
 vi.mock("@/lib/pricing/useLocalizedPaddlePrices", async (orig) => {
   const actual = await orig<typeof import("@/lib/pricing/useLocalizedPaddlePrices")>();
-  return { ...actual, useLocalizedPaddlePrice: () => hoisted.price };
+  return {
+    ...actual,
+    useLocalizedPaddlePrice: () => hoisted.price,
+    useLocalizedPaddlePrices: (ids: (string | null | undefined)[]) =>
+      Object.fromEntries(ids.filter(Boolean).map((id) => [id, hoisted.price])),
+  };
 });
 
 import {
@@ -25,6 +30,9 @@ import {
 } from "@/lib/region/resolveCountry";
 import { currencyForCountry } from "@/lib/pricing/currencyRule";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
+import { MemoryRouter } from "react-router-dom";
+import PacksSection from "@/components/sections/PacksSection";
+import { packs, products } from "@/data/products";
 
 function mockNavigator(language: string | undefined, languages: string[] = []) {
   Object.defineProperty(window.navigator, "language", { value: language, configurable: true });
@@ -191,5 +199,46 @@ describe("LocalizedPrice: fallback visual con la moneda efectiva", () => {
     hoisted.price = { ...hoisted.price, loading: false, error: "x" };
     render(<LocalizedPrice priceId="pri_x" fallbackEur={19.99} />);
     expect(screen.getByText(/19/).textContent).toContain("€");
+  });
+});
+
+describe("precios secundarios (tachado y ahorro) sin moneda provisional", () => {
+  const renderPacks = () =>
+    render(
+      <MemoryRouter>
+        <PacksSection />
+      </MemoryRouter>,
+    );
+  const secondaryTexts = (c: HTMLElement) =>
+    Array.from(c.querySelectorAll(".line-through")).map((e) => e.textContent || "")
+      .concat(Array.from(c.querySelectorAll("*")).filter((e) => /^Ahorras/.test(e.textContent || "") && e.children.length === 0).map((e) => e.textContent || ""));
+
+  it("AR durante la carga: tachados y ahorro en $, nunca €", () => {
+    argentina();
+    const { container } = renderPacks();
+    const texts = secondaryTexts(container);
+    expect(texts.length).toBeGreaterThan(0);
+    for (const t of texts) {
+      expect(t).toContain("$");
+      expect(t).not.toContain("€");
+    }
+    expect(container.textContent).not.toContain("€");
+  });
+
+  it("ES durante la carga: tachados y ahorro en €, nunca $", () => {
+    mockTimeZone("Europe/Madrid");
+    mockNavigator("es-ES", ["es-ES"]);
+    const { container } = renderPacks();
+    const texts = secondaryTexts(container);
+    expect(texts.length).toBeGreaterThan(0);
+    for (const t of texts) {
+      expect(t).toContain("€");
+      expect(t).not.toContain("$");
+    }
+  });
+
+  it("catálogo USD coincide con Paddle", () => {
+    expect(products.map((p) => p.priceUsd)).toEqual([19.99, 19.99, 9.99, 27.99, 14.99, 15.99, 15.99]);
+    expect(packs.map((p) => p.priceUsd)).toEqual([31.99, 55.99, 89.99]);
   });
 });
