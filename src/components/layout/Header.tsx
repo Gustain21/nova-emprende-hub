@@ -36,20 +36,26 @@ const Header = () => {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-7">
-            {navItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                onClick={
-                  item.diagnostic
-                    ? () => trackDiagnosticClick("header_desktop")
-                    : undefined
-                }
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {item.label}
-              </a>
-            ))}
+            {navItems.map((item) =>
+              item.diagnostic ? (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => trackDiagnosticClick("header_desktop")}
+                  className="inline-flex shrink-0 items-center rounded-full border border-brand-orange/70 bg-transparent px-3.5 py-1.5 text-sm font-semibold text-brand-orange hover:bg-brand-orange/10 hover:text-brand-orange-glow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {item.label}
+                </a>
+              )
+            )}
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
@@ -83,19 +89,33 @@ const Header = () => {
             className="lg:hidden bg-card border-b border-border"
           >
             <nav className="brand-container py-6 flex flex-col gap-4">
-              {navItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    if (item.diagnostic) trackDiagnosticClick("header_mobile");
-                  }}
-                  className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
-                >
-                  {item.label}
-                </a>
-              ))}
+              {navItems.map((item) =>
+                item.diagnostic ? (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      trackDiagnosticClick("header_mobile");
+                    }}
+                    className="inline-flex w-full items-center justify-center rounded-full border border-brand-orange/70 bg-transparent px-4 py-3 text-base font-semibold text-brand-orange hover:bg-brand-orange/10 hover:text-brand-orange-glow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      if (item.diagnostic) trackDiagnosticClick("header_mobile");
+                    }}
+                    className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                  >
+                    {item.label}
+                  </a>
+                )
+              )}
               <div className="flex flex-col gap-3 pt-4 border-t border-border">
                 
                 <Link to={clientesHref} onClick={() => setIsMenuOpen(false)}>
