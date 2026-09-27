@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { products, type Product } from "@/data/products";
 import { isOfferActive } from "@/lib/offer";
 import { usePaddlePriceId, usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
-import { useLocalizedPaddlePrices, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { useLocalizedPaddlePrices, formatByCurrency, useDisplayCurrency, useAnalyticsCurrency, catalogPriceFor } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
 import { trackViewItemList, trackSelectItem } from "@/lib/analytics/track";
@@ -20,7 +20,7 @@ const iconMap: Record<string, React.ReactNode> = {
   FileSpreadsheet: <FileText className="w-4 h-4" />,
 };
 
-const ProductCard = ({ product, index, currencyCode }: { product: Product; index: number; currencyCode: string | null }) => {
+const ProductCard = ({ product, index, currencyCode }: { product: Product; index: number; currencyCode: "EUR" | "USD" }) => {
   const priceId = usePaddlePriceId(product.slug);
   const offerActive = isOfferActive(product.offerEndDate, product.saleActive);
   const originalPrice = offerActive ? product.originalPrice : undefined;
@@ -85,7 +85,7 @@ const ProductCard = ({ product, index, currencyCode }: { product: Product; index
                 item_id: product.slug,
                 item_name: product.title,
                 item_category: product.type,
-                price: product.price,
+                price: catalogPriceFor(product, currencyCode as "EUR" | "USD"),
                 quantity: 1,
               },
             })
@@ -105,23 +105,27 @@ const ProductsSection = () => {
   const idMap = usePaddlePriceIds();
   const priceIds = products.map((p) => idMap[p.slug]).filter(Boolean);
   const prices = useLocalizedPaddlePrices(priceIds);
-  const currencyCode =
-    Object.values(prices).find((p) => p.currencyCode)?.currencyCode ?? null;
+  const priceList = Object.values(prices);
+  const currencyCode = useDisplayCurrency(priceList.find((p) => p.currencyCode)?.currencyCode);
+  const analyticsCurrency = useAnalyticsCurrency(priceIds.length === products.length ? priceList : []);
 
   useEffect(() => {
+    if (!analyticsCurrency) return;
     trackViewItemList({
       listId: "ecosistema",
       listName: "Ecosistema de productos",
-      currency: currencyCode,
-      items: products.map((p) => ({
-        item_id: p.slug,
-        item_name: p.title,
-        item_category: p.type,
-        price: p.price,
-        quantity: 1,
-      })),
+      currency: analyticsCurrency,
+      items: products.map((p) => {
+        const paddle = prices[idMap[p.slug]];
+        const price =
+          paddle?.currencyCode?.toUpperCase() === analyticsCurrency && paddle.amount != null
+            ? paddle.amount
+            : catalogPriceFor(p, analyticsCurrency);
+        return { item_id: p.slug, item_name: p.title, item_category: p.type, price, quantity: 1 };
+      }),
     });
-  }, [currencyCode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analyticsCurrency]);
 
   return (
     <section id="ecosistema" className="brand-section bg-background">

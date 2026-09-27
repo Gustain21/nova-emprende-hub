@@ -249,3 +249,21 @@ export function useDisplayCurrency(currencyCode: string | null | undefined): Pad
   const c = (currencyCode || "").toUpperCase();
   return c === "EUR" || c === "USD" ? (c as PaddleCurrency) : region.currency;
 }
+
+/**
+ * Moneda válida para analítica de ecommerce: la confirmada por Paddle; si Paddle
+ * terminó con error, la región unificada. Mientras carga devuelve null (no se
+ * emite nada todavía y el evento no se pierde: se emite al resolverse).
+ */
+export function useAnalyticsCurrency(prices: LocalizedPrice[]): PaddleCurrency | null {
+  const region = useResolvedRegion();
+  const confirmed = prices.find((p) => p.currencyCode)?.currencyCode?.toUpperCase();
+  if (confirmed === "EUR" || confirmed === "USD") return confirmed as PaddleCurrency;
+  if (prices.length > 0 && prices.every((p) => !p.loading)) return region.currency;
+  return null;
+}
+
+/** Importe de catálogo en la moneda indicada (nunca convierte tipos de cambio). */
+export function catalogPriceFor(item: { price: number; priceUsd: number }, currency: PaddleCurrency): number {
+  return currency === "USD" ? item.priceUsd : item.price;
+}

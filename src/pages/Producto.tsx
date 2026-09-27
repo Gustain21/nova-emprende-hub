@@ -11,7 +11,7 @@ import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
 import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
 import Seo from "@/components/Seo";
 import { usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
-import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { useLocalizedPaddlePrice, formatByCurrency, useDisplayCurrency, useAnalyticsCurrency, catalogPriceFor } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 import { trackViewItem } from "@/lib/analytics/track";
 
@@ -75,22 +75,30 @@ const Producto = () => {
   const product = getProductById(id || "");
   const idMap = usePaddlePriceIds();
   const priceId = product ? idMap[product.slug] ?? null : null;
-  const { currencyCode, formattedPrice } = useLocalizedPaddlePrice(priceId);
+  const localized = useLocalizedPaddlePrice(priceId);
+  const { formattedPrice } = localized;
+  const currencyCode = useDisplayCurrency(localized.currencyCode);
+  const analyticsCurrency = useAnalyticsCurrency(priceId ? [localized] : []);
 
   useEffect(() => {
-    if (!product) return;
+    if (!product || !analyticsCurrency) return;
+    const value =
+      localized.currencyCode?.toUpperCase() === analyticsCurrency && localized.amount != null
+        ? localized.amount
+        : catalogPriceFor(product, analyticsCurrency);
     trackViewItem({
-      currency: currencyCode,
-      value: product.price,
+      currency: analyticsCurrency,
+      value,
       item: {
         item_id: product.slug,
         item_name: product.title,
         item_category: product.type,
-        price: product.price,
+        price: value,
         quantity: 1,
       },
     });
-  }, [product, currencyCode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product, analyticsCurrency]);
 
   if (!product) {
     return (
@@ -313,7 +321,7 @@ const Producto = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="hero" size="xl" asChild>
                 <Link to={`/pagar/${product.slug}`}>
-                  Comprar por {formattedPrice || formatByCurrency(product.price, currencyCode || "EUR")}
+                  Comprar por {formattedPrice || formatByCurrency(catalogPriceFor(product, currencyCode), currencyCode)}
                   <ExternalLink className="w-5 h-5" />
                 </Link>
               </Button>
