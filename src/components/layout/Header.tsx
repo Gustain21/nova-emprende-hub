@@ -35,7 +35,7 @@ const Header = () => {
             />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-7">
             {navItems.map((item) =>
               item.diagnostic ? (
                 <a
