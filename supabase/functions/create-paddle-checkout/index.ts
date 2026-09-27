@@ -223,6 +223,11 @@ Deno.serve(async (req) => {
       url: checkout_url, // compat
       mode: paddleEnv,
       debug_buyer_email: email,
+      // Moneda e importe (unidad mínima) del Price ID realmente seleccionado,
+      // tal y como los devuelve Paddle en la transacción creada.
+      price_id: selectedPriceId,
+      currency_code: txJson?.data?.currency_code ?? null,
+      total_minor: txJson?.data?.details?.totals?.total ?? null,
     });
 
   } catch (err: any) {

@@ -4,6 +4,8 @@ import {
   trackEcommerce,
   trackPurchase,
   trackViewItem,
+  trackViewItemList,
+  trackBeginCheckout,
   trackPageView,
   trackFileDownload,
   hasAnalyticsConsent,
@@ -83,8 +85,8 @@ describe("analytics: emisión con consentimiento", () => {
 
   it("no duplica view_item del mismo producto", () => {
     const item = { item_id: "ebook", item_name: "Ebook" };
-    expect(trackViewItem({ item })).toBe(true);
-    expect(trackViewItem({ item })).toBe(false);
+    expect(trackViewItem({ item, currency: "EUR", value: 19.99 })).toBe(true);
+    expect(trackViewItem({ item, currency: "EUR", value: 19.99 })).toBe(false);
   });
 
   it("omite la primera vista (ya medida por GA4) y mide los cambios de ruta", () => {
@@ -148,5 +150,37 @@ describe("analytics: importes de Paddle en unidad mínima", () => {
     const purchase = dl().find((e) => e.event === "purchase") as any;
     expect(purchase.ecommerce.value).toBe(19.99);
     expect(purchase.ecommerce.items[0].price).toBe(19.99);
+  });
+});
+
+describe("analytics: ecommerce solo con moneda EUR/USD", () => {
+  beforeEach(() => setConsent(true));
+  const items = [{ item_id: "pack-base", item_name: "Pack Base", price: 31.99 }];
+
+  it("view_item_list sin moneda no se emite y no se pierde al resolverse (AR/USD)", () => {
+    expect(trackViewItemList({ listId: "packs", listName: "Packs", items, currency: null })).toBe(false);
+    expect(dl().some((e) => e.event === "view_item_list")).toBe(false);
+    expect(trackViewItemList({ listId: "packs", listName: "Packs", items, currency: "USD" })).toBe(true);
+    expect(trackViewItemList({ listId: "packs", listName: "Packs", items, currency: "USD" })).toBe(false);
+    const ev = dl().filter((e) => e.event === "view_item_list");
+    expect(ev).toHaveLength(1);
+    expect((ev[0].ecommerce as any).currency).toBe("USD");
+  });
+
+  it("view_item rechaza monedas no válidas o sin importe y emite una vez en ES/EUR", () => {
+    const item = { item_id: "ebook", item_name: "Ebook" };
+    expect(trackViewItem({ item, currency: "ARS", value: 19.99 })).toBe(false);
+    expect(trackViewItem({ item, currency: "EUR", value: null })).toBe(false);
+    expect(trackViewItem({ item, currency: "EUR", value: 19.99 })).toBe(true);
+    const ev = dl().filter((e) => e.event === "view_item");
+    expect(ev).toHaveLength(1);
+    expect(ev[0].ecommerce).toMatchObject({ currency: "EUR", value: 19.99 });
+  });
+
+  it("begin_checkout usa la moneda y el importe de Paddle convertidos", () => {
+    const value = paddleMinorToMajor("5599");
+    trackBeginCheckout({ currency: "USD", value, item: { item_id: "pack-impulso", item_name: "Pack Impulso", price: value ?? undefined } });
+    const ev = dl().find((e) => e.event === "begin_checkout");
+    expect(ev?.ecommerce).toMatchObject({ currency: "USD", value: 55.99 });
   });
 });

@@ -168,6 +168,13 @@ export function trackPageView(path: string, title?: string): boolean {
 
 /* ------------------------------------------------------- eventos de negocio */
 
+const ECOMMERCE_CURRENCIES = new Set(["EUR", "USD"]);
+/** true solo si la moneda es EUR o USD (normalizada). */
+export function isEcommerceCurrency(c: string | null | undefined): c is "EUR" | "USD" {
+  return !!c && ECOMMERCE_CURRENCIES.has(c.toUpperCase());
+}
+const validAmount = (v: number | null | undefined) => typeof v === "number" && Number.isFinite(v) && v >= 0;
+
 export function trackViewItemList(params: {
   listId: string;
   listName: string;
@@ -176,11 +183,14 @@ export function trackViewItemList(params: {
 }) {
   const { listId, listName, items, currency } = params;
   if (!items.length) return false;
+  // Sin moneda válida no se emite ni se marca como enviado: se reintentará.
+  if (!isEcommerceCurrency(currency)) return false;
+  if (!items.every((i) => validAmount(i.price))) return false;
   return trackOnce(`view_item_list:${listId}`, () =>
     trackEcommerce("view_item_list", {
       item_list_id: listId,
       item_list_name: listName,
-      currency: currency ?? undefined,
+      currency: currency.toUpperCase(),
       items: items.map((i, index) => ({ index, item_list_id: listId, item_list_name: listName, ...i })),
     }),
   );
@@ -207,10 +217,11 @@ export function trackViewItem(params: {
   value?: number | null;
 }) {
   const { item, currency, value } = params;
+  if (!isEcommerceCurrency(currency) || !validAmount(value)) return false;
   return trackOnce(`view_item:${item.item_id}`, () =>
     trackEcommerce("view_item", {
-      currency: currency ?? undefined,
-      value: value ?? undefined,
+      currency: currency.toUpperCase(),
+      value,
       items: [item],
     }),
   );

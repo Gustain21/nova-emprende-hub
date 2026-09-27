@@ -6,7 +6,7 @@ import ebookCover from "@/assets/ebook-cover.jpg";
 import { ebookProduct } from "@/data/products";
 import { isOfferActive } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
-import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { useLocalizedPaddlePrice, formatByCurrency, useDisplayCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 
@@ -20,7 +20,8 @@ const bullets = [
 
 const EbookHighlightSection = () => {
   const ebookPriceId = usePaddlePriceId(ebookProduct.slug);
-  const { currencyCode } = useLocalizedPaddlePrice(ebookPriceId);
+  const { currencyCode: paddleCurrency } = useLocalizedPaddlePrice(ebookPriceId);
+  const currencyCode = useDisplayCurrency(paddleCurrency);
   const offerActive = isOfferActive(ebookProduct.offerEndDate, ebookProduct.saleActive);
   const originalPrice = offerActive ? ebookProduct.originalPrice : undefined;
 

@@ -5,8 +5,8 @@ import { Check, Star, Rocket, Zap, Crown, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { packs, type Pack, EBOOK_OFFER_END } from "@/data/products";
 import { isOfferActive, formatOfferDate } from "@/lib/offer";
-import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
-import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { usePaddlePriceId, usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
+import { useLocalizedPaddlePrice, useLocalizedPaddlePrices, formatByCurrency, useDisplayCurrency, useAnalyticsCurrency, catalogPriceFor } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 import { trackViewItemList, trackSelectItem } from "@/lib/analytics/track";
 
@@ -17,7 +17,8 @@ const iconForPack = (id: string) =>
 
 const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
   const priceId = usePaddlePriceId(pack.slug);
-  const { currencyCode } = useLocalizedPaddlePrice(priceId);
+  const { currencyCode: paddleCurrency } = useLocalizedPaddlePrice(priceId);
+  const currencyCode = useDisplayCurrency(paddleCurrency);
   // Los importes originales/ahorro son numéricamente idénticos en EUR y USD.
   const original = pack.originalPrice;
   const savings = pack.originalPrice - pack.price;
@@ -113,7 +114,7 @@ const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
                   item_id: pack.slug,
                   item_name: pack.name,
                   item_category: "pack",
-                  price: pack.price,
+                  price: catalogPriceFor(pack, currencyCode),
                   quantity: 1,
                 },
               })
@@ -128,19 +129,28 @@ const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
 };
 
 const PacksSection = () => {
+  const idMap = usePaddlePriceIds();
+  const packIds = packs.map((p) => idMap[p.slug]).filter(Boolean);
+  const prices = useLocalizedPaddlePrices(packIds);
+  const analyticsCurrency = useAnalyticsCurrency(packIds.length === packs.length ? Object.values(prices) : []);
+
   useEffect(() => {
+    if (!analyticsCurrency) return;
     trackViewItemList({
       listId: "packs",
       listName: "Packs",
-      items: packs.map((p) => ({
-        item_id: p.slug,
-        item_name: p.name,
-        item_category: "pack",
-        price: p.price,
-        quantity: 1,
-      })),
+      currency: analyticsCurrency,
+      items: packs.map((p) => {
+        const paddle = prices[idMap[p.slug]];
+        const price =
+          paddle?.currencyCode?.toUpperCase() === analyticsCurrency && paddle.amount != null
+            ? paddle.amount
+            : catalogPriceFor(p, analyticsCurrency);
+        return { item_id: p.slug, item_name: p.name, item_category: "pack", price, quantity: 1 };
+      }),
     });
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analyticsCurrency]);
 
   return (
     <section id="packs" className="brand-section bg-background">
