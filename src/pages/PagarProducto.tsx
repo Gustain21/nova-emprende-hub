@@ -42,7 +42,7 @@ const PagarProducto = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   // País/moneda: misma resolución compartida que precios, Price IDs y analítica.
-  const { country, currency: resolvedCurrency } = useResolvedRegion();
+  const { country } = useResolvedRegion();
 
 
   const paddlePriceId = usePaddlePriceId(slug);
