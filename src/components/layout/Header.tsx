@@ -40,6 +40,11 @@ const Header = () => {
               <a
                 key={item.label}
                 href={item.href}
+                onClick={
+                  item.diagnostic
+                    ? () => trackDiagnosticClick("header_desktop")
+                    : undefined
+                }
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 {item.label}
@@ -82,7 +87,10 @@ const Header = () => {
                 <a
                   key={item.label}
                   href={item.href}
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    if (item.diagnostic) trackDiagnosticClick("header_mobile");
+                  }}
                   className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
                 >
                   {item.label}
