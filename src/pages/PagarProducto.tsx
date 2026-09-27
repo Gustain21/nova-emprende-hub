@@ -14,6 +14,7 @@ import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
 import { initPaddle, openPaddleCheckout } from "@/lib/paddle/paddleClient";
 import { trackBeginCheckout } from "@/lib/analytics/track";
+import { paddleMinorToMajor } from "@/lib/analytics/money";
 
 
 interface DbProduct {
@@ -130,17 +131,6 @@ const PagarProducto = () => {
     console.log("[pagar] buyer email to send to Paddle:", emailToSend);
 
     // Analítica: intención de compra (sin datos personales).
-    trackBeginCheckout({
-      currency: resolvedCurrency,
-      value: displayPrice != null ? Number(displayPrice) : null,
-      item: {
-        item_id: dbProduct.slug,
-        item_name: displayName,
-        item_category: localProduct?.type ?? "pack",
-        price: displayPrice != null ? Number(displayPrice) : undefined,
-        quantity: 1,
-      },
-    });
 
     setSubmitting(true);
     try {
@@ -175,6 +165,26 @@ const PagarProducto = () => {
       if (data?.debug_buyer_email) {
         setDebugBuyerEmail(data.debug_buyer_email);
         console.log("[pagar] debug_buyer_email returned by edge fn:", data.debug_buyer_email);
+      }
+
+      // Analítica: begin_checkout con la moneda y el importe exactos del Price ID
+      // que Paddle ha usado para esta transacción. Si no llegan, no se envía.
+      {
+        const cur = String(data?.currency_code ?? "").toUpperCase();
+        const value = paddleMinorToMajor(data?.total_minor);
+        if ((cur === "EUR" || cur === "USD") && value != null) {
+          trackBeginCheckout({
+            currency: cur,
+            value,
+            item: {
+              item_id: dbProduct.slug,
+              item_name: displayName,
+              item_category: localProduct?.type ?? "pack",
+              price: value,
+              quantity: 1,
+            },
+          });
+        }
       }
 
       let transactionId: string | undefined = data?.transaction_id;
