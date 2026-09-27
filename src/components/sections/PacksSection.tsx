@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { packs, type Pack, EBOOK_OFFER_END } from "@/data/products";
 import { isOfferActive, formatOfferDate } from "@/lib/offer";
 import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
-import { useLocalizedPaddlePrice, formatByCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
+import { useLocalizedPaddlePrice, formatByCurrency, useDisplayCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 import { trackViewItemList, trackSelectItem } from "@/lib/analytics/track";
 
@@ -17,7 +17,8 @@ const iconForPack = (id: string) =>
 
 const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
   const priceId = usePaddlePriceId(pack.slug);
-  const { currencyCode } = useLocalizedPaddlePrice(priceId);
+  const { currencyCode: paddleCurrency } = useLocalizedPaddlePrice(priceId);
+  const currencyCode = useDisplayCurrency(paddleCurrency);
   // Los importes originales/ahorro son numéricamente idénticos en EUR y USD.
   const original = pack.originalPrice;
   const savings = pack.originalPrice - pack.price;

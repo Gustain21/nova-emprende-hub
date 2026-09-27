@@ -9,6 +9,7 @@ import { initPaddle } from "@/lib/paddle/paddleClient";
 import { supabase } from "@/integrations/supabase/client";
 import { currencyForCountry, type PaddleCurrency } from "./currencyRule";
 import { getCountryOverride, resolveRegion, subscribeRegion } from "@/lib/region/resolveCountry";
+import { useResolvedRegion } from "@/lib/region/useResolvedRegion";
 
 export type LocalizedPrice = {
   formattedPrice: string | null;
@@ -236,4 +237,15 @@ export function formatByCurrency(amount: number, code: string | null | undefined
   } catch {
     return `${amount.toFixed(2)} ${currency}`;
   }
+}
+
+/**
+ * Moneda para precios secundarios (tachados, ahorro, respaldo): la de Paddle si
+ * ya respondió; si no, la de la región unificada (la misma que usa el precio
+ * principal). Nunca cae en un "EUR" provisional por defecto.
+ */
+export function useDisplayCurrency(currencyCode: string | null | undefined): PaddleCurrency {
+  const region = useResolvedRegion();
+  const c = (currencyCode || "").toUpperCase();
+  return c === "EUR" || c === "USD" ? (c as PaddleCurrency) : region.currency;
 }

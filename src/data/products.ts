@@ -46,7 +46,7 @@ export const ebookProduct: Product = {
   price: 19.99,
   originalPrice: 29.99,
   // USD (oferta de lanzamiento)
-  priceUsd: 19,
+  priceUsd: 19.99,
   originalPriceUsd: 29,
   image: ebookCover,
   type: "ebook",
@@ -82,7 +82,7 @@ export const products: Product[] = [
     longDescription:
       "La Bitácora del Capitán es el cuaderno de trabajo oficial para transformar la lectura del ebook en acción concreta. Te ayuda a ordenar ideas, tomar decisiones y avanzar con ejercicios prácticos diseñados para acompañar el método del ebook durante 30 días de trabajo enfocado.",
     price: 19.99,
-    priceUsd: 19,
+    priceUsd: 19.99,
     image: workbookCover,
     type: "app",
     iconName: "Calendar",
@@ -112,7 +112,7 @@ export const products: Product[] = [
     longDescription:
       "Una guía práctica para usar inteligencia artificial como apoyo en la creación, planificación y mejora de tu proyecto emprendedor. Contiene prompts cuidadosamente diseñados y organizados por etapa: ideación, validación, marketing, ventas y operaciones.",
     price: 9.99,
-    priceUsd: 9,
+    priceUsd: 9.99,
     image: promptsCover,
     type: "app",
     iconName: "Lightbulb",
@@ -142,7 +142,7 @@ export const products: Product[] = [
     longDescription:
       "Una herramienta web para visualizar la salud financiera de tu proyecto. Permite analizar gastos, ventas, márgenes y rentabilidad con gráficos intuitivos para tomar decisiones con más claridad. Diseñada para emprendedores que necesitan control financiero sin complicaciones contables.",
     price: 27.99,
-    priceUsd: 29,
+    priceUsd: 27.99,
     image: dashboardCover,
     type: "app",
     iconName: "PieChart",
@@ -172,7 +172,7 @@ export const products: Product[] = [
     longDescription:
       "El Planner de Ejecución 90 Días es un sistema de planificación para transformar objetivos en acciones concretas durante los próximos 90 días. Combina visión estratégica, revisiones semanales y un sistema de seguimiento integrado para mantener el foco en lo importante.",
     price: 14.99,
-    priceUsd: 15,
+    priceUsd: 14.99,
     image: plannerCover,
     type: "app",
     iconName: "Calendar",
@@ -202,7 +202,7 @@ export const products: Product[] = [
     longDescription:
       "Plantilla financiera pensada específicamente para infoproductos, cursos, ebooks, plantillas digitales y productos online. Incluye cálculo de punto muerto, márgenes, proyecciones de ventas y escenarios de rentabilidad con fórmulas automáticas y gráficos profesionales.",
     price: 15.99,
-    priceUsd: 16,
+    priceUsd: 15.99,
     image: excelInfproducto,
     type: "excel",
     iconName: "FileSpreadsheet",
@@ -232,7 +232,7 @@ export const products: Product[] = [
     longDescription:
       "Plantilla financiera pensada para e-commerce, venta de productos físicos y dropshipping. Permite controlar costes, márgenes, inversión inicial, amortización y proyecciones realistas para tu tienda online.",
     price: 15.99,
-    priceUsd: 16,
+    priceUsd: 15.99,
     image: excelEcomochilas,
     type: "excel",
     iconName: "FileSpreadsheet",
@@ -291,7 +291,7 @@ export const packs: Pack[] = [
       "El punto de partida ideal para comprender el método y comenzar a aplicarlo con una guía práctica de trabajo.",
     price: 31.99,
     originalPrice: 39.98,
-    priceUsd: 32,
+    priceUsd: 31.99,
     originalPriceUsd: 38,
     productIds: ["ebook", "bitacora"],
     productTitles: ["El Big Bang de los Negocios", "La Bitácora del Capitán"],
@@ -305,7 +305,7 @@ export const packs: Pack[] = [
       "El pack ideal para emprendedores que quieren avanzar con más claridad: método, acción, IA práctica y control financiero en una misma compra.",
     price: 55.99,
     originalPrice: 77.96,
-    priceUsd: 59,
+    priceUsd: 55.99,
     originalPriceUsd: 76,
     productIds: ["ebook", "bitacora", "prompts", "dashboard"],
     productTitles: [
@@ -326,7 +326,7 @@ export const packs: Pack[] = [
       "La opción más completa para quien quiere apoyarse desde el inicio en contenidos, ejecución, planificación, IA y control financiero.",
     price: 89.99,
     originalPrice: 124.93,
-    priceUsd: 89,
+    priceUsd: 89.99,
     originalPriceUsd: 126,
     productIds: ["ebook", "bitacora", "prompts", "dashboard", "planner", "excel-infoproducto", "excel-ecomochilas"],
     productTitles: [
