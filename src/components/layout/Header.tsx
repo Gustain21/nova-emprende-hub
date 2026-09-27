@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import logoNovaEmprende from "@/assets/logo-nova-emprende.png";
 import { useAuth } from "@/hooks/useAuth";
+import { DIAGNOSTIC_URL, trackDiagnosticClick } from "@/config/diagnostic";
 
 
 const Header = () => {
@@ -16,6 +17,7 @@ const Header = () => {
     { label: "Inicio", href: "/#inicio" },
     { label: "Ebook", href: "/#ebook" },
     { label: "Ecosistema", href: "/#ecosistema" },
+    { label: "Diagnóstico gratuito", href: DIAGNOSTIC_URL, diagnostic: true },
     { label: "Packs", href: "/#packs" },
     { label: "Testimonios", href: "/#testimonios" },
     { label: "Contacto", href: "/contacto" },
@@ -38,6 +40,11 @@ const Header = () => {
               <a
                 key={item.label}
                 href={item.href}
+                onClick={
+                  item.diagnostic
+                    ? () => trackDiagnosticClick("header_desktop")
+                    : undefined
+                }
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 {item.label}
@@ -80,7 +87,10 @@ const Header = () => {
                 <a
                   key={item.label}
                   href={item.href}
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    if (item.diagnostic) trackDiagnosticClick("header_mobile");
+                  }}
                   className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
                 >
                   {item.label}
