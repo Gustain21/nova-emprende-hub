@@ -130,7 +130,6 @@ const PagarProducto = () => {
     }
     console.log("[pagar] buyer email to send to Paddle:", emailToSend);
 
-    // Analítica: intención de compra (sin datos personales).
 
     setSubmitting(true);
     try {
