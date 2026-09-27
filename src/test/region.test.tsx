@@ -32,7 +32,10 @@ import { currencyForCountry } from "@/lib/pricing/currencyRule";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 import { MemoryRouter } from "react-router-dom";
 import PacksSection from "@/components/sections/PacksSection";
-import { packs, products } from "@/data/products";
+import { packs, products, ebookProduct } from "@/data/products";
+
+class IO { observe() {} unobserve() {} disconnect() {} takeRecords() { return []; } }
+(globalThis as any).IntersectionObserver = (globalThis as any).IntersectionObserver ?? IO;
 
 function mockNavigator(language: string | undefined, languages: string[] = []) {
   Object.defineProperty(window.navigator, "language", { value: language, configurable: true });
@@ -238,7 +241,7 @@ describe("precios secundarios (tachado y ahorro) sin moneda provisional", () => 
   });
 
   it("catálogo USD coincide con Paddle", () => {
-    expect(products.map((p) => p.priceUsd)).toEqual([19.99, 19.99, 9.99, 27.99, 14.99, 15.99, 15.99]);
+    expect([ebookProduct, ...products].map((p) => p.priceUsd)).toEqual([19.99, 19.99, 9.99, 27.99, 14.99, 15.99, 15.99]);
     expect(packs.map((p) => p.priceUsd)).toEqual([31.99, 55.99, 89.99]);
   });
 });
