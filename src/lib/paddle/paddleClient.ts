@@ -106,10 +106,16 @@ export async function initPaddle(): Promise<any> {
   return Paddle;
 }
 
-export async function openPaddleCheckout(transactionId: string) {
+export async function openPaddleCheckout(
+  transactionId: string,
+  options?: { customerEmail?: string }
+) {
   const Paddle = await initPaddle();
+  // Prefill del email del comprador en el checkout (documentado por Paddle:
+  // customer.email convive con transactionId en Paddle.Checkout.open()).
   Paddle.Checkout.open({
     transactionId,
+    ...(options?.customerEmail ? { customer: { email: options.customerEmail } } : {}),
     settings: { displayMode: "overlay", theme: "dark", locale: "es" },
   });
 }

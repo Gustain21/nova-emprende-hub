@@ -199,7 +199,9 @@ const PagarProducto = () => {
       }
 
       if (transactionId) {
-        await openPaddleCheckout(transactionId);
+        // Pasa el email validado del formulario para precargarlo en el checkout
+        // (fuente de verdad para el webhook sigue siendo la transacción del backend).
+        await openPaddleCheckout(transactionId, { customerEmail: emailToSend });
         setSubmitting(false);
         return;
       }
