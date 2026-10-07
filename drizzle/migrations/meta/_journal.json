@@ -29,6 +29,13 @@
       "when": 1791387097259,
       "tag": "0003_email_outbox_pending_domain",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791387423290,
+      "tag": "0004_contact_outbox_trigger",
+      "breakpoints": true
     }
   ]
 }
