@@ -92,7 +92,7 @@ Deno.test("ajuste pendiente de aprobación se ignora", async () => {
 Deno.test("reembolso con fallo BD => lanza (500)", async () => {
   const { deps } = mk({ apply_paddle_refund: () => ({ data: null, error: { message: "no purchase" } }) });
   await assertRejects(() => handlePaddleEvent({ event_type: "adjustment.updated", data: { id: "a", action: "refund",
-    status: "approved", type: "full", transaction_id: "txn_x", totals: { total: "100" } } }, deps));
+    status: "approved", type: "full", transaction_id: "txn_x", currency_code: "EUR", totals: { total: "100" } } }, deps));
 });
 
 Deno.test("ajuste con tipo desconocido => dead-letter, no se aplica", async () => {

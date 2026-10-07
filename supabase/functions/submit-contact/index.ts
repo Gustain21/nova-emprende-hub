@@ -14,9 +14,25 @@ const json = (b: unknown, status = 200) =>
 
 const MAX_PER_HOUR = 5;
 
-async function sha256(s: string) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+const MAX_GLOBAL_PER_HOUR = 60; // tope global: frena abusos aunque se falsee la IP
+
+/** HMAC-SHA256 con sal secreta: es un hash (no cifrado), irreversible sin la sal. */
+async function hmacHex(key: string, msg: string) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * IP del cliente según la infraestructura. Se prefieren cabeceras que pone el proxy
+ * (cf-connecting-ip / x-real-ip). En x-forwarded-for el cliente puede anteponer valores
+ * falsos, por eso se toma el ÚLTIMO elemento (el añadido por el proxy más cercano).
+ */
+export function clientIp(h: Headers): string {
+  const direct = h.get("cf-connecting-ip") || h.get("x-real-ip");
+  if (direct) return direct.trim();
+  const xff = (h.get("x-forwarded-for") ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+  return xff.length ? xff[xff.length - 1] : "";
 }
 
 Deno.serve(async (req) => {
@@ -30,8 +46,17 @@ Deno.serve(async (req) => {
   if (!v.ok) return json({ error: v.spam ? "No se pudo procesar el mensaje" : v.error }, 400);
 
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-  const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim();
-  const ipHash = ip ? await sha256(`contact:${ip}`) : null;
+  const salt = Deno.env.get("CONTACT_IP_SALT");
+  if (!salt) { console.error("[submit-contact] CONTACT_IP_SALT ausente"); return json({ error: "Error del servidor" }, 500); }
+  const ip = clientIp(req.headers);
+  const ipHash = ip ? await hmacHex(salt, `contact:${ip}`) : null;
+  const sinceGlobal = new Date(Date.now() - 3600_000).toISOString();
+  {
+    const { count, error } = await supabase.from("contact_messages")
+      .select("id", { count: "exact", head: true }).gte("created_at", sinceGlobal);
+    if (error) { console.error("[submit-contact] global rate", error.message); return json({ error: "Error del servidor" }, 500); }
+    if ((count ?? 0) >= MAX_GLOBAL_PER_HOUR) return json({ error: "Demasiados mensajes. Inténtalo más tarde." }, 429);
+  }
 
   if (ipHash) {
     const since = new Date(Date.now() - 3600_000).toISOString();
