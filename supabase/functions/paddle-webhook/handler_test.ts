@@ -1,0 +1,91 @@
+import { assertEquals, assertRejects } from "https://deno.land/std@0.224.0/assert/mod.ts";
+import { handlePaddleEvent, type Deps } from "./handler.ts";
+
+const mk = (over: Partial<Record<string, any>> = {}) => {
+  const calls: { fn: string; args: any }[] = [];
+  const deps: Deps = {
+    rpc: async (fn, args) => {
+      calls.push({ fn, args });
+      if (over[fn]) return over[fn](args);
+      if (fn === "find_auth_user_id_by_email") return { data: "user-1", error: null };
+      if (fn === "record_paddle_payment")
+        return { data: [{ purchase_id: "pur-1", purchase_status: "paid", purchase_user_id: null }], error: null };
+      return { data: null, error: null };
+    },
+    findProductIdBySlug: async () => "prod-1",
+  };
+  return { deps, calls };
+};
+
+const paid = (type = "transaction.paid") => ({
+  event_type: type,
+  data: { id: "txn_1", currency_code: "USD", details: { totals: { total: "5599" } },
+    custom_data: { product_slug: "pack-impulso", buyer_email: "A@B.com" } },
+});
+
+Deno.test("pago: usuario fuera de 200 por RPC, importe convertido, source = purchase.id", async () => {
+  const { deps, calls } = mk();
+  await handlePaddleEvent(paid(), deps);
+  const rec = calls.find((c) => c.fn === "record_paddle_payment")!;
+  assertEquals(rec.args.p_amount, 55.99);
+  assertEquals(rec.args.p_email, "a@b.com");
+  assertEquals(rec.args.p_user_id, "user-1");
+  const g = calls.find((c) => c.fn === "grant_purchase_entitlements")!;
+  assertEquals(g.args.p_purchase_id, "pur-1");
+});
+
+Deno.test("duplicado paid+completed usa el mismo registro idempotente", async () => {
+  const { deps, calls } = mk();
+  await handlePaddleEvent(paid(), deps);
+  await handlePaddleEvent(paid("transaction.completed"), deps);
+  const recs = calls.filter((c) => c.fn === "record_paddle_payment");
+  assertEquals(recs.length, 2);
+  assertEquals(recs[0].args.p_transaction_id, recs[1].args.p_transaction_id);
+});
+
+Deno.test("fallo BD en registro => lanza (500)", async () => {
+  const { deps } = mk({ record_paddle_payment: () => ({ data: null, error: { message: "db down" } }) });
+  await assertRejects(() => handlePaddleEvent(paid(), deps));
+});
+
+Deno.test("fallo en grant => lanza (500)", async () => {
+  const { deps } = mk({ grant_purchase_entitlements: () => ({ data: null, error: { message: "x" } }) });
+  await assertRejects(() => handlePaddleEvent(paid(), deps));
+});
+
+Deno.test("compra ya reembolsada: evento tardío no concede acceso", async () => {
+  const { deps, calls } = mk({
+    record_paddle_payment: () => ({ data: [{ purchase_id: "pur-1", purchase_status: "refunded", purchase_user_id: "user-1" }], error: null }),
+  });
+  await handlePaddleEvent(paid(), deps);
+  assertEquals(calls.some((c) => c.fn === "grant_purchase_entitlements"), false);
+});
+
+Deno.test("invitado sin cuenta: se registra sin conceder (reclamación al iniciar sesión)", async () => {
+  const { deps, calls } = mk({ find_auth_user_id_by_email: () => ({ data: null, error: null }) });
+  await handlePaddleEvent(paid(), deps);
+  assertEquals(calls.some((c) => c.fn === "grant_purchase_entitlements"), false);
+});
+
+Deno.test("reembolso parcial y total pasan tipo e importe", async () => {
+  const { deps, calls } = mk();
+  for (const type of ["partial", "full"]) {
+    await handlePaddleEvent({ event_type: "adjustment.updated", data: { id: `adj_${type}`, action: "refund",
+      status: "approved", type, transaction_id: "txn_1", currency_code: "EUR", totals: { total: "500" } } }, deps);
+  }
+  const r = calls.filter((c) => c.fn === "apply_paddle_refund");
+  assertEquals(r.map((c) => c.args.p_adjustment_type), ["partial", "full"]);
+  assertEquals(r[0].args.p_amount, 5);
+});
+
+Deno.test("ajuste pendiente de aprobación se ignora", async () => {
+  const { deps, calls } = mk();
+  await handlePaddleEvent({ event_type: "adjustment.created", data: { id: "a", action: "refund", status: "pending_approval" } }, deps);
+  assertEquals(calls.length, 0);
+});
+
+Deno.test("reembolso con fallo BD => lanza (500)", async () => {
+  const { deps } = mk({ apply_paddle_refund: () => ({ data: null, error: { message: "no purchase" } }) });
+  await assertRejects(() => handlePaddleEvent({ event_type: "adjustment.updated", data: { id: "a", action: "refund",
+    status: "approved", type: "full", transaction_id: "txn_x", totals: { total: "100" } } }, deps));
+});
