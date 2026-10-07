@@ -2,7 +2,7 @@
 // No hay proveedor de email configurado: el aviso a hola@editorialnovaemprende.com queda
 // pendiente (notification_status = 'pending_no_provider'). No se envía ningún correo.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { validateContact } from "./validate.ts";
+import { clientIp, validateContact } from "./validate.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -23,17 +23,7 @@ async function hmacHex(key: string, msg: string) {
   return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/**
- * IP del cliente según la infraestructura. Se prefieren cabeceras que pone el proxy
- * (cf-connecting-ip / x-real-ip). En x-forwarded-for el cliente puede anteponer valores
- * falsos, por eso se toma el ÚLTIMO elemento (el añadido por el proxy más cercano).
- */
-export function clientIp(h: Headers): string {
-  const direct = h.get("cf-connecting-ip") || h.get("x-real-ip");
-  if (direct) return direct.trim();
-  const xff = (h.get("x-forwarded-for") ?? "").split(",").map((x) => x.trim()).filter(Boolean);
-  return xff.length ? xff[xff.length - 1] : "";
-}
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
