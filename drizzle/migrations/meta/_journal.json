@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791379365436,
+      "tag": "0000_paddle_webhook_idempotency_refunds_contact",
+      "breakpoints": true
+    }
+  ]
+}
