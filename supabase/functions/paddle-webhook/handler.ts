@@ -1,3 +1,5 @@
+import { sanitizeAttribution } from "../_shared/attribution.ts";
+
 // Lógica del webhook de Paddle, separada para poder probarla sin red.
 // Regla: cualquier fallo de escritura o RPC lanza error => el webhook responde 500
 // y Paddle reintenta (no hay cola durable propia). Nunca se registran emails.
@@ -36,9 +38,16 @@ export async function handlePaddleEvent(event: any, deps: Deps): Promise<Record<
     let productId: string | null = custom?.product_id || null;
     if (!productId && custom?.product_slug) productId = await deps.findProductIdBySlug(custom.product_slug);
     if (!transactionId || !productId) {
-      // Datos insuficientes: reintentar no lo arreglaría. Se registra para reconciliación manual.
-      log("transacción sin transaction_id/product_id, requiere reconciliación", { eventType, transactionId });
-      return { received: true, skipped: "missing_product" };
+      // No se pierde: se guarda en la cola privada de reconciliación. Si esa escritura falla => 500.
+      await call(deps, "record_paddle_deadletter", {
+        p_event_id: event?.event_id ?? null,
+        p_event_type: eventType,
+        p_transaction_id: transactionId ?? null,
+        p_reason: "missing_product",
+        p_payload: event,
+      });
+      log("transacción sin producto, enviada a reconciliación", { eventType });
+      return { received: true, deadletter: "missing_product" };
     }
 
     const email = String(custom?.buyer_email || data?.customer?.email || data?.billing_details?.email || "")
@@ -49,10 +58,12 @@ export async function handlePaddleEvent(event: any, deps: Deps): Promise<Record<
       userId = (await call(deps, "find_auth_user_id_by_email", { p_email: email })) ?? null;
     }
 
+    const attribution = sanitizeAttribution(custom);
     const totals = data?.details?.totals ?? {};
     const amount = minorToMajor(totals?.total ?? totals?.grand_total);
     const currency = data?.currency_code ?? totals?.currency_code ?? null;
 
+    // Registro + concesión atómicos en la BD (mismo bloqueo de fila que el reembolso).
     const rows = await call(deps, "record_paddle_payment", {
       p_transaction_id: transactionId,
       p_product_id: productId,
@@ -61,20 +72,13 @@ export async function handlePaddleEvent(event: any, deps: Deps): Promise<Record<
       p_amount: amount,
       p_currency: currency,
       p_purchase_id: custom?.purchase_id || null,
+      p_attribution: Object.keys(attribution).length ? attribution : null,
+      p_event_id: event?.event_id ?? null,
     });
     const row = Array.isArray(rows) ? rows[0] : rows;
     if (!row?.purchase_id) throw new WebhookError("record_paddle_payment sin purchase_id");
-
-    const owner = row.purchase_user_id ?? userId;
-    if (owner && (row.purchase_status === "paid" || row.purchase_status === "partially_refunded")) {
-      await call(deps, "grant_purchase_entitlements", {
-        p_user_id: owner,
-        p_product_id: productId,
-        p_purchase_id: row.purchase_id,
-      });
-    }
-    log("pago registrado", { eventType, status: row.purchase_status, hasUser: !!owner });
-    return { received: true, purchase_status: row.purchase_status };
+    log("pago registrado", { eventType, status: row.purchase_status, granted: !!row.granted });
+    return { received: true, purchase_status: row.purchase_status, granted: !!row.granted };
   }
 
   if (eventType === "transaction.canceled" || eventType === "transaction.payment_failed") {

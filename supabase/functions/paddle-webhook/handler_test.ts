@@ -9,7 +9,7 @@ const mk = (over: Partial<Record<string, any>> = {}) => {
       if (over[fn]) return over[fn](args);
       if (fn === "find_auth_user_id_by_email") return { data: "user-1", error: null };
       if (fn === "record_paddle_payment")
-        return { data: [{ purchase_id: "pur-1", purchase_status: "paid", purchase_user_id: null }], error: null };
+        return { data: [{ purchase_id: "pur-1", purchase_status: "paid", purchase_user_id: "user-1", purchase_product_id: "prod-1", granted: true }], error: null };
       return { data: null, error: null };
     },
     findProductIdBySlug: async () => "prod-1",
@@ -23,15 +23,33 @@ const paid = (type = "transaction.paid") => ({
     custom_data: { product_slug: "pack-impulso", buyer_email: "A@B.com" } },
 });
 
-Deno.test("pago: usuario fuera de 200 por RPC, importe convertido, source = purchase.id", async () => {
+Deno.test("pago: usuario por RPC, importe convertido, atribución saneada, sin grant separado", async () => {
   const { deps, calls } = mk();
-  await handlePaddleEvent(paid(), deps);
+  const ev = paid();
+  (ev.data.custom_data as any).origen = "diagnostico-big-bang";
+  (ev.data.custom_data as any).utm_source = "a@b.com"; // PII => descartado
+  const res = await handlePaddleEvent(ev, deps);
   const rec = calls.find((c) => c.fn === "record_paddle_payment")!;
   assertEquals(rec.args.p_amount, 55.99);
   assertEquals(rec.args.p_email, "a@b.com");
   assertEquals(rec.args.p_user_id, "user-1");
-  const g = calls.find((c) => c.fn === "grant_purchase_entitlements")!;
-  assertEquals(g.args.p_purchase_id, "pur-1");
+  assertEquals(rec.args.p_attribution, { origen: "diagnostico-big-bang" });
+  assertEquals(calls.some((c) => c.fn === "grant_purchase_entitlements"), false);
+  assertEquals(res.granted, true);
+});
+
+Deno.test("sin producto => dead-letter persistido (no se pierde)", async () => {
+  const { deps, calls } = mk();
+  deps.findProductIdBySlug = async () => null;
+  const res = await handlePaddleEvent(paid(), deps);
+  assertEquals(calls.some((c) => c.fn === "record_paddle_deadletter"), true);
+  assertEquals(res.deadletter, "missing_product");
+});
+
+Deno.test("sin producto y fallo al guardar dead-letter => lanza (500)", async () => {
+  const { deps } = mk({ record_paddle_deadletter: () => ({ data: null, error: { message: "x" } }) });
+  deps.findProductIdBySlug = async () => null;
+  await assertRejects(() => handlePaddleEvent(paid(), deps));
 });
 
 Deno.test("duplicado paid+completed usa el mismo registro idempotente", async () => {
@@ -46,19 +64,6 @@ Deno.test("duplicado paid+completed usa el mismo registro idempotente", async ()
 Deno.test("fallo BD en registro => lanza (500)", async () => {
   const { deps } = mk({ record_paddle_payment: () => ({ data: null, error: { message: "db down" } }) });
   await assertRejects(() => handlePaddleEvent(paid(), deps));
-});
-
-Deno.test("fallo en grant => lanza (500)", async () => {
-  const { deps } = mk({ grant_purchase_entitlements: () => ({ data: null, error: { message: "x" } }) });
-  await assertRejects(() => handlePaddleEvent(paid(), deps));
-});
-
-Deno.test("compra ya reembolsada: evento tardío no concede acceso", async () => {
-  const { deps, calls } = mk({
-    record_paddle_payment: () => ({ data: [{ purchase_id: "pur-1", purchase_status: "refunded", purchase_user_id: "user-1" }], error: null }),
-  });
-  await handlePaddleEvent(paid(), deps);
-  assertEquals(calls.some((c) => c.fn === "grant_purchase_entitlements"), false);
 });
 
 Deno.test("invitado sin cuenta: se registra sin conceder (reclamación al iniciar sesión)", async () => {
