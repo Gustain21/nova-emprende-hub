@@ -5,7 +5,7 @@
 - Partial refunds keep access (status partially_refunded); only full refunds revoke. Adjustment idempotency key is the Paddle adjustment id in payment_adjustments.
 - Buyer identity for purchases comes from auth.users email (find_auth_user_id_by_email), never from editable profiles.email.
 - Ebook promo end date has a single source (EBOOK_OFFER_END) evaluated as end of day Europe/Madrid; products.sale_ends_at must mirror it. UI never states a discount percentage for it.
-- Contact form posts to the submit-contact function, which stores in private contact_messages (RLS on, no policies); success is shown only after server acceptance and email notification stays pending until an email provider exists.
+- Contact form posts to the submit-contact function, which inserts into private contact_messages (RLS on, no policies, no anon/authenticated grants); an AFTER INSERT trigger enqueues the notice in email_outbox in the same transaction, so a failed enqueue fails the save (500) and success is never shown without a queued notice.
 - Checkout attribution (utm_*/origen) uses the same key allowlist and format sanitizer in src/lib/attribution.ts and _shared/attribution.ts, read only from the current URL (never stored client-side) and kept in Paddle custom_data/purchases.attribution; it never affects price or currency, which the server decides by geo rule.
 - Never log buyer emails or return them in function responses.
 - Contact rate limiting uses an HMAC hash of the proxy-provided client IP (last X-Forwarded-For hop) plus a global hourly cap.
