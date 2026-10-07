@@ -166,8 +166,6 @@ export async function syncPurchasesForCurrentUser() {
   const user = userData?.user;
   if (!user) return { claimed: 0, granted: 0 };
   const normalizedEmail = (user.email ?? "").trim().toLowerCase();
-  console.log("Auth user email:", user.email);
-  console.log("Normalized email:", normalizedEmail);
 
   const { data, error } = await (supabase as any).rpc("claim_purchases_by_email");
   if (error) {
