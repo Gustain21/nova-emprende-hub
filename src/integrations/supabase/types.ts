@@ -397,6 +397,42 @@ export type Database = {
           },
         ]
       }
+      payment_webhook_deadletters: {
+        Row: {
+          created_at: string
+          event_id: string | null
+          event_type: string | null
+          id: string
+          payload: Json
+          provider: string
+          provider_payment_id: string | null
+          reason: string
+          resolved: boolean
+        }
+        Insert: {
+          created_at?: string
+          event_id?: string | null
+          event_type?: string | null
+          id?: string
+          payload: Json
+          provider?: string
+          provider_payment_id?: string | null
+          reason: string
+          resolved?: boolean
+        }
+        Update: {
+          created_at?: string
+          event_id?: string | null
+          event_type?: string | null
+          id?: string
+          payload?: Json
+          provider?: string
+          provider_payment_id?: string | null
+          reason?: string
+          resolved?: boolean
+        }
+        Relationships: []
+      }
       planner_progress: {
         Row: {
           config: Json
@@ -556,6 +592,7 @@ export type Database = {
       purchases: {
         Row: {
           amount: number | null
+          attribution: Json | null
           buyer_country: string | null
           buyer_currency: string | null
           buyer_region: string | null
@@ -580,6 +617,7 @@ export type Database = {
         }
         Insert: {
           amount?: number | null
+          attribution?: Json | null
           buyer_country?: string | null
           buyer_currency?: string | null
           buyer_region?: string | null
@@ -604,6 +642,7 @@ export type Database = {
         }
         Update: {
           amount?: number | null
+          attribution?: Json | null
           buyer_country?: string | null
           buyer_currency?: string | null
           buyer_region?: string | null
@@ -684,18 +723,32 @@ export type Database = {
         Args: { p_purchase_id: string }
         Returns: number
       }
+      record_paddle_deadletter: {
+        Args: {
+          p_event_id: string
+          p_event_type: string
+          p_payload: Json
+          p_reason: string
+          p_transaction_id: string
+        }
+        Returns: undefined
+      }
       record_paddle_payment: {
         Args: {
           p_amount: number
+          p_attribution?: Json
           p_currency: string
           p_email: string
+          p_event_id?: string
           p_product_id: string
           p_purchase_id?: string
           p_transaction_id: string
           p_user_id: string
         }
         Returns: {
+          granted: boolean
           purchase_id: string
+          purchase_product_id: string
           purchase_status: string
           purchase_user_id: string
         }[]
