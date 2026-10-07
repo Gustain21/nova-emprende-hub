@@ -23,3 +23,15 @@ export function validateContact(body: any, nowMs = Date.now()):
   if (data.message.length < 10 || data.message.length > 5000) return { ok: false, error: "El mensaje debe tener entre 10 y 5000 caracteres" };
   return { ok: true, data };
 }
+
+/**
+ * IP del cliente según la infraestructura. Se prefieren cabeceras que pone el proxy
+ * (cf-connecting-ip / x-real-ip). En x-forwarded-for el cliente puede anteponer valores
+ * falsos, por eso se toma el ÚLTIMO elemento (el añadido por el proxy más cercano).
+ */
+export function clientIp(h: Headers): string {
+  const direct = h.get("cf-connecting-ip") || h.get("x-real-ip");
+  if (direct) return direct.trim();
+  const xff = (h.get("x-forwarded-for") ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+  return xff.length ? xff[xff.length - 1] : "";
+}

@@ -1,8 +1,11 @@
 # AGENTS.md
 
-- Paddle webhook writes go only through SECURITY DEFINER RPCs (record_paddle_payment, apply_paddle_refund, mark_paddle_payment_failed); any RPC error returns 500 so Paddle retries — there is no durable queue of our own.
-- Refunds never revoke by product or source_purchase_id alone: recompute_entitlements_for_purchase rechecks every valid purchase (paid / partially_refunded, including bundle_items) before deactivating 'lifetime' entitlements; manual grants are never touched.
+- Paddle webhook writes go only through SECURITY DEFINER RPCs; record_paddle_payment registers AND grants in one transaction under the same purchase row lock as apply_paddle_refund, so a refund can never be reopened by a late grant. Any RPC error returns 500 so Paddle retries; events a retry cannot fix (missing product, invalid adjustment, product mismatch) go to the private payment_webhook_deadletters table for reconciliation.
+- Refunds never revoke by product or source_purchase_id alone: recompute_entitlements_for_purchase rechecks every valid purchase (paid / partially_refunded, including bundle_items) before deactivating 'lifetime' entitlements; only access_type='lifetime' rows are deactivated; the access type decides, never a NULL source_purchase_id. At most one active entitlement per user+product (partial unique index); re-grants insert a new row and keep revoked rows as history.
 - Partial refunds keep access (status partially_refunded); only full refunds revoke. Adjustment idempotency key is the Paddle adjustment id in payment_adjustments.
 - Buyer identity for purchases comes from auth.users email (find_auth_user_id_by_email), never from editable profiles.email.
 - Ebook promo end date has a single source (EBOOK_OFFER_END) evaluated as end of day Europe/Madrid; products.sale_ends_at must mirror it. UI never states a discount percentage for it.
 - Contact form posts to the submit-contact function, which stores in private contact_messages (RLS on, no policies); success is shown only after server acceptance and email notification stays pending until an email provider exists.
+- Checkout attribution (utm_*/origen) is allowlisted and sanitized identically in src/lib/attribution.ts and _shared/attribution.ts, read only from the current URL (never stored client-side) and kept in Paddle custom_data/purchases.attribution; it never affects price or currency, which the server decides by geo rule.
+- Never log buyer emails or return them in function responses.
+- Contact rate limiting uses an HMAC hash of the proxy-provided client IP (last X-Forwarded-For hop) plus a global hourly cap.

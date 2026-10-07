@@ -15,6 +15,7 @@ import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
 import { initPaddle, openPaddleCheckout } from "@/lib/paddle/paddleClient";
 import { trackBeginCheckout } from "@/lib/analytics/track";
 import { paddleMinorToMajor } from "@/lib/analytics/money";
+import { readAttribution } from "@/lib/attribution";
 
 
 interface DbProduct {
@@ -56,7 +57,6 @@ const PagarProducto = () => {
   const [acceptLegal, setAcceptLegal] = useState(false);
   const [acceptDigital, setAcceptDigital] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [debugBuyerEmail, setDebugBuyerEmail] = useState<string | null>(null);
   const autoOpenedRef = useRef(false);
 
   // Cancelled / success derive EXCLUSIVELY from current URL
@@ -114,7 +114,6 @@ const PagarProducto = () => {
 
   const handleContinue = async () => {
     setError(null);
-    setDebugBuyerEmail(null);
     if (!dbProduct) return setError("Producto no disponible.");
     if (!hasPaddle) return setError("Este producto no tiene Paddle configurado.");
     if (!acceptLegal) return setError("Debes aceptar los Términos y Condiciones y la Política de Reembolsos, y declarar haber leído la Política de Privacidad.");
@@ -128,7 +127,6 @@ const PagarProducto = () => {
     if (!emailToSend || !emailRe.test(emailToSend)) {
       return setError("Introduce un email válido para continuar.");
     }
-    console.log("[pagar] buyer email to send to Paddle:", emailToSend);
 
 
     setSubmitting(true);
@@ -141,6 +139,8 @@ const PagarProducto = () => {
           slug: dbProduct.slug,
           email: emailToSend,
           country,
+          // Atribución saneada (UTM/origen) solo de la URL actual; no se guarda en el navegador.
+          attribution: readAttribution(window.location.search),
           consent: {
             accept_terms: true,
             accept_refunds: true,
@@ -161,10 +161,6 @@ const PagarProducto = () => {
         throw new Error(`${data.detail || data.error}${code}`);
       }
 
-      if (data?.debug_buyer_email) {
-        setDebugBuyerEmail(data.debug_buyer_email);
-        console.log("[pagar] debug_buyer_email returned by edge fn:", data.debug_buyer_email);
-      }
 
       // Analítica: begin_checkout con la moneda y el importe exactos del Price ID
       // que Paddle ha usado para esta transacción. Si no llegan, no se envía.
@@ -387,11 +383,6 @@ const PagarProducto = () => {
               </Button>
             )}
 
-            {debugBuyerEmail && (
-              <div className="mt-3 text-xs text-muted-foreground">
-                Email enviado a Paddle: <span className="text-brand-orange font-mono">{debugBuyerEmail}</span>
-              </div>
-            )}
 
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">

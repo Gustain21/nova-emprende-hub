@@ -13,3 +13,9 @@ Deno.test("honeypot => spam", () => assertEquals(validateContact({ ...base, webs
 Deno.test("envío demasiado rápido => spam", () => assertEquals(validateContact({ ...base, startedAt: now - 500 }, now).ok, false));
 Deno.test("email inválido", () => assertEquals(validateContact({ ...base, email: "no" }, now).ok, false));
 Deno.test("mensaje corto", () => assertEquals(validateContact({ ...base, message: "hi" }, now).ok, false));
+
+import { clientIp } from "./validate.ts";
+Deno.test("IP: x-forwarded-for antepuesto por el cliente no se usa", () => {
+  assertEquals(clientIp(new Headers({ "x-forwarded-for": "1.1.1.1, 9.9.9.9" })), "9.9.9.9");
+  assertEquals(clientIp(new Headers({ "cf-connecting-ip": "5.5.5.5", "x-forwarded-for": "1.1.1.1" })), "5.5.5.5");
+});
