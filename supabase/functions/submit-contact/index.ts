@@ -56,12 +56,22 @@ Deno.serve(async (req) => {
     if ((count ?? 0) >= MAX_PER_HOUR) return json({ error: "Demasiados mensajes. Inténtalo más tarde." }, 429);
   }
 
-  const { error } = await supabase.from("contact_messages").insert({
+  const { data: msg, error } = await supabase.from("contact_messages").insert({
     ...v.data,
     ip_hash: ipHash,
     user_agent: (req.headers.get("user-agent") ?? "").slice(0, 300),
+  }).select("id").single();
+  if (error || !msg) { console.error("[submit-contact] insert", error?.message); return json({ error: "Error del servidor" }, 500); }
+
+  // Aviso interno en cola persistente (idempotente por id del mensaje). Queda en
+  // 'pending_email_domain' hasta que exista dominio de correo verificado; no se envía nada aún.
+  const { error: qErr } = await supabase.from("email_outbox").insert({
+    kind: "contact_notification",
+    idempotency_key: `contact-notify-${msg.id}`,
+    recipient: "hola@editorialnovaemprende.com",
+    template_data: { contact_message_id: msg.id },
   });
-  if (error) { console.error("[submit-contact] insert", error.message); return json({ error: "Error del servidor" }, 500); }
+  if (qErr) console.error("[submit-contact] outbox", qErr.message); // el mensaje ya está guardado
 
   return json({ received: true, email_notification: "pending" });
 });

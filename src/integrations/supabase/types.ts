@@ -175,6 +175,48 @@ export type Database = {
         }
         Relationships: []
       }
+      email_outbox: {
+        Row: {
+          attempts: number
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          last_error: string | null
+          queued_at: string | null
+          recipient: string
+          sent_at: string | null
+          status: string
+          template_data: Json
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          last_error?: string | null
+          queued_at?: string | null
+          recipient: string
+          sent_at?: string | null
+          status?: string
+          template_data?: Json
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          last_error?: string | null
+          queued_at?: string | null
+          recipient?: string
+          sent_at?: string | null
+          status?: string
+          template_data?: Json
+        }
+        Relationships: []
+      }
       entitlements: {
         Row: {
           access_type: string

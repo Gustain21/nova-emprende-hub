@@ -22,6 +22,13 @@
       "when": 1791380264478,
       "tag": "0002_entitlements_global_advisory_lock",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791387097259,
+      "tag": "0003_email_outbox_pending_domain",
+      "breakpoints": true
     }
   ]
 }
