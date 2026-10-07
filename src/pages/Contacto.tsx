@@ -102,6 +102,10 @@ const Contacto = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
+                  <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                    <label htmlFor="website">No rellenar</label>
+                    <input id="website" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+                  </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label htmlFor="name" className="text-sm font-medium text-foreground">
@@ -225,8 +229,8 @@ const Contacto = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Consulta nuestras respuestas a las dudas más comunes sobre productos, pagos y acceso.
                   </p>
-                  <Button variant="outline" size="sm">
-                    Ver FAQ
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/#faq">Ver FAQ</Link>
                   </Button>
                 </div>
               </motion.div>
