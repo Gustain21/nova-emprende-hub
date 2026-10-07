@@ -14,7 +14,7 @@ export interface Purchase {
   productTitle: string;
   amount: number;
   currency: "EUR";
-  status: "paid" | "pending" | "refunded";
+  status: "paid" | "pending" | "partially_refunded" | "refunded";
   purchasedAt: string;
   invoiceUrl?: string;
 }

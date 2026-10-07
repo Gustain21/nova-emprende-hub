@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, MessageSquare, Send } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contacto = () => {
   const [formData, setFormData] = useState({
@@ -16,21 +18,35 @@ const Contacto = () => {
     subject: "",
     message: "",
   });
+  const [website, setWebsite] = useState(""); // honeypot antispam
+  const startedAt = useRef(Date.now());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    toast.success("¡Mensaje enviado!", {
-      description: "Te responderemos lo antes posible.",
-    });
-    
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    setIsSubmitting(false);
+    try {
+      const { data, error } = await supabase.functions.invoke("submit-contact", {
+        body: { ...formData, website, startedAt: startedAt.current },
+      });
+      if (error || !data?.received) {
+        let msg = "No se pudo recibir tu mensaje. Inténtalo de nuevo o escríbenos a hola@editorialnovaemprende.com.";
+        try {
+          const body = await (error as any)?.context?.json?.();
+          if (body?.error) msg = body.error;
+        } catch { /* sin cuerpo legible */ }
+        toast.error("Mensaje no recibido", { description: msg });
+        return;
+      }
+      // Éxito solo tras aceptación del servidor. Se informa de recepción, no de envío por email.
+      toast.success("Mensaje recibido", {
+        description: "Lo hemos guardado correctamente y te responderemos lo antes posible.",
+      });
+      setFormData({ name: "", email: "", subject: "", message: "" });
+      startedAt.current = Date.now();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -86,6 +102,10 @@ const Contacto = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
+                  <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                    <label htmlFor="website">No rellenar</label>
+                    <input id="website" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+                  </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label htmlFor="name" className="text-sm font-medium text-foreground">
@@ -209,8 +229,8 @@ const Contacto = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Consulta nuestras respuestas a las dudas más comunes sobre productos, pagos y acceso.
                   </p>
-                  <Button variant="outline" size="sm">
-                    Ver FAQ
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/#faq">Ver FAQ</Link>
                   </Button>
                 </div>
               </motion.div>

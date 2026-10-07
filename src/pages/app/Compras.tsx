@@ -13,6 +13,8 @@ const statusLabel = (s: string) => {
   if (PENDING_STATUSES.has(k)) return "Pendiente";
   if (k === "cancelled" || k === "canceled") return "Cancelada";
   if (k === "failed") return "Fallida";
+  if (k === "partially_refunded") return "Reembolso parcial";
+  if (k === "refunded") return "Reembolsada";
   return s;
 };
 

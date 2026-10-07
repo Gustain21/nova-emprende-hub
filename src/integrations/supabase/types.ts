@@ -118,6 +118,42 @@ export type Database = {
           },
         ]
       }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_hash: string | null
+          message: string
+          name: string
+          notification_status: string
+          subject: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_hash?: string | null
+          message: string
+          name: string
+          notification_status?: string
+          subject: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_hash?: string | null
+          message?: string
+          name?: string
+          notification_status?: string
+          subject?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       dashboard_fin_progress: {
         Row: {
           config: Json
@@ -317,6 +353,50 @@ export type Database = {
           },
         ]
       }
+      payment_adjustments: {
+        Row: {
+          action: string
+          adjustment_type: string
+          amount: number | null
+          created_at: string
+          currency: string | null
+          id: string
+          provider: string
+          provider_payment_id: string
+          purchase_id: string
+        }
+        Insert: {
+          action: string
+          adjustment_type: string
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          id: string
+          provider?: string
+          provider_payment_id: string
+          purchase_id: string
+        }
+        Update: {
+          action?: string
+          adjustment_type?: string
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          provider?: string
+          provider_payment_id?: string
+          purchase_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_adjustments_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       planner_progress: {
         Row: {
           config: Json
@@ -482,10 +562,12 @@ export type Database = {
           currency: string | null
           email: string | null
           id: string
+          last_provider_event_at: string | null
           product_id: string
           provider: string | null
           provider_payment_id: string | null
           purchased_at: string
+          refunded_amount: number
           status: string
           subtotal_amount: number | null
           tax_amount: number | null
@@ -504,10 +586,12 @@ export type Database = {
           currency?: string | null
           email?: string | null
           id?: string
+          last_provider_event_at?: string | null
           product_id: string
           provider?: string | null
           provider_payment_id?: string | null
           purchased_at?: string
+          refunded_amount?: number
           status?: string
           subtotal_amount?: number | null
           tax_amount?: number | null
@@ -526,10 +610,12 @@ export type Database = {
           currency?: string | null
           email?: string | null
           id?: string
+          last_provider_event_at?: string | null
           product_id?: string
           provider?: string | null
           provider_payment_id?: string | null
           purchased_at?: string
+          refunded_amount?: number
           status?: string
           subtotal_amount?: number | null
           tax_amount?: number | null
@@ -555,6 +641,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_paddle_refund: {
+        Args: {
+          p_adjustment_id: string
+          p_adjustment_type: string
+          p_amount: number
+          p_currency: string
+          p_transaction_id: string
+        }
+        Returns: {
+          new_status: string
+          purchase_id: string
+          result: string
+        }[]
+      }
       claim_purchases_by_email: {
         Args: never
         Returns: {
@@ -562,6 +662,7 @@ export type Database = {
           entitlements_granted: number
         }[]
       }
+      find_auth_user_id_by_email: { Args: { p_email: string }; Returns: string }
       grant_purchase_entitlements: {
         Args: {
           p_product_id: string
@@ -575,6 +676,30 @@ export type Database = {
         Returns: boolean
       }
       has_bitacora_access: { Args: { _user_id: string }; Returns: boolean }
+      mark_paddle_payment_failed: {
+        Args: { p_purchase_id?: string; p_transaction_id: string }
+        Returns: number
+      }
+      recompute_entitlements_for_purchase: {
+        Args: { p_purchase_id: string }
+        Returns: number
+      }
+      record_paddle_payment: {
+        Args: {
+          p_amount: number
+          p_currency: string
+          p_email: string
+          p_product_id: string
+          p_purchase_id?: string
+          p_transaction_id: string
+          p_user_id: string
+        }
+        Returns: {
+          purchase_id: string
+          purchase_status: string
+          purchase_user_id: string
+        }[]
+      }
       revoke_purchase_entitlements: {
         Args: { p_product_id: string; p_user_id: string }
         Returns: undefined

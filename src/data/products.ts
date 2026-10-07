@@ -31,7 +31,11 @@ export interface Product {
   crossSellText?: string;
 }
 
-// Vigencia común de la promoción de lanzamiento del ebook
+// FUENTE ÚNICA de la vigencia de la promoción del ebook: termina el 31/12/2026 a las
+// 23:59:59 hora de Madrid (ver madridEndOfDay en src/lib/offer.ts). La BD
+// (products.sale_ends_at) debe coincidir con este valor.
+// Textos sin porcentaje: 19,99 € sobre 29,99 € es un 33 %, no un 30 %, así que se
+// anuncia como "Oferta de lanzamiento" para no afirmar un descuento inexacto.
 export const EBOOK_OFFER_END = "2026-12-31";
 
 export const ebookProduct: Product = {

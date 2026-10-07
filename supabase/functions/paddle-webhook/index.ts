@@ -5,6 +5,7 @@
 // Requiere PADDLE_WEBHOOK_SECRET configurada en Lovable Cloud secrets.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { handlePaddleEvent } from "./handler.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -77,193 +78,37 @@ Deno.serve(async (req) => {
     return new Response("Firma Paddle inválida", { status: 401 });
   }
 
-  const event = JSON.parse(rawBody);
-  const eventType: string = event?.event_type ?? "";
-  const data: any = event?.data ?? {};
-  const custom = data?.custom_data ?? {};
-  let userId = (custom?.user_id as string | undefined) || undefined;
-  let productId = (custom?.product_id as string | undefined) || undefined;
-  const productSlug = (custom?.product_slug as string | undefined) || undefined;
-  const purchaseId = custom?.purchase_id as string | undefined;
-  const transactionId = data?.id as string | undefined;
-  const buyerEmailRaw =
-    (custom?.buyer_email as string | undefined) ||
-    (data?.customer?.email as string | undefined) ||
-    (data?.billing_details?.email as string | undefined) ||
-    "";
-  const buyerEmail = buyerEmailRaw.trim().toLowerCase() || null;
+  let event: any;
+  try {
+    event = JSON.parse(rawBody);
+  } catch {
+    return new Response("JSON inválido", { status: 400 });
+  }
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  // Resuelve product_id por slug si viene sólo el slug
-  if (!productId && productSlug) {
-    const { data: prod } = await supabase
-      .from("products")
-      .select("id")
-      .eq("slug", productSlug)
-      .maybeSingle();
-    if (prod?.id) productId = prod.id as string;
-  }
-
-  // Intenta resolver user_id por email si el comprador ya tiene cuenta
-  if (!userId && buyerEmail) {
-    try {
-      const { data: list } = await (supabase as any).auth.admin.listUsers({
-        page: 1,
-        perPage: 200,
-      });
-      const match = list?.users?.find(
-        (u: any) => (u.email ?? "").toLowerCase() === buyerEmail,
-      );
-      if (match?.id) userId = match.id as string;
-    } catch (e) {
-      console.warn("[paddle-webhook] listUsers failed", e);
-    }
-  }
-
-  console.log("[paddle-webhook] event", {
-    eventType,
-    hasUserId: !!userId,
-    productId,
-    productSlug,
-    buyerEmail,
-    transactionId,
-  });
-
-  // Extrae importe real de Paddle. Paddle envía importes en unidad mínima (céntimos).
-  const totals = data?.details?.totals ?? data?.details?.line_items?.[0] ?? {};
-  const rawTotal =
-    totals?.total ??
-    data?.details?.totals?.grand_total ??
-    data?.payments?.[0]?.amount ??
-    null;
-  const rawCurrency =
-    data?.currency_code ??
-    data?.details?.totals?.currency_code ??
-    totals?.currency_code ??
-    "EUR";
-  const amountMajor =
-    rawTotal != null && !Number.isNaN(Number(rawTotal))
-      ? Number(rawTotal) / 100
-      : null;
-
   try {
-    if (eventType === "transaction.paid" || eventType === "transaction.completed") {
-      if (!productId) {
-        console.warn("[paddle-webhook] sin product_id/product_slug, no puedo registrar", custom);
-      } else {
-        const amountPayload: Record<string, unknown> = {};
-        if (amountMajor != null) {
-          amountPayload.amount = amountMajor;
-          amountPayload.total_amount = amountMajor;
-          amountPayload.currency = rawCurrency;
-          amountPayload.buyer_currency = rawCurrency;
-        }
-
-        if (purchaseId) {
-          await supabase
-            .from("purchases")
-            .update({
-              status: "paid",
-              provider: "paddle",
-              provider_payment_id: transactionId ?? null,
-              email: buyerEmail,
-              ...(userId ? { user_id: userId } : {}),
-              ...amountPayload,
-            })
-            .eq("id", purchaseId);
-        } else {
-          await supabase.from("purchases").insert({
-            user_id: userId ?? null,
-            product_id: productId,
-            status: "paid",
-            provider: "paddle",
-            provider_payment_id: transactionId ?? null,
-            email: buyerEmail,
-            ...amountPayload,
-          });
-        }
-
-
-        // Concede entitlements sólo si ya conocemos al usuario.
-        // Si no, la compra queda pendiente de reclamar (claim_purchases_by_email al iniciar sesión).
-        if (userId) {
-          const { error: grantErr } = await supabase.rpc("grant_purchase_entitlements", {
-            p_user_id: userId,
-            p_product_id: productId,
-            p_purchase_id: purchaseId ?? null,
-          });
-          if (grantErr) console.error("[paddle-webhook] grant rpc error", grantErr);
-        } else {
-          console.log("[paddle-webhook] compra registrada como invitada, pendiente de reclamar");
-        }
-      }
-    } else if (
-      eventType === "transaction.canceled" ||
-      eventType === "transaction.payment_failed"
-    ) {
-      if (purchaseId) {
-        await supabase.from("purchases").update({ status: "failed" }).eq("id", purchaseId);
-      }
-    } else if (eventType === "adjustment.created" || eventType === "adjustment.updated") {
-      const action = data?.action as string | undefined;
-      const status = data?.status as string | undefined;
-      const adjTransactionId = data?.transaction_id as string | undefined;
-
-      if (action !== "refund" || status !== "approved") {
-        console.log("[paddle-webhook] adjustment ignorado", { action, status, adjTransactionId });
-      } else if (!adjTransactionId) {
-        console.warn("[paddle-webhook] adjustment refund sin transaction_id");
-      } else {
-        const { data: purchase } = await supabase
-          .from("purchases")
-          .select("id, user_id, product_id, status")
-          .eq("provider", "paddle")
-          .eq("provider_payment_id", adjTransactionId)
-          .maybeSingle();
-
-        const targetPurchaseId = purchase?.id ?? purchaseId ?? null;
-        const targetUserId = purchase?.user_id ?? userId ?? null;
-        const targetProductId = purchase?.product_id ?? productId ?? null;
-
-        if (purchase?.status === "refunded") {
-          // Idempotencia: el reembolso ya fue procesado (adjustment.created +
-          // adjustment.updated o reintento del mismo evento). No repetimos nada.
-          console.log("[paddle-webhook] adjustment ya procesado, no-op", adjTransactionId);
-          return new Response(JSON.stringify({ received: true, idempotent: true }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-
-        if (targetPurchaseId) {
-          await supabase
-            .from("purchases")
-            .update({ status: "refunded" })
-            .eq("id", targetPurchaseId);
-        } else {
-          console.warn("[paddle-webhook] compra no encontrada para adjustment", adjTransactionId);
-        }
-
-        if (targetUserId && targetProductId) {
-          const { error: revErr } = await supabase.rpc("revoke_purchase_entitlements", {
-            p_user_id: targetUserId,
-            p_product_id: targetProductId,
-          });
-          if (revErr) console.error("[paddle-webhook] revoke rpc error", revErr);
-        } else {
-          console.warn("[paddle-webhook] no se pudo revocar: faltan user_id/product_id");
-        }
-      }
-    }
-
-    return new Response(JSON.stringify({ received: true }), {
+    const result = await handlePaddleEvent(event, {
+      rpc: (fn, args) => supabase.rpc(fn, args) as any,
+      findProductIdBySlug: async (slug) => {
+        const { data, error } = await supabase.from("products").select("id").eq("slug", slug).maybeSingle();
+        if (error) throw new Error(`products lookup: ${error.message}`);
+        return (data?.id as string) ?? null;
+      },
+      log: (msg, meta) => console.log(`[paddle-webhook] ${msg}`, meta ?? {}),
+    });
+    return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err: any) {
-    console.error("[paddle-webhook] handler error", err);
-    return new Response(`Handler error: ${err.message}`, { status: 500 });
+    // 500 => Paddle reintenta. No se incluyen datos personales.
+    console.error("[paddle-webhook] error, Paddle reintentará", {
+      eventType: event?.event_type,
+      message: err?.message,
+    });
+    return new Response("Handler error", { status: 500 });
   }
 });
