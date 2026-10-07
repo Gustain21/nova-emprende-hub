@@ -95,12 +95,23 @@ export async function handlePaddleEvent(event: any, deps: Deps): Promise<Record<
       return { received: true, ignored: true };
     }
     if (!data?.id || !data?.transaction_id) throw new WebhookError("ajuste sin id/transaction_id");
+    const adjType = String(data?.type ?? "").toLowerCase();
+    const adjAmount = minorToMajor(data?.totals?.total);
+    const adjCurrency = data?.currency_code ?? data?.totals?.currency_code ?? null;
+    if (!["full", "partial"].includes(adjType) || adjAmount == null || adjAmount < 0 || !adjCurrency) {
+      // Datos que un reintento no corregiría: a reconciliación, sin tocar la compra.
+      await call(deps, "record_paddle_deadletter", {
+        p_event_id: event?.event_id ?? null, p_event_type: eventType,
+        p_transaction_id: data.transaction_id, p_reason: "invalid_adjustment", p_payload: event,
+      });
+      return { received: true, deadletter: "invalid_adjustment" };
+    }
     const rows = await call(deps, "apply_paddle_refund", {
       p_adjustment_id: data.id,
       p_transaction_id: data.transaction_id,
-      p_adjustment_type: data?.type ?? null, // 'full' | 'partial'
-      p_amount: minorToMajor(data?.totals?.total),
-      p_currency: data?.currency_code ?? data?.totals?.currency_code ?? null,
+      p_adjustment_type: adjType,
+      p_amount: adjAmount,
+      p_currency: adjCurrency,
     });
     const row = Array.isArray(rows) ? rows[0] : rows;
     log("reembolso procesado", { result: row?.result, status: row?.new_status });

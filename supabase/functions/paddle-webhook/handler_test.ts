@@ -94,3 +94,11 @@ Deno.test("reembolso con fallo BD => lanza (500)", async () => {
   await assertRejects(() => handlePaddleEvent({ event_type: "adjustment.updated", data: { id: "a", action: "refund",
     status: "approved", type: "full", transaction_id: "txn_x", totals: { total: "100" } } }, deps));
 });
+
+Deno.test("ajuste con tipo desconocido => dead-letter, no se aplica", async () => {
+  const { deps, calls } = mk();
+  const res = await handlePaddleEvent({ event_id: "e1", event_type: "adjustment.updated", data: { id: "a", action: "refund",
+    status: "approved", type: "weird", transaction_id: "txn_1", currency_code: "EUR", totals: { total: "100" } } }, deps);
+  assertEquals(calls.some((c) => c.fn === "apply_paddle_refund"), false);
+  assertEquals(res.deadletter, "invalid_adjustment");
+});
