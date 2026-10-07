@@ -15,6 +15,7 @@ import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
 import { initPaddle, openPaddleCheckout } from "@/lib/paddle/paddleClient";
 import { trackBeginCheckout } from "@/lib/analytics/track";
 import { paddleMinorToMajor } from "@/lib/analytics/money";
+import { readAttribution } from "@/lib/attribution";
 
 
 interface DbProduct {

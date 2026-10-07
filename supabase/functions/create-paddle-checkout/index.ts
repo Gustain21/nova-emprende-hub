@@ -12,6 +12,7 @@ import {
   paddleApiKeyName,
   paddleEnvironment,
 } from "../_shared/currencyRule.ts";
+import { sanitizeAttribution } from "../_shared/attribution.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -69,7 +70,6 @@ Deno.serve(async (req) => {
     const clientCountry = normalizeCountry(body?.country);
     const country = headerCountry ?? clientCountry;
     const currency = currencyForCountry(country);
-    console.log("Checkout buyer email:", rawEmail);
     console.log("Checkout product slug:", slug);
 
     if (!slug) return json({ error: "invalid_request", detail: "slug requerido" }, 400);
@@ -159,6 +159,8 @@ Deno.serve(async (req) => {
           country: country ?? "",
           currency,
           source: "public_pagar_checkout",
+          // Atribución saneada (allowlist, sin PII). No influye en precio ni moneda.
+          ...sanitizeAttribution(body?.attribution),
         },
       }),
     });
@@ -222,7 +224,6 @@ Deno.serve(async (req) => {
       checkout_url,
       url: checkout_url, // compat
       mode: paddleEnv,
-      debug_buyer_email: email,
       // Moneda e importe (unidad mínima) del Price ID realmente seleccionado,
       // tal y como los devuelve Paddle en la transacción creada.
       price_id: selectedPriceId,
