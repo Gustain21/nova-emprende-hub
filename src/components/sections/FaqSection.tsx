@@ -26,7 +26,7 @@ const faqs = [
 
 const FaqSection = () => {
   return (
-    <section className="brand-section bg-background">
+    <section id="faq" className="brand-section bg-background scroll-mt-24">
       <div className="brand-container max-w-3xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
