@@ -11,17 +11,27 @@ export interface PricingProduct {
   saleActive?: boolean;
 }
 
-const OFFER_TZ = "Europe/Madrid";
+/** Último domingo de un mes (UTC), día del mes. */
+const lastSunday = (y: number, m: number) => {
+  const last = new Date(Date.UTC(y, m + 1, 0));
+  return last.getUTCDate() - last.getUTCDay();
+};
 
-/** Instante exacto de las 23:59:59 del día dado en Europe/Madrid (gestiona CET/CEST). */
+/**
+ * Instante exacto de las 23:59:59 del día dado en Europe/Madrid.
+ * Regla UE de horario de verano (CEST, UTC+2) desde el último domingo de marzo
+ * hasta el último domingo de octubre; resto del año CET (UTC+1). Sin depender de Intl.
+ */
 export const madridEndOfDay = (date: string): Date | null => {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
-  for (const offset of ["+01:00", "+02:00"]) {
-    const d = new Date(`${date}T23:59:59${offset}`);
-    const hh = new Intl.DateTimeFormat("en-GB", { timeZone: OFFER_TZ, hour: "2-digit", hourCycle: "h23" }).format(d);
-    if (hh === "23") return d;
-  }
-  return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!m) return null;
+  const [y, mo, d] = [Number(m[1]), Number(m[2]) - 1, Number(m[3])];
+  const probe = Date.UTC(y, mo, d, 22, 0, 0);
+  const dstStart = Date.UTC(y, 2, lastSunday(y, 2), 1);
+  const dstEnd = Date.UTC(y, 9, lastSunday(y, 9), 1);
+  const offsetH = probe >= dstStart && probe < dstEnd ? 2 : 1;
+  const res = new Date(Date.UTC(y, mo, d, 23 - offsetH, 59, 59));
+  return isNaN(res.getTime()) ? null : res;
 };
 
 export const isOfferActive = (offerEndDate?: string, saleActive?: boolean, now: number = Date.now()): boolean => {
@@ -35,7 +45,8 @@ export const isOfferActive = (offerEndDate?: string, saleActive?: boolean, now: 
 export const formatOfferDate = (offerEndDate: string): string => {
   const end = madridEndOfDay(offerEndDate);
   if (!end) return offerEndDate;
-  return end.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: OFFER_TZ });
+  const [y, mo, d] = offerEndDate.split("-");
+  return `${d}/${mo}/${y}`;
 };
 
 export interface EffectivePricing {
