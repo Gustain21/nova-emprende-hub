@@ -1,4 +1,4 @@
-// Copia servidor de src/lib/attribution.ts (mantener idénticas). Allowlist, longitud y sin PII.
+// Saneado servidor de atribución: mismas claves, longitud y filtro "@" que src/lib/attribution.ts. El filtro no garantiza ausencia de datos personales; el frontend solo envía UTM con consentimiento.
 export const ATTRIBUTION_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "origen"] as const;
 const VALUE_RE = /^[a-z0-9._-]{1,64}$/;
 

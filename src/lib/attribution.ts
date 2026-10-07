@@ -1,13 +1,19 @@
 // Atribución de campaña (UTM / origen) para el checkout.
-// - Solo claves permitidas y valores cortos [a-z0-9._-]; se descarta cualquier cosa con "@" (sin PII).
-// - Se lee de la URL actual y se envía al servidor para guardarla en la transacción de Paddle;
-//   no se almacena en el navegador ni se envía a analítica, por lo que no requiere consentimiento.
+// - Solo claves permitidas y valores cortos [a-z0-9._-]; se descarta lo que contenga "@".
+//   Este filtro reduce el riesgo pero NO garantiza que un valor no contenga datos personales.
+// - Las UTM solo se leen y envían si el visitante ha aceptado analítica o marketing en el
+//   módulo de consentimiento existente (readConsent). Sin ese consentimiento no se envían.
+// - `origen` es técnico y se limita a valores fijos permitidos (ORIGEN_ALLOWED), sin
+//   identificadores personales; se envía siempre para saber qué CTA interno llevó al pago.
 // - El parámetro `currency` de la URL se IGNORA a propósito: la moneda cobrada la decide
 //   el servidor con la regla geográfica.
-// Mantener idéntico a supabase/functions/_shared/attribution.ts.
+// El saneado del servidor (supabase/functions/_shared/attribution.ts) acepta las mismas claves.
+import { readConsent, type ConsentState } from "@/lib/consent/consent";
 
 export const ATTRIBUTION_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "origen"] as const;
 export type Attribution = Partial<Record<(typeof ATTRIBUTION_KEYS)[number], string>>;
+
+export const ORIGEN_ALLOWED = ["diagnostico-big-bang"] as const;
 
 const VALUE_RE = /^[a-z0-9._-]{1,64}$/;
 
@@ -23,12 +29,14 @@ export function sanitizeAttribution(input: unknown): Attribution {
   return out;
 }
 
-export function readAttribution(search: string): Attribution {
+export function readAttribution(search: string, consent: ConsentState | null = readConsent()): Attribution {
   const p = new URLSearchParams(search);
-  const obj: Record<string, string> = {};
-  for (const k of ATTRIBUTION_KEYS) {
-    const v = p.get(k);
-    if (v != null) obj[k] = v;
+  const all = sanitizeAttribution(Object.fromEntries(ATTRIBUTION_KEYS.map((k) => [k, p.get(k)])));
+  const out: Attribution = {};
+  if (all.origen && (ORIGEN_ALLOWED as readonly string[]).includes(all.origen)) out.origen = all.origen;
+  const allowUtm = !!consent && (consent.analytics || consent.marketing);
+  if (allowUtm) {
+    for (const k of ATTRIBUTION_KEYS) if (k !== "origen" && all[k]) out[k] = all[k];
   }
-  return sanitizeAttribution(obj);
+  return out;
 }

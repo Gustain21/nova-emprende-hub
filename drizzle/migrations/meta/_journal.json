@@ -15,6 +15,13 @@
       "when": 1791379902325,
       "tag": "0001_paddle_atomic_grant_deadletter_refund_validation",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791380264478,
+      "tag": "0002_entitlements_global_advisory_lock",
+      "breakpoints": true
     }
   ]
 }
