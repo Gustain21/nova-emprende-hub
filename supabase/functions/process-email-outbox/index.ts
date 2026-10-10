@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
   if (body?.test_send) {
     const kind = body.test_send === "purchase" ? "purchase" : "contact";
     const r = kind === "contact"
-      ? renderContact({ name: "Prueba interna", email: "prueba@example.test", subject: "Prueba de envío", message: "Mensaje de prueba <b>escapado</b> & seguro." })
+      ? renderContact({ name: "Prueba interna", email: "prueba@example.test", subject: "Prueba de envío", message: "Prueba interna de NOVA EMPRENDE. Mensaje de prueba <b>escapado</b> & seguro." })
       : renderPurchaseAccess({ productName: "El Big Bang de los Negocios (prueba)" });
     const res = await resendSend({ from: FROM, to: CONTACT_INBOX, reply_to: REPLY_TO, ...r }, `test-${kind}-${body.nonce ?? "1"}`);
     return json({ test: kind, ok: res.ok, status: res.status, id: res.id ?? null, error: res.ok ? null : res.error }, res.ok ? 200 : 502);
