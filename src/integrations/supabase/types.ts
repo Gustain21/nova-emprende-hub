@@ -205,13 +205,16 @@ export type Database = {
       email_outbox: {
         Row: {
           attempts: number
+          claim_token: string | null
           created_at: string
+          first_attempt_at: string | null
           id: string
           idempotency_key: string
           kind: string
           last_error: string | null
           lease_until: string | null
           next_attempt_at: string | null
+          payload: Json | null
           provider_message_id: string | null
           queued_at: string | null
           recipient: string
@@ -221,13 +224,16 @@ export type Database = {
         }
         Insert: {
           attempts?: number
+          claim_token?: string | null
           created_at?: string
+          first_attempt_at?: string | null
           id?: string
           idempotency_key: string
           kind: string
           last_error?: string | null
           lease_until?: string | null
           next_attempt_at?: string | null
+          payload?: Json | null
           provider_message_id?: string | null
           queued_at?: string | null
           recipient: string
@@ -237,13 +243,16 @@ export type Database = {
         }
         Update: {
           attempts?: number
+          claim_token?: string | null
           created_at?: string
+          first_attempt_at?: string | null
           id?: string
           idempotency_key?: string
           kind?: string
           last_error?: string | null
           lease_until?: string | null
           next_attempt_at?: string | null
+          payload?: Json | null
           provider_message_id?: string | null
           queued_at?: string | null
           recipient?: string
@@ -776,13 +785,16 @@ export type Database = {
         Args: { p_lease_seconds?: number; p_limit?: number }
         Returns: {
           attempts: number
+          claim_token: string | null
           created_at: string
+          first_attempt_at: string | null
           id: string
           idempotency_key: string
           kind: string
           last_error: string | null
           lease_until: string | null
           next_attempt_at: string | null
+          payload: Json | null
           provider_message_id: string | null
           queued_at: string | null
           recipient: string
@@ -809,6 +821,7 @@ export type Database = {
       find_auth_user_id_by_email: { Args: { p_email: string }; Returns: string }
       finish_email_outbox: {
         Args: {
+          p_claim_token: string
           p_error?: string
           p_id: string
           p_outcome: string
@@ -871,6 +884,10 @@ export type Database = {
       revoke_purchase_entitlements: {
         Args: { p_product_id: string; p_user_id: string }
         Returns: undefined
+      }
+      set_email_outbox_payload: {
+        Args: { p_claim_token: string; p_id: string; p_payload: Json }
+        Returns: Json
       }
       verify_email_worker_token: { Args: { p_token: string }; Returns: boolean }
     }
