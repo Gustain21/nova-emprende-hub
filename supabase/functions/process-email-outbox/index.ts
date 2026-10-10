@@ -66,9 +66,14 @@ Deno.serve(async (req) => {
         if (error) throw new Error(`claim: ${error.message}`);
         return (data ?? []) as any;
       },
-      finish: async (id, outcome, err, pid, retry) => {
+      savePayload: async (id, token, payload) => {
+        const { data, error } = await supabase.rpc("set_email_outbox_payload", { p_id: id, p_claim_token: token, p_payload: payload });
+        if (error) throw new Error(`payload: ${error.message}`);
+        return (data ?? null) as any;
+      },
+      finish: async (id, token, outcome, err, pid, retry) => {
         const { data, error } = await supabase.rpc("finish_email_outbox", {
-          p_id: id, p_outcome: outcome, p_error: err, p_provider_message_id: pid, p_retry_seconds: retry,
+          p_id: id, p_claim_token: token, p_outcome: outcome, p_error: err, p_provider_message_id: pid, p_retry_seconds: retry,
         });
         if (error) throw new Error(`finish: ${error.message}`);
         return data as string;
