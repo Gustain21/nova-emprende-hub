@@ -1,5 +1,4 @@
 // Recepción de mensajes de contacto. Guarda en contact_messages (privada, solo servidor).
-// Recepción de mensajes de contacto. Guarda en contact_messages (privada, solo servidor).
 // El aviso a hola@ lo encola un trigger en email_outbox y lo envía process-email-outbox.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { clientIp, validateContact } from "./validate.ts";
