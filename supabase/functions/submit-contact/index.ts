@@ -1,6 +1,6 @@
 // Recepción de mensajes de contacto. Guarda en contact_messages (privada, solo servidor).
-// No hay proveedor de email configurado: el aviso a hola@editorialnovaemprende.com queda
-// pendiente (notification_status = 'pending_no_provider'). No se envía ningún correo.
+// Recepción de mensajes de contacto. Guarda en contact_messages (privada, solo servidor).
+// El aviso a hola@ lo encola un trigger en email_outbox y lo envía process-email-outbox.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { clientIp, validateContact } from "./validate.ts";
 
