@@ -43,6 +43,13 @@
       "when": 1791387447761,
       "tag": "0005_revoke_public_on_private_email_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791658089144,
+      "tag": "0006_migration",
+      "breakpoints": true
     }
   ]
 }

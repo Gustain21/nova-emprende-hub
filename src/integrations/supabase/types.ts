@@ -175,6 +175,30 @@ export type Database = {
         }
         Relationships: []
       }
+      email_delivery_config: {
+        Row: {
+          activated_at: string | null
+          id: boolean
+          provider: string
+          updated_at: string
+          worker_token: string
+        }
+        Insert: {
+          activated_at?: string | null
+          id?: boolean
+          provider?: string
+          updated_at?: string
+          worker_token?: string
+        }
+        Update: {
+          activated_at?: string | null
+          id?: boolean
+          provider?: string
+          updated_at?: string
+          worker_token?: string
+        }
+        Relationships: []
+      }
       email_outbox: {
         Row: {
           attempts: number
@@ -183,6 +207,9 @@ export type Database = {
           idempotency_key: string
           kind: string
           last_error: string | null
+          lease_until: string | null
+          next_attempt_at: string | null
+          provider_message_id: string | null
           queued_at: string | null
           recipient: string
           sent_at: string | null
@@ -196,6 +223,9 @@ export type Database = {
           idempotency_key: string
           kind: string
           last_error?: string | null
+          lease_until?: string | null
+          next_attempt_at?: string | null
+          provider_message_id?: string | null
           queued_at?: string | null
           recipient: string
           sent_at?: string | null
@@ -209,6 +239,9 @@ export type Database = {
           idempotency_key?: string
           kind?: string
           last_error?: string | null
+          lease_until?: string | null
+          next_attempt_at?: string | null
+          provider_message_id?: string | null
           queued_at?: string | null
           recipient?: string
           sent_at?: string | null
@@ -736,6 +769,31 @@ export type Database = {
           result: string
         }[]
       }
+      claim_email_outbox: {
+        Args: { p_lease_seconds?: number; p_limit?: number }
+        Returns: {
+          attempts: number
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          last_error: string | null
+          lease_until: string | null
+          next_attempt_at: string | null
+          provider_message_id: string | null
+          queued_at: string | null
+          recipient: string
+          sent_at: string | null
+          status: string
+          template_data: Json
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "email_outbox"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       claim_purchases_by_email: {
         Args: never
         Returns: {
@@ -744,6 +802,16 @@ export type Database = {
         }[]
       }
       find_auth_user_id_by_email: { Args: { p_email: string }; Returns: string }
+      finish_email_outbox: {
+        Args: {
+          p_error?: string
+          p_id: string
+          p_outcome: string
+          p_provider_message_id?: string
+          p_retry_seconds?: number
+        }
+        Returns: string
+      }
       grant_purchase_entitlements: {
         Args: {
           p_product_id: string
@@ -799,6 +867,7 @@ export type Database = {
         Args: { p_product_id: string; p_user_id: string }
         Returns: undefined
       }
+      verify_email_worker_token: { Args: { p_token: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
