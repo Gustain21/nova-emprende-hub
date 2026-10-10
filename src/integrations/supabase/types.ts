@@ -182,6 +182,7 @@ export type Database = {
           provider: string
           updated_at: string
           worker_token: string
+          worker_url: string | null
         }
         Insert: {
           activated_at?: string | null
@@ -189,6 +190,7 @@ export type Database = {
           provider?: string
           updated_at?: string
           worker_token?: string
+          worker_url?: string | null
         }
         Update: {
           activated_at?: string | null
@@ -196,6 +198,7 @@ export type Database = {
           provider?: string
           updated_at?: string
           worker_token?: string
+          worker_url?: string | null
         }
         Relationships: []
       }
@@ -801,6 +804,8 @@ export type Database = {
           entitlements_granted: number
         }[]
       }
+      email_outbox_retry_tick: { Args: never; Returns: undefined }
+      email_outbox_wake: { Args: never; Returns: undefined }
       find_auth_user_id_by_email: { Args: { p_email: string }; Returns: string }
       finish_email_outbox: {
         Args: {
