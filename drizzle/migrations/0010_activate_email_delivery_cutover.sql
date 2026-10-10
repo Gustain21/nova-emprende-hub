@@ -1,0 +1,1 @@
+UPDATE public.email_delivery_config SET activated_at = now(), updated_at = now() WHERE id AND activated_at IS NULL;
