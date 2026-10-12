@@ -35,7 +35,7 @@ const EbookHighlightSection = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="rounded-2xl border border-border bg-brand-dark-card/60 p-8 md:p-10"
+            className="min-w-0 rounded-2xl border border-border bg-brand-dark-card/60 p-6 sm:p-8 md:p-10"
           >
             <span className="inline-block px-4 py-1.5 rounded-full bg-brand-orange/15 border border-brand-orange/40 text-xs font-bold text-brand-orange mb-6">
               Producto principal
@@ -84,7 +84,7 @@ const EbookHighlightSection = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.15 }}
-            className="rounded-2xl border border-border bg-brand-dark-card/80 p-5 md:p-6"
+            className="min-w-0 rounded-2xl border border-border bg-brand-dark-card/80 p-5 md:p-6"
           >
             <img src={ebookCover} alt="El Big Bang de los Negocios" className="w-full rounded-xl shadow-2xl mb-6" />
             <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">

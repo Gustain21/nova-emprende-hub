@@ -113,7 +113,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative"
+            className="relative min-w-0"
           >
             <div className="absolute -inset-6 bg-gradient-to-br from-brand-orange/20 to-brand-gold/10 rounded-3xl blur-3xl" />
             <div className="relative rounded-2xl border border-border bg-brand-dark-card/80 p-5 md:p-6 backdrop-blur">
