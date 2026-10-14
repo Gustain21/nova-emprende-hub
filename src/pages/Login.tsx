@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Mail, Rocket, ArrowRight, LayoutGrid, FileText, KeyRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import ResendConfirmation from "@/components/auth/ResendConfirmation";
 import { useAuth } from "@/hooks/useAuth";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { trackLogin } from "@/lib/analytics/track";
@@ -43,6 +44,9 @@ const Login = () => {
   const [submitting, setSubmitting] = useState(false);
   const { signIn, user, loading } = useAuth();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const enlace = params.get("enlace");
+  const linkError = enlace === "caducado" || enlace === "invalido" ? enlace : null;
 
   // Si ya hay sesión, redirige a /clientes
   useEffect(() => {
@@ -135,6 +139,18 @@ const Login = () => {
                   Si ya compraste, aquí encontrarás tu acceso a herramientas y recursos.
                 </p>
               </div>
+
+              {linkError && (
+                <div role="alert" className="mb-8 border border-brand-orange/50 rounded-xl p-5 bg-brand-orange/10 space-y-4">
+                  <p className="text-sm text-foreground font-medium">
+                    {linkError === "caducado"
+                      ? "El enlace de confirmación ha caducado o ya se utilizó."
+                      : "El enlace de confirmación no es válido."}{" "}
+                    Solicita uno nuevo y abre el email más reciente.
+                  </p>
+                  <ResendConfirmation />
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
