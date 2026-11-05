@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useCallback } from "react";
+import { useGuardedProgress } from "@/lib/progress/useGuardedProgress";
 
 export type LineItem = { desc: string; amount: string };
 export type WeekStatus = "" | "green" | "yellow" | "red";
@@ -50,53 +50,19 @@ const mergeConfig = (raw: any): PlannerConfig => {
 };
 
 export const usePlannerProgress = () => {
-  const [config, setConfig] = useState<PlannerConfig>(defaultConfig);
-  const [status, setStatus] = useState<SaveStatus>("loading");
-  const loadedRef = useRef(false);
-  const timerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-      if (!user) {
-        if (!cancelled) { setStatus("idle"); loadedRef.current = true; }
-        return;
-      }
-      const { data, error } = await supabase
-        .from("planner_progress")
-        .select("config")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (cancelled) return;
-      if (error) { console.error(error); setStatus("error"); loadedRef.current = true; return; }
-      if (data?.config) setConfig(mergeConfig(data.config));
-      setStatus("idle");
-      loadedRef.current = true;
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  const persist = useCallback(async (payload: PlannerConfig) => {
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
-    if (!user) { setStatus("error"); return; }
-    setStatus("saving");
-    const { error } = await supabase
-      .from("planner_progress")
-      .upsert({ user_id: user.id, config: payload as any }, { onConflict: "user_id" });
-    if (error) { console.error(error); setStatus("error"); return; }
-    setStatus("saved");
-    window.setTimeout(() => setStatus((s) => (s === "saved" ? "idle" : s)), 1200);
-  }, []);
-
-  useEffect(() => {
-    if (!loadedRef.current) return;
-    if (timerRef.current) window.clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(() => persist(config), 700);
-    return () => { if (timerRef.current) window.clearTimeout(timerRef.current); };
-  }, [config, persist]);
-
-  return { config, setConfig, status };
+  const { data: config, setData, loadState, saveState, retry } = useGuardedProgress<PlannerConfig>({
+    table: "planner_progress",
+    columns: "config",
+    logTag: "planner",
+    defaults: defaultConfig,
+    fromRow: (row) => (row?.config ? mergeConfig(row.config) : defaultConfig()),
+    toRow: (c) => ({ config: c as any }),
+  });
+  const setConfig = useCallback(
+    (u: PlannerConfig | ((p: PlannerConfig) => PlannerConfig)) => setData(u),
+    [setData],
+  );
+  const status: SaveStatus =
+    loadState === "loading" ? "loading" : loadState === "error" ? "error" : saveState;
+  return { config, setConfig, status, loadState, retry };
 };
