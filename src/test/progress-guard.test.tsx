@@ -15,6 +15,10 @@ const h = vi.hoisted(() => ({
   reads: [] as Array<() => Promise<{ data: any; error: any }>>,
   readDefault: (() => Promise.resolve({ data: null, error: null })) as () => Promise<{ data: any; error: any }>,
   upserts: [] as Array<{ table: string; row: any }>,
+  /** Optional per-call upsert result (lets a test defer or fail a write). */
+  upsertImpl: null as null | ((row: any) => Promise<{ error: any }>),
+  /** Rows in the order the mocked server committed them. */
+  committed: [] as any[],
 }));
 
 vi.mock("@/hooks/useAuth", () => ({ useAuth: () => ({ user: h.user }) }));
@@ -29,7 +33,12 @@ vi.mock("@/integrations/supabase/client", () => ({
       select: () => ({ eq: () => ({ maybeSingle: () => (h.reads.shift() ?? h.readDefault)() }) }),
       upsert: (row: any) => {
         h.upserts.push({ table, row });
-        return Object.assign(Promise.resolve({ error: null }), {
+        const base = h.upsertImpl ? h.upsertImpl(row) : Promise.resolve({ error: null });
+        const p = base.then((r) => {
+          if (!r.error) h.committed.push(row);
+          return r;
+        });
+        return Object.assign(p, {
           select: () => ({ single: () => Promise.resolve({ data: row, error: null }) }),
         });
       },
@@ -113,6 +122,8 @@ beforeEach(() => {
   h.reads = [];
   h.readDefault = () => Promise.resolve({ data: null, error: null });
   h.upserts = [];
+  h.upsertImpl = null;
+  h.committed = [];
 });
 
 describe.each(adapters)("$name: guarded progress", (a) => {
@@ -308,5 +319,149 @@ describe("Load error UI with Reintentar", () => {
     await waitFor(() => expect(screen.queryByText("No hemos podido cargar tu progreso")).not.toBeInTheDocument());
     await wait(AFTER_DEBOUNCE);
     expect(h.upserts).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Write ordering, write errors and immediate gating on account change.
+// ---------------------------------------------------------------------------
+const deferred = () => {
+  let resolve!: (v: { error: any }) => void;
+  const promise = new Promise<{ error: any }>((r) => (resolve = r));
+  return { promise, resolve };
+};
+
+describe.each(adapters)("$name: write ordering and account gating", (a) => {
+  const mount = () => renderHook(() => a.hook(), { wrapper: a.wrapper });
+
+  it("slow write + later edit: writes never overlap and the newest state is committed last", async () => {
+    h.reads = [ok(a.row)];
+    const gates: Array<ReturnType<typeof deferred>> = [];
+    let inFlight = 0;
+    let maxInFlight = 0;
+    h.upsertImpl = () => {
+      const d = deferred();
+      gates.push(d);
+      inFlight++;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      return d.promise.then((r) => { inFlight--; return r; });
+    };
+    const { result } = mount();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    act(() => a.edit(result.current)); // edit #1
+    await wait(AFTER_DEBOUNCE); // write #1 in flight (not resolved)
+    expect(h.upserts).toHaveLength(1);
+    const first = h.upserts[0].row;
+    act(() => a.edit(result.current)); // edit #2 (toggles / changes again)
+    await wait(AFTER_DEBOUNCE);
+    // Resolve whatever is in flight, newest first, to provoke reordering.
+    for (let i = gates.length - 1; i >= 0; i--) await act(async () => gates[i].resolve({ error: null }));
+    await wait(50);
+    for (let i = 0; i < gates.length; i++) await act(async () => gates[i].resolve({ error: null }));
+    await wait(AFTER_DEBOUNCE);
+    for (const g of gates) await act(async () => g.resolve({ error: null }));
+    await wait(50);
+    expect(maxInFlight).toBe(1);
+    expect(h.upserts.length).toBe(2);
+    const last = h.committed[h.committed.length - 1];
+    expect(last).not.toBe(first);
+    expect(last).toBe(h.upserts[h.upserts.length - 1].row);
+    expect(a.rowKeepsPrevious(last)).toBe(true);
+    expect(result.current.saveState ?? result.current.saveStatus ?? result.current.status).toBe("saved");
+  });
+
+  it("several edits during a slow write are coalesced into one follow-up write", async () => {
+    h.reads = [ok(a.row)];
+    const gates: Array<ReturnType<typeof deferred>> = [];
+    h.upsertImpl = () => { const d = deferred(); gates.push(d); return d.promise; };
+    const { result } = mount();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    act(() => a.edit(result.current));
+    await wait(AFTER_DEBOUNCE);
+    for (let i = 0; i < 3; i++) { act(() => a.edit(result.current)); await wait(AFTER_DEBOUNCE); }
+    expect(h.upserts).toHaveLength(1);
+    await act(async () => gates[0].resolve({ error: null }));
+    await wait(50);
+    expect(h.upserts).toHaveLength(2);
+    await act(async () => gates[1].resolve({ error: null }));
+    await wait(AFTER_DEBOUNCE);
+    expect(h.upserts).toHaveLength(2);
+  });
+
+  it("write error shows error, no automatic retry; a later edit saves again", async () => {
+    h.reads = [ok(a.row)];
+    let calls = 0;
+    h.upsertImpl = () => Promise.resolve({ error: calls++ === 0 ? { message: "write failed", code: "500" } : null });
+    const { result } = mount();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    const status = () => result.current.saveState ?? result.current.saveStatus ?? result.current.status;
+    act(() => a.edit(result.current));
+    await wait(AFTER_DEBOUNCE);
+    expect(status()).toBe("error");
+    await wait(AFTER_DEBOUNCE * 2);
+    expect(h.upserts).toHaveLength(1); // no retry loop
+    act(() => a.edit(result.current));
+    await wait(AFTER_DEBOUNCE);
+    expect(h.upserts).toHaveLength(2);
+    expect(status()).toBe("saved");
+    expect(a.rowKeepsPrevious(h.committed[0])).toBe(true);
+  });
+
+  it("account change while a write is in flight: no follow-up write, new account not marked saved", async () => {
+    h.reads = [ok(a.row), ok(null)];
+    const gates: Array<ReturnType<typeof deferred>> = [];
+    h.upsertImpl = () => { const d = deferred(); gates.push(d); return d.promise; };
+    const { result, rerender } = mount();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    act(() => a.edit(result.current));
+    await wait(AFTER_DEBOUNCE);
+    act(() => a.edit(result.current)); // pending edit queued behind the in-flight write
+    await wait(AFTER_DEBOUNCE);
+    h.user = { id: "u2" };
+    h.authUser = "u2";
+    rerender();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    await act(async () => gates[0].resolve({ error: null }));
+    await wait(AFTER_DEBOUNCE);
+    expect(h.upserts).toHaveLength(1);
+    expect(h.upserts.every((u) => u.row.user_id === "u1")).toBe(true);
+    const status = result.current.saveState ?? result.current.saveStatus ?? result.current.status;
+    expect(status).not.toBe("saved");
+    expect(a.hasPrevious(result.current)).toBe(false);
+  });
+
+  it("logout while a write is pending in the debounce: nothing written", async () => {
+    h.reads = [ok(a.row)];
+    const { result, rerender } = mount();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    act(() => a.edit(result.current));
+    h.user = null;
+    h.authUser = null;
+    rerender();
+    await wait(AFTER_DEBOUNCE);
+    expect(h.upserts).toHaveLength(0);
+    expect(result.current.loadState).toBe("loading");
+  });
+
+  it("the very first render after an account change is already gated (no previous data shown)", async () => {
+    h.reads = [ok(a.row), pending];
+    const seen: Array<{ uid: string | null; loadState: string; prev: boolean }> = [];
+    const { result, rerender } = renderHook(
+      () => {
+        const r = a.hook();
+        seen.push({ uid: h.user?.id ?? null, loadState: r.loadState, prev: a.hasPrevious(r) });
+        return r;
+      },
+      { wrapper: a.wrapper },
+    );
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    seen.length = 0;
+    h.user = { id: "u2" };
+    h.authUser = "u2";
+    rerender();
+    const u2 = seen.filter((s) => s.uid === "u2");
+    expect(u2.length).toBeGreaterThan(0);
+    expect(u2.some((s) => s.loadState === "ready")).toBe(false);
+    expect(u2.some((s) => s.prev)).toBe(false);
   });
 });
