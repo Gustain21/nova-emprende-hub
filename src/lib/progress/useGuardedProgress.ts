@@ -58,7 +58,11 @@ export function useGuardedProgress<T>(opts: GuardedProgressOptions<T>) {
   // Write serialization: at most one upsert in flight per store; edits made
   // meanwhile are coalesced into a single follow-up write of the latest state.
   const inFlightRef = useRef(false);
-  const pendingRef = useRef(false);
+  // Queued work keeps its own owner, so it can be drained even when the write
+  // that is finishing belonged to an older session.
+  const pendingRef = useRef<{ uid: string; reqId: number } | null>(null);
+  // Edit generation: 'saved' is shown only when the latest edit was written.
+  const editGenRef = useRef(0);
   const defaultsRef = useRef<T | null>(null);
   if (defaultsRef.current === null) defaultsRef.current = opts.defaults();
   currentUserRef.current = userId;
@@ -78,7 +82,7 @@ export function useGuardedProgress<T>(opts: GuardedProgressOptions<T>) {
     readyForRef.current = null;
     if (timerRef.current) window.clearTimeout(timerRef.current);
     timerRef.current = null;
-    pendingRef.current = false;
+    pendingRef.current = null;
     const fresh = optsRef.current.defaults();
     dataRef.current = fresh;
     setDataState(fresh);
@@ -122,24 +126,27 @@ export function useGuardedProgress<T>(opts: GuardedProgressOptions<T>) {
     const next = typeof updater === "function" ? (updater as (p: T) => T)(prev) : updater;
     if (Object.is(next, prev)) return;
     dataRef.current = next;
+    editGenRef.current++;
     setDataState(next);
     setDirtyTick((t) => t + 1);
   }, []);
 
   // Writes the latest state; never overlaps with another write of this store.
   const flush = useCallback(async (uid: string, reqId: number): Promise<void> => {
-    const stillValid = () =>
+    const isValid = (u: string, r: number) =>
       mountedRef.current &&
-      requestRef.current === reqId &&
-      currentUserRef.current === uid &&
-      readyForRef.current === uid;
+      requestRef.current === r &&
+      currentUserRef.current === u &&
+      readyForRef.current === u;
+    const stillValid = () => isValid(uid, reqId);
     if (!stillValid()) return;
     if (inFlightRef.current) {
-      pendingRef.current = true; // coalesce: the running write will follow up
+      pendingRef.current = { uid, reqId }; // coalesce behind the running write
       return;
     }
     inFlightRef.current = true;
-    pendingRef.current = false;
+    pendingRef.current = null;
+    const writtenGen = editGenRef.current;
     let failed = false;
     try {
       const { data: authData, error: authError } = await supabase.auth.getUser();
@@ -164,15 +171,16 @@ export function useGuardedProgress<T>(opts: GuardedProgressOptions<T>) {
       }
     } finally {
       inFlightRef.current = false;
+      // Drain queued work (a newer user edit, possibly of a newer session) if it
+      // is still current. One follow-up per edit; never an automatic retry loop.
+      const next = pendingRef.current;
+      pendingRef.current = null;
+      if (next && isValid(next.uid, next.reqId)) {
+        void flush(next.uid, next.reqId);
+      } else if (!failed && stillValid() && writtenGen === editGenRef.current) {
+        setSaveState("saved");
+      }
     }
-    if (!stillValid()) return;
-    // An edit arrived while writing: write the latest state once (also after an
-    // error, since it is a newer user edit — never an automatic retry loop).
-    if (pendingRef.current) {
-      void flush(uid, reqId);
-      return;
-    }
-    if (!failed) setSaveState("saved");
   }, []);
 
   // Debounced save, only after a user edit on a validly loaded store.
