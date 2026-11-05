@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import PurchaseGate from "@/components/app/PurchaseGate";
+import ProgressLoadGate from "@/components/app/ProgressLoadGate";
 import Navigation from "@/features/planner-90/components/Navigation";
 import CoverPage from "@/features/planner-90/components/CoverPage";
 import QuarterlyView from "@/features/planner-90/components/QuarterlyView";
@@ -11,7 +12,7 @@ import { usePlannerProgress } from "@/features/planner-90/hooks/usePlannerProgre
 const MONTH_NAMES = ["ENERO", "FEBRERO", "MARZO"];
 
 const PlannerInner = () => {
-  const { config, setConfig, status } = usePlannerProgress();
+  const { config, setConfig, status, loadState, retry } = usePlannerProgress();
   const [section, setSection] = useState("cover");
   const [week, setWeek] = useState(1);
   const [month, setMonth] = useState(1);
@@ -31,8 +32,10 @@ const PlannerInner = () => {
         onWeekChange={setWeek}
         onMonthChange={setMonth}
         status={status}
+        loadFailed={loadState === "error"}
       />
       <div className="h-[110px] md:h-[68px]" />
+      <ProgressLoadGate loadState={loadState} onRetry={retry}>
       <AnimatePresence mode="wait">
         {section === "cover" && (
           <motion.div key="cover" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
@@ -55,6 +58,7 @@ const PlannerInner = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      </ProgressLoadGate>
       <footer className="py-8 px-6 text-center bg-muted/50">
         <p className="text-sm text-muted-foreground">🚀 El Big Bang de los Negocios · Planner de Ejecución 90 Días</p>
       </footer>

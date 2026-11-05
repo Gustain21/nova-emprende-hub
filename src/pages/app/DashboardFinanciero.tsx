@@ -3,6 +3,7 @@ import { ArrowLeft, List, Rocket, Printer, Loader2, Check, AlertCircle, Lock } f
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { usePurchases } from '@/hooks/usePurchases';
+import ProgressLoadGate from '@/components/app/ProgressLoadGate';
 import { FinancialProvider, useFinancial, SaveStatus } from '@/features/dashboard-financiero/contexts/FinancialContext';
 import { AssumptionsTab } from '@/features/dashboard-financiero/components/tabs/AssumptionsTab';
 import { SalesForecastTab } from '@/features/dashboard-financiero/components/tabs/SalesForecastTab';
@@ -14,7 +15,8 @@ import { CashflowTab } from '@/features/dashboard-financiero/components/tabs/Cas
 import { RatiosTab } from '@/features/dashboard-financiero/components/tabs/RatiosTab';
 import { SummaryTab } from '@/features/dashboard-financiero/components/tabs/SummaryTab';
 
-const SaveIndicator = ({ status }: { status: SaveStatus }) => {
+const SaveIndicator = ({ status, loadFailed }: { status: SaveStatus; loadFailed?: boolean }) => {
+  if (loadFailed) return <span className="inline-flex items-center gap-1 text-[11px] text-destructive"><AlertCircle className="h-3 w-3" /> Error al cargar</span>;
   if (status === 'loading') return <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Cargando…</span>;
   if (status === 'saving') return <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Guardando</span>;
   if (status === 'saved') return <span className="inline-flex items-center gap-1 text-[11px] text-emerald-500"><Check className="h-3 w-3" /> Guardado</span>;
@@ -34,7 +36,7 @@ const NoAccess = () => (
 );
 
 const Content = () => {
-  const { status } = useFinancial();
+  const { status, loadState, retry } = useFinancial();
   const handlePrint = () => setTimeout(() => window.print(), 300);
 
   return (
@@ -51,7 +53,7 @@ const Content = () => {
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-foreground"><Rocket className="w-4 h-4 text-brand-orange" /> Dashboard Financiero</span>
-            <SaveIndicator status={status} />
+            <SaveIndicator status={status} loadFailed={loadState === 'error'} />
             <Button onClick={handlePrint} variant="outline" size="sm" className="gap-2 hidden sm:inline-flex">
               <Printer className="w-4 h-4" /> Imprimir
             </Button>
@@ -65,6 +67,7 @@ const Content = () => {
           <p className="text-muted-foreground text-sm mt-1">Herramienta profesional para diseñar y analizar planes financieros</p>
         </div>
 
+        <ProgressLoadGate loadState={loadState} onRetry={retry}>
         <Tabs defaultValue="resumen" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2 p-2 h-auto print:hidden">
             <TabsTrigger value="supuestos">Supuestos</TabsTrigger>
@@ -88,6 +91,7 @@ const Content = () => {
           <TabsContent value="cashflow"><CashflowTab /></TabsContent>
           <TabsContent value="ratios"><RatiosTab /></TabsContent>
         </Tabs>
+        </ProgressLoadGate>
       </main>
     </div>
   );

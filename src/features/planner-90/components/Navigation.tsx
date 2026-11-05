@@ -11,15 +11,16 @@ interface Props {
   onWeekChange: (n: number) => void;
   onMonthChange: (n: number) => void;
   status: SaveStatus;
+  loadFailed?: boolean;
 }
 
-const StatusPill = ({ status }: { status: SaveStatus }) => {
-  const label = status === "saving" ? "Guardando…" : status === "saved" ? "Guardado" : status === "error" ? "Error al guardar" : status === "loading" ? "Cargando…" : "Sincronizado";
+const StatusPill = ({ status, loadFailed }: { status: SaveStatus; loadFailed?: boolean }) => {
+  const label = loadFailed ? "Error al cargar" : status === "saving" ? "Guardando…" : status === "saved" ? "Guardado" : status === "error" ? "Error al guardar" : status === "loading" ? "Cargando…" : "Sincronizado";
   const cls = status === "error" ? "text-red-500" : status === "saved" ? "text-emerald-500" : "text-muted-foreground";
   return <span className={`text-xs ${cls}`}>{label}</span>;
 };
 
-const Navigation = ({ currentSection, onNavigate, currentWeek, currentMonth, onWeekChange, onMonthChange, status }: Props) => {
+const Navigation = ({ currentSection, onNavigate, currentWeek, currentMonth, onWeekChange, onMonthChange, status, loadFailed }: Props) => {
   const items = [
     { id: "cover", label: "Portada", icon: Home },
     { id: "quarterly", label: "Visión Macro", icon: Target },
@@ -64,7 +65,7 @@ const Navigation = ({ currentSection, onNavigate, currentWeek, currentMonth, onW
                 <Button variant="ghost" size="sm" onClick={() => onWeekChange(Math.min(12, currentWeek + 1))} disabled={currentWeek === 12}><ChevronRight className="w-4 h-4" /></Button>
               </div>
             )}
-            <StatusPill status={status} />
+            <StatusPill status={status} loadFailed={loadFailed} />
           </div>
         </div>
         <div className="flex md:hidden items-center justify-center gap-1 mt-2 pt-2 border-t border-border">
