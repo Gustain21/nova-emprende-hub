@@ -465,3 +465,104 @@ describe.each(adapters)("$name: write ordering and account gating", (a) => {
     expect(u2.some((s) => s.prev)).toBe(false);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Queued work must survive the end of a write that belongs to an old session.
+// ---------------------------------------------------------------------------
+describe.each(adapters)("$name: queue drained across sessions", (a) => {
+  const mount = () => renderHook(() => a.hook(), { wrapper: a.wrapper });
+  const status = (r: any) => r.saveState ?? r.saveStatus ?? r.status;
+  const slowWrites = () => {
+    const gates: Array<ReturnType<typeof deferred>> = [];
+    h.upsertImpl = () => { const d = deferred(); gates.push(d); return d.promise; };
+    return gates;
+  };
+
+  it("A write in flight, switch to B, B edits: after A resolves, B's edit is saved automatically", async () => {
+    h.reads = [ok(a.row), ok(null)];
+    const gates = slowWrites();
+    const { result, rerender } = mount();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    act(() => a.edit(result.current));
+    await wait(AFTER_DEBOUNCE); // A in flight
+    h.user = { id: "u2" };
+    h.authUser = "u2";
+    rerender();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    act(() => a.edit(result.current));
+    await wait(AFTER_DEBOUNCE); // B queued behind A
+    expect(h.upserts).toHaveLength(1);
+    await act(async () => gates[0].resolve({ error: null }));
+    await wait(50);
+    expect(h.upserts).toHaveLength(2); // no extra edit needed
+    const b = h.upserts[1].row;
+    expect(b.user_id).toBe("u2");
+    expect(a.rowKeepsPrevious(b)).toBe(false); // B's own data, not A's
+    await act(async () => gates[1].resolve({ error: null }));
+    await wait(50);
+    expect(h.committed[h.committed.length - 1]).toBe(b);
+    expect(status(result.current)).toBe("saved");
+  });
+
+  it("A write in flight, logout: nothing else is written when A resolves", async () => {
+    h.reads = [ok(a.row)];
+    const gates = slowWrites();
+    const { result, rerender } = mount();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    act(() => a.edit(result.current));
+    await wait(AFTER_DEBOUNCE);
+    act(() => a.edit(result.current)); // queued for A
+    await wait(AFTER_DEBOUNCE);
+    h.user = null;
+    h.authUser = null;
+    rerender();
+    await act(async () => gates[0].resolve({ error: null }));
+    await wait(AFTER_DEBOUNCE);
+    expect(h.upserts).toHaveLength(1);
+  });
+
+  it("A -> B -> A while the old A write resolves: B's queue is dropped, the new A edit is saved", async () => {
+    h.reads = [ok(a.row), ok(null), ok(a.row)];
+    const gates = slowWrites();
+    const { result, rerender } = mount();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    act(() => a.edit(result.current));
+    await wait(AFTER_DEBOUNCE); // old A in flight
+    h.user = { id: "u2" }; h.authUser = "u2"; rerender();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    act(() => a.edit(result.current));
+    await wait(AFTER_DEBOUNCE); // B queued
+    h.user = { id: "u1" }; h.authUser = "u1"; rerender();
+    await waitFor(() => expect(a.hasPrevious(result.current)).toBe(true));
+    act(() => a.edit(result.current));
+    await wait(AFTER_DEBOUNCE); // new A queued
+    await act(async () => gates[0].resolve({ error: null }));
+    await wait(50);
+    expect(h.upserts).toHaveLength(2);
+    expect(h.upserts.some((u) => u.row.user_id === "u2")).toBe(false);
+    expect(h.upserts[1].row.user_id).toBe("u1");
+    expect(a.rowKeepsPrevious(h.upserts[1].row)).toBe(true);
+    await act(async () => gates[1].resolve({ error: null }));
+    await wait(50);
+    expect(status(result.current)).toBe("saved");
+  });
+
+  it("an older write finishing while a newer edit waits in debounce does not mark 'saved'", async () => {
+    h.reads = [ok(a.row)];
+    const gates = slowWrites();
+    const { result } = mount();
+    await waitFor(() => expect(result.current.loadState).toBe("ready"));
+    act(() => a.edit(result.current));
+    await wait(AFTER_DEBOUNCE); // write #1 in flight
+    act(() => a.edit(result.current)); // edit #2, debounce not yet fired
+    await act(async () => gates[0].resolve({ error: null }));
+    await wait(20);
+    expect(status(result.current)).toBe("saving");
+    await wait(AFTER_DEBOUNCE);
+    expect(h.upserts).toHaveLength(2);
+    expect(status(result.current)).toBe("saving");
+    await act(async () => gates[1].resolve({ error: null }));
+    await wait(20);
+    expect(status(result.current)).toBe("saved");
+  });
+});
