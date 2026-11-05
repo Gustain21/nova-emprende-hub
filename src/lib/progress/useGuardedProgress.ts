@@ -41,7 +41,9 @@ export function useGuardedProgress<T>(opts: GuardedProgressOptions<T>) {
   optsRef.current = opts;
 
   const [data, setDataState] = useState<T>(() => opts.defaults());
-  const [loadState, setLoadState] = useState<LoadState>("loading");
+  // The load result is tagged with the user it belongs to; a result for another
+  // user is never exposed (covers the first render after an account change).
+  const [load, setLoad] = useState<{ owner: string | null; state: LoadState }>({ owner: null, state: "loading" });
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -53,6 +55,12 @@ export function useGuardedProgress<T>(opts: GuardedProgressOptions<T>) {
   const currentUserRef = useRef<string | null>(userId);
   const dataRef = useRef<T>(data);
   const timerRef = useRef<number | null>(null);
+  // Write serialization: at most one upsert in flight per store; edits made
+  // meanwhile are coalesced into a single follow-up write of the latest state.
+  const inFlightRef = useRef(false);
+  const pendingRef = useRef(false);
+  const defaultsRef = useRef<T | null>(null);
+  if (defaultsRef.current === null) defaultsRef.current = opts.defaults();
   currentUserRef.current = userId;
 
   useEffect(() => {
@@ -70,10 +78,11 @@ export function useGuardedProgress<T>(opts: GuardedProgressOptions<T>) {
     readyForRef.current = null;
     if (timerRef.current) window.clearTimeout(timerRef.current);
     timerRef.current = null;
+    pendingRef.current = false;
     const fresh = optsRef.current.defaults();
     dataRef.current = fresh;
     setDataState(fresh);
-    setLoadState("loading");
+    setLoad({ owner: userId, state: "loading" });
     setSaveState("idle");
     setSaveError(null);
     if (!userId) return;
@@ -95,11 +104,11 @@ export function useGuardedProgress<T>(opts: GuardedProgressOptions<T>) {
         dataRef.current = next;
         setDataState(next);
         readyForRef.current = userId;
-        setLoadState("ready");
+        setLoad({ owner: userId, state: "ready" });
       } catch (e: any) {
         if (!isCurrent()) return;
         console.error(`[${optsRef.current.logTag}] load failed`, e?.code ?? "", e?.message ?? "");
-        setLoadState("error");
+        setLoad({ owner: userId, state: "error" });
       }
     })();
   }, [userId, reloadKey]);
@@ -117,6 +126,55 @@ export function useGuardedProgress<T>(opts: GuardedProgressOptions<T>) {
     setDirtyTick((t) => t + 1);
   }, []);
 
+  // Writes the latest state; never overlaps with another write of this store.
+  const flush = useCallback(async (uid: string, reqId: number): Promise<void> => {
+    const stillValid = () =>
+      mountedRef.current &&
+      requestRef.current === reqId &&
+      currentUserRef.current === uid &&
+      readyForRef.current === uid;
+    if (!stillValid()) return;
+    if (inFlightRef.current) {
+      pendingRef.current = true; // coalesce: the running write will follow up
+      return;
+    }
+    inFlightRef.current = true;
+    pendingRef.current = false;
+    let failed = false;
+    try {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (!stillValid()) return;
+      if (authError || authData?.user?.id !== uid) {
+        failed = true;
+        setSaveError("Tu sesión ha caducado. Vuelve a iniciar sesión.");
+        setSaveState("error");
+        return;
+      }
+      const { table, toRow } = optsRef.current;
+      const { error } = await supabase
+        .from(table)
+        .upsert({ user_id: uid, ...toRow(dataRef.current) } as any, { onConflict: "user_id" });
+      if (error) throw error;
+    } catch (e: any) {
+      failed = true;
+      if (stillValid()) {
+        console.error(`[${optsRef.current.logTag}] save failed`, e?.code ?? "", e?.message ?? "");
+        setSaveError(e?.message ?? "Error desconocido");
+        setSaveState("error");
+      }
+    } finally {
+      inFlightRef.current = false;
+    }
+    if (!stillValid()) return;
+    // An edit arrived while writing: write the latest state once (also after an
+    // error, since it is a newer user edit — never an automatic retry loop).
+    if (pendingRef.current) {
+      void flush(uid, reqId);
+      return;
+    }
+    if (!failed) setSaveState("saved");
+  }, []);
+
   // Debounced save, only after a user edit on a validly loaded store.
   useEffect(() => {
     if (dirtyTick === 0) return;
@@ -126,37 +184,11 @@ export function useGuardedProgress<T>(opts: GuardedProgressOptions<T>) {
     if (timerRef.current) window.clearTimeout(timerRef.current);
     setSaveState("saving");
     setSaveError(null);
-    timerRef.current = window.setTimeout(async () => {
+    timerRef.current = window.setTimeout(() => {
       timerRef.current = null;
-      const stillValid = () =>
-        mountedRef.current &&
-        requestRef.current === reqId &&
-        currentUserRef.current === uid &&
-        readyForRef.current === uid;
-      if (!stillValid()) return;
-      try {
-        const { data: authData, error: authError } = await supabase.auth.getUser();
-        if (!stillValid()) return;
-        if (authError || authData?.user?.id !== uid) {
-          setSaveError("Tu sesión ha caducado. Vuelve a iniciar sesión.");
-          setSaveState("error");
-          return;
-        }
-        const { table, toRow } = optsRef.current;
-        const { error } = await supabase
-          .from(table)
-          .upsert({ user_id: uid, ...toRow(dataRef.current) } as any, { onConflict: "user_id" });
-        if (!mountedRef.current || currentUserRef.current !== uid) return;
-        if (error) throw error;
-        setSaveState("saved");
-      } catch (e: any) {
-        if (!mountedRef.current || currentUserRef.current !== uid) return;
-        console.error(`[${optsRef.current.logTag}] save failed`, e?.code ?? "", e?.message ?? "");
-        setSaveError(e?.message ?? "Error desconocido");
-        setSaveState("error");
-      }
+      void flush(uid, reqId);
     }, optsRef.current.debounceMs ?? 700);
-  }, [dirtyTick]);
+  }, [dirtyTick, flush]);
 
   // Warn on unload while a save is pending.
   useEffect(() => {
@@ -170,5 +202,16 @@ export function useGuardedProgress<T>(opts: GuardedProgressOptions<T>) {
     return () => window.removeEventListener("beforeunload", handler);
   }, [saveState]);
 
-  return { data, setData, loadState, saveState, saveError, retry, ready: loadState === "ready" };
+  const owned = userId !== null && load.owner === userId;
+  const loadState: LoadState = owned ? load.state : "loading";
+  const visibleData = owned ? data : (defaultsRef.current as T);
+  return {
+    data: visibleData,
+    setData,
+    loadState,
+    saveState: owned ? saveState : "idle",
+    saveError: owned ? saveError : null,
+    retry,
+    ready: loadState === "ready",
+  };
 }
