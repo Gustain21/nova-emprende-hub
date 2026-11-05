@@ -6,9 +6,10 @@ interface Props {
   children: React.ReactNode;
   status: SaveStatus;
   showBackToIndex?: boolean;
+  loadFailed?: boolean;
 }
 
-const GuiaShell = ({ children, status, showBackToIndex = false }: Props) => {
+const GuiaShell = ({ children, status, showBackToIndex = false, loadFailed = false }: Props) => {
   return (
     <div className="min-h-screen w-full bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
@@ -37,7 +38,7 @@ const GuiaShell = ({ children, status, showBackToIndex = false }: Props) => {
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden sm:block text-sm font-semibold text-foreground">La Guía de Prompts</span>
-            <SaveIndicator status={status} />
+            <SaveIndicator status={status} loadFailed={loadFailed} />
           </div>
         </div>
       </header>
@@ -46,7 +47,13 @@ const GuiaShell = ({ children, status, showBackToIndex = false }: Props) => {
   );
 };
 
-const SaveIndicator = ({ status }: { status: SaveStatus }) => {
+const SaveIndicator = ({ status, loadFailed }: { status: SaveStatus; loadFailed?: boolean }) => {
+  if (loadFailed)
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] text-destructive">
+        <AlertCircle className="h-3 w-3" /> Error al cargar
+      </span>
+    );
   if (status === "idle") return <span className="text-[11px] text-muted-foreground">Listo</span>;
   if (status === "saving")
     return (

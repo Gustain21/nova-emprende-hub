@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Menu, X, Loader2, Save, AlertCircle, CheckCircle2 } from "lucide-react";
 import PurchaseGate from "@/components/app/PurchaseGate";
+import ProgressLoadGate from "@/components/app/ProgressLoadGate";
 import CoverPage from "@/features/bitacora/components/CoverPage";
 import IntroPage from "@/features/bitacora/components/IntroPage";
 import DayPage from "@/features/bitacora/components/DayPage";
@@ -48,7 +49,8 @@ const SaveIndicator = ({
 
 const BitacoraApp = () => {
   const {
-    loading,
+    loadState,
+    retry,
     saveStatus,
     saveError,
     answers,
@@ -69,12 +71,8 @@ const BitacoraApp = () => {
     return null;
   }, [currentDay]);
 
-  if (loading) {
-    return (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+  if (loadState !== "ready") {
+    return <ProgressLoadGate loadState={loadState} onRetry={retry}>{null}</ProgressLoadGate>;
   }
 
   const showSidebar = currentView !== "cover";
