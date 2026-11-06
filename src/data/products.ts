@@ -96,7 +96,7 @@ export const products: Product[] = [
       "Reflexiones guiadas para superar bloqueos y decisiones difíciles",
       "Seguimiento de progreso con métricas claras",
       "Complemento oficial del ebook para pasar de la teoría a la acción",
-      "Espacios de planificación semanal y mensual",
+      "Ejercicios diarios de reflexión y planificación durante 30 días",
     ],
     whatYouGet: [
       "Workbook interactivo digital",
@@ -213,8 +213,8 @@ export const products: Product[] = [
     benefits: [
       "Cálculo automático de punto muerto y break-even",
       "Análisis de márgenes comerciales por producto",
-      "Proyecciones de ventas a 12 meses",
-      "Escenarios optimista, realista y pesimista",
+      "Proyecciones anuales de ventas a cinco años",
+      "Compara resultados modificando tus supuestos de ventas y costes",
       "Gráficos profesionales listos para presentar a inversores",
       "Fórmulas automáticas: solo introduce tus datos",
     ],
@@ -245,7 +245,7 @@ export const products: Product[] = [
       "Control de costes de inventario y logística",
       "Proyecciones de ventas para e-commerce",
       "Cálculo de pricing y márgenes por producto",
-      "Análisis de flujo de caja mensual",
+      "Presupuesto de tesorería anual a cinco años",
       "Perfecto para negocios de productos físicos y dropshipping",
     ],
     whatYouGet: [
