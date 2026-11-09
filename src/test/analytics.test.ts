@@ -33,6 +33,7 @@ const dl = () => (window.dataLayer ?? []) as Record<string, unknown>[];
 beforeEach(() => {
   clearConsent();
   window.dataLayer = [];
+  window.sessionStorage.clear();
   __resetAnalyticsState();
 });
 

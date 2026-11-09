@@ -248,7 +248,17 @@ export function trackPurchase(params: {
 }) {
   const { transactionId, currency, value, items } = params;
   if (!transactionId) return false;
-  return trackOnce(`purchase:${transactionId}`, () =>
+  // Sin consentimiento analítico: ni emisión ni acceso a sessionStorage.
+  if (!hasAnalyticsConsent()) return false;
+  // Deduplicación persistente SOLO para purchase (sobrevive a recargas en la
+  // pestaña). Si el navegador bloquea el storage se sigue con la de memoria.
+  const storageKey = `nova_purchase_tracked:${transactionId}`;
+  try {
+    if (window.sessionStorage.getItem(storageKey)) return false;
+  } catch {
+    /* storage no disponible */
+  }
+  const sent = trackOnce(`purchase:${transactionId}`, () =>
     trackEcommerce("purchase", {
       transaction_id: transactionId,
       currency: currency ?? undefined,
@@ -256,6 +266,14 @@ export function trackPurchase(params: {
       items: items && items.length ? items : undefined,
     }),
   );
+  if (sent) {
+    try {
+      window.sessionStorage.setItem(storageKey, "1");
+    } catch {
+      /* storage no disponible */
+    }
+  }
+  return sent;
 }
 
 export function trackSignUp(method = "password") {
