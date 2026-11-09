@@ -2,8 +2,8 @@
 // function, inicializa entorno (sandbox/live) y expone helpers de checkout.
 
 import { supabase } from "@/integrations/supabase/client";
-import { trackPurchase, type AnalyticsItem } from "@/lib/analytics/track";
-import { paddleMinorToMajor } from "@/lib/analytics/money";
+import { trackPurchase } from "@/lib/analytics/track";
+import { parsePaddleCheckoutCompleted } from "@/lib/analytics/paddleCheckoutAmount";
 
 const PADDLE_JS_SRC = "https://cdn.paddle.com/paddle/v2/paddle.js";
 
@@ -52,41 +52,14 @@ export function loadPaddle(): Promise<any> {
 /**
  * Callback oficial de Paddle Checkout.
  * Solo se usa para analítica: la fuente real de venta y acceso sigue siendo el
- * webhook + base de datos. No se inventan importes: Paddle envía los importes en
- * unidad mínima (céntimos) y se convierten con la misma regla que el webhook; si
- * el payload no permite determinarlos con seguridad, se omiten del evento.
+ * webhook + base de datos. En este evento del SDK los importes ya vienen en
+ * unidad mayor (ver paddleCheckoutAmount.ts); si no son determinables se omiten.
  */
 function handlePaddleEvent(event: any) {
   if (!event || event.name !== "checkout.completed") return;
-  const d = event.data || {};
-  const transactionId: string | undefined = d.transaction_id || d.id;
-  if (!transactionId) return;
-
-  const rawTotal = d.totals?.total ?? d.payment?.amount ?? null;
-  const value = paddleMinorToMajor(rawTotal);
-
-  const items: AnalyticsItem[] = Array.isArray(d.items)
-    ? d.items
-        .map((it: any) => {
-          const itemId = it?.price?.product?.id || it?.price_id || it?.price?.id;
-          if (!itemId) return null;
-          const price = paddleMinorToMajor(it?.totals?.total ?? it?.price?.unit_price?.amount ?? null);
-          return {
-            item_id: String(itemId),
-            item_name: String(it?.price?.product?.name || it?.price?.name || itemId),
-            quantity: typeof it?.quantity === "number" ? it.quantity : 1,
-            ...(price == null ? {} : { price }),
-          } as AnalyticsItem;
-        })
-        .filter(Boolean)
-    : [];
-
-  trackPurchase({
-    transactionId: String(transactionId),
-    currency: d.currency_code ?? null,
-    value,
-    items,
-  });
+  const purchase = parsePaddleCheckoutCompleted(event.data);
+  if (!purchase) return;
+  trackPurchase(purchase);
 }
 
 
