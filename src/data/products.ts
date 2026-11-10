@@ -31,12 +31,12 @@ export interface Product {
   crossSellText?: string;
 }
 
-// FUENTE ÚNICA de la vigencia de la promoción del ebook: termina el 31/12/2026 a las
+// FUENTE ÚNICA de la vigencia de la promoción del ebook: termina el 31/01/2027 a las
 // 23:59:59 hora de Madrid (ver madridEndOfDay en src/lib/offer.ts). La BD
 // (products.sale_ends_at) debe coincidir con este valor.
 // Textos sin porcentaje: 19,99 € sobre 29,99 € es un 33 %, no un 30 %, así que se
 // anuncia como "Oferta de lanzamiento" para no afirmar un descuento inexacto.
-export const EBOOK_OFFER_END = "2026-12-31";
+export const EBOOK_OFFER_END = "2027-01-31";
 
 export const ebookProduct: Product = {
   id: "ebook",
@@ -61,7 +61,7 @@ export const ebookProduct: Product = {
   benefits: [
     "Metodología paso a paso para validar tu idea de negocio",
     "15 capítulos con ejercicios prácticos aplicables desde el día 1",
-    "Estrategias de monetización probadas en negocios reales",
+    "Ideas y ejercicios para definir cómo generar ingresos",
     "Herramientas para definir tu propuesta de valor única",
     "Frameworks para analizar tu mercado y competencia",
     "Plantillas de modelo de negocio incluidas",
@@ -275,6 +275,8 @@ export interface Pack {
   description: string;
   // Precios EUR
   price: number;
+  // Legacy: no se muestran. La comparación visible se calcula con los precios
+  // actuales de Paddle de cada producto incluido (ver packComparison.ts).
   originalPrice: number;
   // Precios USD
   priceUsd: number;
