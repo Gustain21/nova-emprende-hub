@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Star, Quote, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { SHOW_TESTIMONIALS } from "@/config/testimonials";
+import { SHOW_TESTIMONIALS, SHOW_TESTIMONIAL_STATS } from "@/config/testimonials";
 
 const allTestimonials = [
   {
@@ -131,7 +131,8 @@ const Testimonios = () => {
           </div>
         </section>
 
-        {/* Stats */}
+        {/* Stats: cifras agregadas sin fuente confirmada; ocultas hasta tener evidencia (SHOW_TESTIMONIAL_STATS) */}
+        {SHOW_TESTIMONIAL_STATS && (
         <section className="py-12 border-y border-border">
           <div className="brand-container">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -154,6 +155,7 @@ const Testimonios = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Testimonials Grid */}
         <section className="brand-section">
