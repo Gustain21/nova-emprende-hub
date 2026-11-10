@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 const faqs = [
   {
     q: "¿Empiezo por el ebook o por un pack?",
-    a: "Si quieres entender el método y validar primero, empieza por el ebook. Si ya tienes claro que vas a ejecutar, un pack te da más herramientas con descuento.",
+    a: "Si quieres ordenar primero tu idea, empieza por el ebook. Si además quieres herramientas para ejecutar y revisar números, un pack las reúne en una sola compra.",
   },
   {
     q: "¿Cómo se entrega lo que compro y dónde lo encuentro?",
@@ -16,11 +16,11 @@ const faqs = [
   },
   {
     q: "¿Se pueden comprar productos por separado?",
-    a: "Sí. Cada producto se puede adquirir de forma individual o dentro de un pack con descuento. Tú eliges el formato que mejor encaja con tu momento.",
+    a: "Sí. Cada producto se puede comprar por separado o dentro de un pack. Las herramientas no están incluidas en el ebook.",
   },
   {
     q: "¿Qué función tienen las herramientas complementarias?",
-    a: "Acompañan al ebook para ejecutar, ordenar y medir. Workbook para mentalidad, Prompts para IA, Dashboard y Excels para finanzas, Planner para los próximos 90 días.",
+    a: "La Bitácora del Capitán, para pasar a la acción y organizar tu trabajo. La Guía de Prompts, como apoyo de IA. El Dashboard Financiero y los Planes Financieros Infoproducto y E-commerce, para tus números. El Planner de Ejecución 90 Días, para los próximos 90 días.",
   },
 ];
 
@@ -42,7 +42,7 @@ const FaqSection = () => {
             <span className="brand-gradient-text">tomar la decisión</span>
           </h2>
           <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-            Este bloque está pensado para bajar objeciones, ordenar formatos y hacer más sencilla la elección entre producto individual o pack.
+            Formatos, entrega y diferencias entre comprar un producto o un pack.
           </p>
         </motion.div>
 

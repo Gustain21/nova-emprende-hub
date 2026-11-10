@@ -76,3 +76,18 @@ export const getEffectivePricing = (
   }
   return { price: eurBase, originalPrice: undefined, offerActive: false, currency };
 };
+
+/**
+ * Precio "antes" (tachado) en la moneda indicada: originalPrice en EUR y
+ * originalPriceUsd en USD. Nunca formatea un importe EUR como USD. Solo
+ * existe mientras la oferta está activa.
+ */
+export const compareAtPrice = (
+  product: PricingProduct,
+  currency: Currency,
+  now: number = Date.now(),
+): number | undefined => {
+  if (!isOfferActive(product.offerEndDate, product.saleActive, now)) return undefined;
+  const v = currency === "USD" ? product.originalPriceUsd : product.originalPrice;
+  return typeof v === "number" && Number.isFinite(v) && v > 0 ? v : undefined;
+};

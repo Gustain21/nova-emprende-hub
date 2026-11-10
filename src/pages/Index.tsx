@@ -9,13 +9,14 @@ import PacksSection from "@/components/sections/PacksSection";
 import TestimonialsPreview from "@/components/sections/TestimonialsPreview";
 import FaqSection from "@/components/sections/FaqSection";
 import CTASection from "@/components/sections/CTASection";
+import { SHOW_TESTIMONIALS } from "@/config/testimonials";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
         title="Nova Emprende | Método y herramientas para emprender"
-        description="Método, libro y herramientas digitales para convertir tu idea en un negocio estructurado y rentable."
+        description="Método, libro y herramientas digitales para convertir tu idea en un plan de negocio estructurado."
       />
       <Header />
       <main>
@@ -24,7 +25,7 @@ const Index = () => {
         <EbookHighlightSection />
         <ProductsSection />
         <PacksSection />
-        <TestimonialsPreview />
+        {SHOW_TESTIMONIALS && <TestimonialsPreview />}
         <FaqSection />
         <CTASection />
       </main>

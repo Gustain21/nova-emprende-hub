@@ -10,17 +10,17 @@ const features = [
   {
     icon: Rocket,
     title: "Ejecución real",
-    text: "Recursos creados para pasar de la intención a la acción, sin teoría vacía ni ruido.",
+    text: "Recursos para pasar de la intención a la acción con ejercicios y planificación.",
   },
   {
     icon: PieChart,
     title: "Control financiero",
-    text: "Herramientas para entender números, márgenes, viabilidad y decisiones de crecimiento.",
+    text: "Herramientas para revisar números, márgenes y viabilidad.",
   },
   {
     icon: Compass,
     title: "Sistema, no piezas sueltas",
-    text: "Cada producto cumple una función concreta dentro de un ecosistema pensado para emprender mejor.",
+    text: "Cada herramienta cumple una función concreta. Eliges solo las que necesitas.",
   },
 ];
 
@@ -42,8 +42,8 @@ const WhatIsSection = () => {
             <span className="brand-gradient-text">emprender con criterio</span>
           </h2>
           <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-            NOVA EMPRENDE no nace como una simple tienda de recursos. Nace como un ecosistema práctico para convertir ideas en negocios reales, con una columna vertebral clara,{" "}
-            <span className="font-semibold text-foreground">El Big Bang de los Negocios</span>, y herramientas diseñadas para ejecutar, ordenar y crecer.
+            Empiezas por{" "}
+            <span className="font-semibold text-foreground">El Big Bang de los Negocios</span> para ordenar tu idea. Si lo necesitas, añades herramientas para pasar a la acción, planificar y revisar tus números.
           </p>
         </motion.div>
 

@@ -4,7 +4,7 @@ import { CheckCircle2, ArrowRight, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import ebookCover from "@/assets/ebook-cover.jpg";
 import { ebookProduct } from "@/data/products";
-import { isOfferActive } from "@/lib/offer";
+import { isOfferActive, compareAtPrice } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
 import { useLocalizedPaddlePrice, formatByCurrency, useDisplayCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
@@ -13,8 +13,8 @@ import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 
 const bullets = [
   "Metodología paso a paso para validar tu idea de negocio",
-  "15 capítulos con ejercicios prácticos aplicables desde el día 1",
-  "Estrategias de monetización probadas en negocios reales",
+  "15 capítulos con ejercicios prácticos",
+  "Ideas y ejercicios para definir cómo generar ingresos",
   "Herramientas para definir tu propuesta de valor única",
 ];
 
@@ -23,7 +23,7 @@ const EbookHighlightSection = () => {
   const { currencyCode: paddleCurrency } = useLocalizedPaddlePrice(ebookPriceId);
   const currencyCode = useDisplayCurrency(paddleCurrency);
   const offerActive = isOfferActive(ebookProduct.offerEndDate, ebookProduct.saleActive);
-  const originalPrice = offerActive ? ebookProduct.originalPrice : undefined;
+  const originalPrice = compareAtPrice(ebookProduct, currencyCode);
 
 
   return (
@@ -38,13 +38,13 @@ const EbookHighlightSection = () => {
             className="min-w-0 rounded-2xl border border-border bg-brand-dark-card/60 p-6 sm:p-8 md:p-10"
           >
             <span className="inline-block px-4 py-1.5 rounded-full bg-brand-orange/15 border border-brand-orange/40 text-xs font-bold text-brand-orange mb-6">
-              Producto principal
+              Libro principal
             </span>
             <h2 className="font-sans text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-5 leading-tight">
-              El libro que debe abrir la experiencia NOVA EMPRENDE
+              Empieza por el método
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              <span className="font-semibold text-foreground">El Big Bang de los Negocios</span> no es un extra dentro del catálogo. Es el punto de partida del método. Desde ahí se entienden mejor la ejecución, la planificación y el control financiero del resto del ecosistema.
+              <span className="font-semibold text-foreground">El Big Bang de los Negocios</span> te ayuda a pasar de una idea suelta a un plan: qué ofreces, a quién, cómo está tu mercado y por dónde empezar.
             </p>
 
             <EbookOfferBadge className="mb-6" />
@@ -61,7 +61,7 @@ const EbookHighlightSection = () => {
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
               <Link to="/producto/ebook">
                 <Button variant="cta" size="lg" className="w-full sm:w-auto">
-                  Ver el ebook
+                  Ver el libro
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
@@ -74,7 +74,7 @@ const EbookHighlightSection = () => {
 
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
               <Info className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
-              <p>Producto de entrada recomendado para entender el método y activar el resto del ecosistema.</p>
+              <p>Las herramientas complementarias no están incluidas en el ebook: se compran por separado o en packs.</p>
             </div>
           </motion.div>
 
@@ -88,11 +88,11 @@ const EbookHighlightSection = () => {
           >
             <img src={ebookCover} alt="El Big Bang de los Negocios" className="w-full rounded-xl shadow-2xl mb-6" />
             <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
-              Ebook principal
+              Libro principal
             </p>
             <h3 className="font-sans text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-3">El Big Bang de los Negocios</h3>
             <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              Guía práctica para transformar tus ideas en negocios rentables. 15 capítulos con metodología paso a paso.
+              Ebook en PDF con 15 capítulos y ejercicios para convertir tu idea en un plan de negocio.
             </p>
 
             <EbookOfferBadge className="mb-4" />
@@ -118,7 +118,7 @@ const EbookHighlightSection = () => {
                 <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
                   Incluye
                 </p>
-                <p className="text-xs text-foreground leading-snug">PDF, metodología, ejercicios y acceso permanente</p>
+                <p className="text-xs text-foreground leading-snug">Ebook en PDF con 15 capítulos y ejercicios</p>
               </div>
             </div>
           </motion.div>

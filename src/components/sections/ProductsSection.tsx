@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, FileText, BookOpen, Lightbulb, PieChart, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { products, type Product } from "@/data/products";
-import { isOfferActive } from "@/lib/offer";
+import { compareAtPrice } from "@/lib/offer";
 import { usePaddlePriceId, usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrices, formatByCurrency, useDisplayCurrency, useAnalyticsCurrency, catalogPriceFor } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
@@ -20,10 +20,20 @@ const iconMap: Record<string, React.ReactNode> = {
   FileSpreadsheet: <FileText className="w-4 h-4" />,
 };
 
+// Problema concreto -> función ya implementada de cada herramienta.
+const problemFor: Record<string, string> = {
+  bitacora: "¿Lees y te cuesta pasar a la acción? Ejercicios guiados para organizar tu trabajo.",
+  prompts: "¿Quieres apoyarte en la IA y no sabes qué pedirle? Prompts organizados por etapa.",
+  dashboard: "¿No tienes claros tus números? Registra gastos y ventas y revisa tus márgenes.",
+  planner: "¿Te cuesta mantener el foco? Convierte objetivos en acciones para los próximos 90 días.",
+  "excel-infoproducto": "¿Vendes un producto digital? Calcula punto muerto, márgenes y proyecciones.",
+  "excel-ecomochilas": "¿Vendes productos físicos online? Calcula costes, márgenes e inversión.",
+};
+
 const ProductCard = ({ product, index, currencyCode }: { product: Product; index: number; currencyCode: "EUR" | "USD" }) => {
   const priceId = usePaddlePriceId(product.slug);
-  const offerActive = isOfferActive(product.offerEndDate, product.saleActive);
-  const originalPrice = offerActive ? product.originalPrice : undefined;
+  const originalPrice = compareAtPrice(product, currencyCode);
+  const problem = problemFor[product.id];
 
 
   const badge =
@@ -54,6 +64,7 @@ const ProductCard = ({ product, index, currencyCode }: { product: Product; index
       </div>
 
       <h3 className="font-sans text-xl font-bold tracking-tight text-foreground mb-2 leading-tight">{product.title}</h3>
+      {problem && <p className="text-sm font-medium text-foreground leading-relaxed mb-2">{problem}</p>}
       <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{product.description}</p>
 
       {product.crossSellText && (
@@ -145,7 +156,7 @@ const ProductsSection = () => {
             <span className="brand-gradient-text">ejecutar mejor</span>
           </h2>
           <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-            Después del ebook, cada producto cumple una función concreta. Así evitamos una tienda caótica y construimos una oferta que se entiende y se compra mejor.
+            Cada herramienta resuelve una parte concreta del trabajo. No están incluidas en el ebook: se compran por separado o dentro de un pack.
           </p>
         </motion.div>
 

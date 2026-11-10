@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { getProductById } from "@/data/products";
-import { isOfferActive } from "@/lib/offer";
+import { compareAtPrice } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
 import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
 import Seo from "@/components/Seo";
@@ -115,8 +115,7 @@ const Producto = () => {
     );
   }
 
-  const offerActive = isOfferActive(product.offerEndDate, product.saleActive);
-  const originalPrice = offerActive ? product.originalPrice : undefined;
+  const originalPrice = compareAtPrice(product, currencyCode);
   const isEbook = product.id === "ebook";
   const methodLink = methodLinks[product.id];
 

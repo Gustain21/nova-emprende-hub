@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check, Star, Rocket, Zap, Crown, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
-import { packs, type Pack, EBOOK_OFFER_END } from "@/data/products";
+import { packs, type Pack, EBOOK_OFFER_END, getProductById } from "@/data/products";
+import { computePackComparison } from "@/lib/pricing/packComparison";
 import { isOfferActive, formatOfferDate } from "@/lib/offer";
 import { usePaddlePriceId, usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrice, useLocalizedPaddlePrices, formatByCurrency, useDisplayCurrency, useAnalyticsCurrency, catalogPriceFor } from "@/lib/pricing/useLocalizedPaddlePrices";
@@ -19,10 +20,18 @@ const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
   const priceId = usePaddlePriceId(pack.slug);
   const { currencyCode: paddleCurrency } = useLocalizedPaddlePrice(priceId);
   const currencyCode = useDisplayCurrency(paddleCurrency);
-  // Los importes originales/ahorro son numéricamente idénticos en EUR y USD.
-  const original = pack.originalPrice;
-  const savings = pack.originalPrice - pack.price;
-  const savingsPercent = Math.round((savings / pack.originalPrice) * 100);
+  // "Por separado" = suma de los precios ACTUALES de Paddle de cada producto
+  // incluido (mismo país y moneda que el pack). Si falta alguno, se oculta.
+  const idMap = usePaddlePriceIds();
+  const unitIds = pack.productIds.map((id) => {
+    const slug = getProductById(id)?.slug;
+    return slug ? idMap[slug] ?? null : null;
+  });
+  const allIds = unitIds.every(Boolean) && priceId;
+  const quotes = useLocalizedPaddlePrices(allIds ? [...(unitIds as string[]), priceId] : []);
+  const comparison = allIds
+    ? computePackComparison(unitIds.map((id) => quotes[id as string]), quotes[priceId as string])
+    : null;
   const includesEbook = pack.productIds.includes("ebook");
   const ebookOfferLive = includesEbook && isOfferActive(EBOOK_OFFER_END, true);
 
@@ -93,11 +102,19 @@ const PackCard = ({ pack, index }: { pack: Pack; index: number }) => {
             fallbackEur={pack.price}
             className="text-3xl font-black text-foreground"
           />
-          <span className="text-base text-muted-foreground line-through">{formatByCurrency(original, currencyCode)}</span>
         </div>
-        <div className="text-xs text-brand-orange font-semibold mb-4">
-          Ahorras {formatByCurrency(savings, currencyCode)} ({savingsPercent}% descuento)
-        </div>
+        {comparison ? (
+          <div className="text-xs mb-4 space-y-0.5">
+            <p className="text-muted-foreground">
+              Por separado: <span className="line-through">{formatByCurrency(comparison.separateCents / 100, comparison.currency)}</span>
+            </p>
+            <p className="text-brand-orange font-semibold">
+              Ahorras {formatByCurrency(comparison.savingsCents / 100, comparison.currency)} ({comparison.savingsPercent}%)
+            </p>
+          </div>
+        ) : (
+          <div className="mb-4" />
+        )}
 
         <p className="text-xs text-muted-foreground mb-4">
           Acceso inmediato. Impuestos y moneda final se ajustan en el checkout según tu país.

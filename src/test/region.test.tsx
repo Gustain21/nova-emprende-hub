@@ -216,28 +216,23 @@ describe("precios secundarios (tachado y ahorro) sin moneda provisional", () => 
     Array.from(c.querySelectorAll(".line-through")).map((e) => e.textContent || "")
       .concat(Array.from(c.querySelectorAll("*")).filter((e) => /^Ahorras/.test(e.textContent || "") && e.children.length === 0).map((e) => e.textContent || ""));
 
-  it("AR durante la carga: tachados y ahorro en $, nunca €", () => {
+  // Mientras Paddle carga no hay importes resueltos: la comparación
+  // "Por separado / Ahorras" se oculta en lugar de mostrar números provisionales.
+  it("AR durante la carga: sin comparación y nunca €", () => {
     argentina();
     const { container } = renderPacks();
-    const texts = secondaryTexts(container);
-    expect(texts.length).toBeGreaterThan(0);
-    for (const t of texts) {
-      expect(t).toContain("$");
-      expect(t).not.toContain("€");
-    }
+    expect(secondaryTexts(container)).toEqual([]);
+    expect(container.textContent).not.toContain("Ahorras");
     expect(container.textContent).not.toContain("€");
   });
 
-  it("ES durante la carga: tachados y ahorro en €, nunca $", () => {
+  it("ES durante la carga: sin comparación y nunca $", () => {
     mockTimeZone("Europe/Madrid");
     mockNavigator("es-ES", ["es-ES"]);
     const { container } = renderPacks();
-    const texts = secondaryTexts(container);
-    expect(texts.length).toBeGreaterThan(0);
-    for (const t of texts) {
-      expect(t).toContain("€");
-      expect(t).not.toContain("$");
-    }
+    expect(secondaryTexts(container)).toEqual([]);
+    expect(container.textContent).not.toContain("Ahorras");
+    expect(container.textContent).not.toContain("$");
   });
 
   it("catálogo USD coincide con Paddle", () => {

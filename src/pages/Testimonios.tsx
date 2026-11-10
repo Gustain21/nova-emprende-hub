@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Star, Quote, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SHOW_TESTIMONIALS } from "@/config/testimonials";
 
 const allTestimonials = [
   {
@@ -69,7 +70,40 @@ const allTestimonials = [
   },
 ];
 
+// Página neutral mientras no haya testimonios verificables y autorizados.
+const TestimoniosPendientes = () => (
+  <div className="min-h-screen bg-background">
+    <Seo title="Opiniones | Nova Emprende" description="Opiniones de lectores y usuarios de Nova Emprende." />
+    <Header />
+    <main className="pt-20">
+      <section className="brand-section bg-background">
+        <div className="brand-container text-center max-w-2xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-6 leading-tight">
+            Opiniones
+          </h1>
+          <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
+            Por ahora no publicamos opiniones de lectores. Solo mostraremos testimonios reales y con permiso de sus autores.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/producto/ebook">
+              <Button variant="hero" size="lg">
+                Ver el libro
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+            <Link to="/contacto">
+              <Button variant="heroOutline" size="lg">Contacto</Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </div>
+);
+
 const Testimonios = () => {
+  if (!SHOW_TESTIMONIALS) return <TestimoniosPendientes />;
   return (
     <div className="min-h-screen bg-background">
       <Seo title="Opiniones y experiencias | Nova Emprende" description="Testimonios reales de lectores y usuarios de El Big Bang de los Negocios y las herramientas de Nova Emprende." />
