@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import logoNovaEmprende from "@/assets/logo-nova-emprende.png";
 import { useAuth } from "@/hooks/useAuth";
 import { DIAGNOSTIC_URL, trackDiagnosticClick } from "@/config/diagnostic";
+import { SHOW_TESTIMONIALS } from "@/config/testimonials";
 
 
 const Header = () => {
@@ -19,7 +20,7 @@ const Header = () => {
     { label: "Ecosistema", href: "/#ecosistema" },
     { label: "Diagnóstico gratuito", href: DIAGNOSTIC_URL, diagnostic: true },
     { label: "Packs", href: "/#packs" },
-    { label: "Testimonios", href: "/#testimonios" },
+    ...(SHOW_TESTIMONIALS ? [{ label: "Testimonios", href: "/#testimonios" }] : []),
     { label: "Contacto", href: "/contacto" },
   ];
 

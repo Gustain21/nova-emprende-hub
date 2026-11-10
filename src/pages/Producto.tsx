@@ -116,7 +116,7 @@ const Producto = () => {
   }
 
   const offerActive = isOfferActive(product.offerEndDate, product.saleActive);
-  const originalPrice = offerActive ? product.originalPrice : undefined;
+  const originalPrice = compareAtPrice(product, currencyCode);
   const isEbook = product.id === "ebook";
   const methodLink = methodLinks[product.id];
 

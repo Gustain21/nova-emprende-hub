@@ -4,7 +4,7 @@ import { BookOpen, Compass, Sparkles, CheckCircle2, ArrowRight } from "lucide-re
 import { Link } from "react-router-dom";
 import ebookCover from "@/assets/ebook-cover.jpg";
 import { ebookProduct } from "@/data/products";
-import { isOfferActive } from "@/lib/offer";
+import { isOfferActive, compareAtPrice } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
 import { useLocalizedPaddlePrice, formatByCurrency, useDisplayCurrency } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { usePaddlePriceId } from "@/lib/pricing/paddlePriceIds";
@@ -13,14 +13,14 @@ import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
 
 const stats = [
   { num: "1", text: "guía principal para empezar con claridad" },
-  { num: "6+", text: "recursos para ejecutar, planificar y decidir mejor" },
+  { num: "6", text: "herramientas complementarias, por separado o en packs" },
   { num: "3", text: "formas de compra según la etapa de cada emprendedor" },
 ];
 
 const bullets = [
-  "Transforma una idea en un plan más claro y accionable",
-  "Apóyate en herramientas prácticas para pasar de la teoría a la acción",
-  "Elige la ruta que mejor encaje con tu momento como emprendedor",
+  "Define tu propuesta y a quién te diriges",
+  "Analiza tu mercado y tu competencia",
+  "Ordena tus primeros pasos con ejercicios prácticos",
 ];
 
 const HeroSection = () => {
@@ -28,7 +28,7 @@ const HeroSection = () => {
   const { currencyCode: paddleCurrency } = useLocalizedPaddlePrice(ebookPriceId);
   const currencyCode = useDisplayCurrency(paddleCurrency);
   const offerActive = isOfferActive(ebookProduct.offerEndDate, ebookProduct.saleActive);
-  const originalPrice = offerActive ? ebookProduct.originalPrice : undefined;
+  const originalPrice = compareAtPrice(ebookProduct, currencyCode);
 
 
   return (
@@ -62,11 +62,11 @@ const HeroSection = () => {
             </h1>
 
             <p className="text-xl md:text-2xl font-semibold text-foreground mb-4">
-              Transforma tus ideas en negocios rentables.
+              ¿Tienes una idea, pero no sabes cómo convertirla en un plan de negocio?
             </p>
 
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8 max-w-xl">
-              Una guía práctica con herramientas, plantillas y recursos para emprendedores que quieren pasar de la teoría a la acción con más claridad, foco y criterio.
+              El libro te guía para definir tu propuesta, analizar tu mercado y ordenar tus primeros pasos. Las herramientas complementarias se compran por separado o en packs.
             </p>
 
             <EbookOfferBadge className="mb-8" />
@@ -95,7 +95,7 @@ const HeroSection = () => {
               <Link to="/producto/ebook">
                 <Button variant="cta" size="xl" className="w-full sm:w-auto">
                   <BookOpen className="w-5 h-5" />
-                  Ver el ebook principal
+                  Ver el libro
                   <ArrowRight className="w-5 h-5" />
                 </Button>
               </Link>
@@ -126,7 +126,7 @@ const HeroSection = () => {
               <div className="mt-5 grid grid-cols-2 gap-4 pt-5 border-t border-border">
                 <div>
                   <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
-                    Producto héroe
+                    Libro principal
                   </p>
                   <p className="text-lg font-bold text-foreground">El Big Bang</p>
                 </div>

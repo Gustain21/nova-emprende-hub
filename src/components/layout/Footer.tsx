@@ -1,3 +1,4 @@
+import { SHOW_TESTIMONIALS } from "@/config/testimonials";
 import { Link } from "react-router-dom";
 import { Instagram, Linkedin, Youtube } from "lucide-react";
 import { openCookiePreferences } from "@/lib/consent/consent";
@@ -39,9 +40,11 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-sm font-bold uppercase tracking-wider text-foreground">Enlaces</h4>
             <nav className="flex flex-col gap-2">
-              <a href="/#testimonios" className="text-sm text-muted-foreground hover:text-brand-orange transition-colors">
-                Testimonios
-              </a>
+              {SHOW_TESTIMONIALS && (
+                <a href="/#testimonios" className="text-sm text-muted-foreground hover:text-brand-orange transition-colors">
+                  Testimonios
+                </a>
+              )}
               <Link to="/contacto" className="text-sm text-muted-foreground hover:text-brand-orange transition-colors">
                 Contacto
               </Link>
