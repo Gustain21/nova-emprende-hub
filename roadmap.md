@@ -1,7 +1,7 @@
 # Roadmap
 
 - [x] Corregir moneda AUTO (Argentina → USD).
-- [x] Promoción ebook: fecha única 31/01/2027 Europe/Madrid (BD sale_ends_at pendiente de actualizar por el propietario), sin "30%", BD alineada.
+- [x] Promoción ebook: fecha única 31/01/2027 Europe/Madrid; fuente (EBOOK_OFFER_END) y BD (sale_ends_at) alineadas, sin "30%".
 - [x] Contacto: recepción real persistida + validación servidor + antispam; FAQ enlazado.
 - [x] paddle-webhook: idempotencia, errores → 500, source_purchase_id, reembolsos parcial/total con recálculo.
 - [x] Revisión 025cd77: registro+concesión atómicos, claim con bloqueo, validación ajustes, dead-letter, product_id persistido, atribución, sin emails en logs, IP fiable contacto.
