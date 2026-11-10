@@ -16,9 +16,9 @@ const corsHeaders = {
 
 // Configuration
 const SITE_NAME = "Editorial Nova Emprende"
-const SENDER_DOMAIN = "notify.editorialnovaemprende.com"
+const SENDER_DOMAIN = "notify.authmail.editorialnovaemprende.com"
 const ROOT_DOMAIN = "editorialnovaemprende.com"
-const FROM_DOMAIN = "notify.editorialnovaemprende.com"
+const FROM_DOMAIN = "notify.authmail.editorialnovaemprende.com"
 const SITE_URL = `https://${ROOT_DOMAIN}`
 
 // Template mapping for preview mode
