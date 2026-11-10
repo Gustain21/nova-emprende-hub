@@ -11,7 +11,7 @@ const testimonials = [
     content:
       "El Big Bang de los Negocios me ayudó a ordenar mi idea y entender qué decisiones debía tomar primero. Luego el Dashboard me sirvió para aterrizar números con mucha más claridad.",
     rating: 5,
-    avatar: "MG",
+    avatar: "MC",
   },
   {
     id: 2,
@@ -20,7 +20,7 @@ const testimonials = [
     content:
       "La Guía de Prompts y la lógica del ecosistema están muy bien pensadas. No sentí que compraba archivos sueltos, sino herramientas con una función clara.",
     rating: 5,
-    avatar: "CR",
+    avatar: "JR",
   },
   {
     id: 3,
@@ -29,7 +29,7 @@ const testimonials = [
     content:
       "La Bitácora del Capitán me empujó a ejecutar. Fue el complemento perfecto al libro porque me obligó a moverme, no solo a leer.",
     rating: 5,
-    avatar: "AM",
+    avatar: "RB",
   },
 ];
 
@@ -44,14 +44,14 @@ const TestimonialsPreview = () => {
           className="text-center max-w-3xl mx-auto mb-14"
         >
           <span className="inline-block px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/30 text-sm font-medium text-brand-orange mb-6">
-            Prueba social
+            Experiencias de lectores
           </span>
           <h2 className="font-sans text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6 leading-tight">
             Claridad para comprar, confianza para{" "}
             <span className="brand-gradient-text">dar el siguiente paso</span>
           </h2>
           <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-            Este bloque refuerza algo importante: cuando la oferta se entiende bien, la confianza sube y la conversión también.
+            Experiencias de lectores con el libro y las herramientas de Nova Emprende.
           </p>
         </motion.div>
 
