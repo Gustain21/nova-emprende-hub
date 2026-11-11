@@ -117,6 +117,8 @@ const Producto = () => {
 
   const originalPrice = compareAtPrice(product, currencyCode);
   const isEbook = product.id === "ebook";
+  const isReviewedExcel = product.id === "excel-infoproducto" || product.id === "excel-ecomochilas";
+  const isReviewedProduct = isEbook || isReviewedExcel;
   const methodLink = methodLinks[product.id];
 
 
@@ -135,7 +137,7 @@ const Producto = () => {
             animate={{ opacity: 1, x: 0 }}
             className="mb-8"
           >
-            <Button variant="ghost" onClick={() => navigate("/#productos")} className="gap-2 text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" onClick={() => navigate(isReviewedProduct ? "/#ecosistema" : "/#productos")} className="gap-2 text-muted-foreground hover:text-foreground">
               <ArrowLeft className="w-4 h-4" />
               Volver a productos
             </Button>
@@ -238,7 +240,7 @@ const Producto = () => {
               className="brand-card bg-gradient-to-br from-brand-orange/10 to-transparent border-brand-orange/20"
             >
               <h2 className="text-2xl font-bold text-foreground mb-6">
-                ¿Por qué necesitas este producto?
+                {isReviewedProduct ? "¿En qué te ayuda?" : "¿Por qué necesitas este producto?"}
               </h2>
               <ul className="space-y-4">
                 {product.benefits.map((benefit, i) => (
@@ -272,6 +274,14 @@ const Producto = () => {
                   </li>
                 ))}
               </ul>
+              {isReviewedProduct && (
+                <p className="text-sm text-muted-foreground leading-relaxed mt-6">
+                  Tras el pago, encontrarás la descarga en tu área de cliente.
+                  {isEbook
+                    ? " Los Excel se venden por separado en la compra individual del ebook."
+                    : " Las proyecciones son anuales y orientativas: no calculan liquidez mensual ni garantizan rentabilidad."}
+                </p>
+              )}
             </motion.div>
           </div>
 
