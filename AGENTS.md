@@ -1,5 +1,7 @@
 # AGENTS.md
 
+- Dashboard product demo media uses original files in public/media and root-relative URLs with a local optional Spanish subtitle track; why: direct product and alias navigation must serve the same native video without external embeds.
+
 - Paddle webhook writes go only through SECURITY DEFINER RPCs; record_paddle_payment registers AND grants in one transaction under the same purchase row lock as apply_paddle_refund, so a refund can never be reopened by a late grant. Any RPC error returns 500 so Paddle retries; events a retry cannot fix (missing product, invalid adjustment, product mismatch) go to the private payment_webhook_deadletters table for reconciliation.
 - Refunds never revoke by product or source_purchase_id alone: recompute_entitlements_for_purchase rechecks every valid purchase (paid / partially_refunded, including bundle_items) before deactivating 'lifetime' entitlements; only access_type='lifetime' rows are deactivated; the access type decides, never a NULL source_purchase_id. At most one active entitlement per user+product (partial unique index); re-grants insert a new row and keep revoked rows as history.
 - Partial refunds keep access (status partially_refunded); only full refunds revoke. Adjustment idempotency key is the Paddle adjustment id in payment_adjustments.
