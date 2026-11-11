@@ -10,6 +10,7 @@ import { compareAtPrice } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
 import DiagnosticCTA from "@/components/sections/DiagnosticCTA";
 import Seo from "@/components/Seo";
+import { ProductVideo, productVideos } from "@/components/product/ProductVideo";
 import { usePaddlePriceIds } from "@/lib/pricing/paddlePriceIds";
 import { useLocalizedPaddlePrice, formatByCurrency, useDisplayCurrency, useAnalyticsCurrency, catalogPriceFor } from "@/lib/pricing/useLocalizedPaddlePrices";
 import { LocalizedPrice } from "@/lib/pricing/LocalizedPrice";
@@ -204,36 +205,6 @@ const Producto = () => {
                 Los impuestos y moneda final pueden ajustarse en el checkout según tu país.
               </p>
 
-              {product.id === "dashboard" && (
-                <section aria-labelledby="dashboard-demo-title" className="mb-6 min-w-0">
-                  <h2 id="dashboard-demo-title" className="text-xl font-bold text-foreground mb-2">
-                    Mira cómo funciona
-                  </h2>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                    ¿Qué pasa con tu caja si vendes menos de lo previsto? En 28 segundos, compara dos escenarios con el mismo precio y los mismos gastos.
-                  </p>
-                  <video
-                    controls
-                    playsInline
-                    preload="metadata"
-                    poster="/media/nova-dashboard-poster.png"
-                    aria-label="Demostración del Dashboard Financiero con dos escenarios de ventas"
-                    className="block w-full aspect-video rounded-lg"
-                  >
-                    <source src="/media/nova-dashboard-demo.mp4" type="video/mp4" />
-                    <track
-                      kind="subtitles"
-                      src="/media/nova-dashboard-demo.es.vtt"
-                      srcLang="es"
-                      label="Español"
-                    />
-                  </video>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Demostración con datos de ejemplo
-                  </p>
-                </section>
-              )}
-
               {/* CTA */}
               <Button variant="hero" size="xl" className="w-full sm:w-auto mb-6" asChild>
                 <Link to={`/pagar/${product.slug}`}>
@@ -241,6 +212,12 @@ const Producto = () => {
                   <ExternalLink className="w-5 h-5" />
                 </Link>
               </Button>
+
+              {productVideos[product.id] && (
+                <a href="#video" className="block w-fit -mt-4 mb-6 text-sm font-medium text-brand-sand underline-offset-4 hover:text-brand-orange hover:underline transition-colors">
+                  Ver vídeo
+                </a>
+              )}
 
               {/* Trust signals */}
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
@@ -260,6 +237,8 @@ const Producto = () => {
               )}
             </motion.div>
           </div>
+
+          <ProductVideo productId={product.id} />
 
           {/* Benefits & What You Get */}
           <div className="grid md:grid-cols-2 gap-8 mb-16">
