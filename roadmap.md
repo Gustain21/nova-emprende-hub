@@ -12,3 +12,5 @@
 - [ ] Compra real en PRODUCCIÓN (pago + reembolso total): no ejecutada; requiere autorización específica.
 - [ ] Remitente de Auth: sigue el genérico por defecto. Plantillas ES preparadas en QA, no activas. Dominio de correo Lovable en estado Failed; NS de `notify` sin tocar porque Resend lo usa actualmente — no redelegar sin plan y autorización aparte.
 - Nota: las versiones desplegadas de las funciones no son verificables con las lecturas disponibles (fechas de fuente ≠ despliegue); ETag ≠ SHA-256 y metadatos/bytes no prueban contenido actual.
+
+- [x] Correos de acceso en español desde notify.authmail.editorialnovaemprende.com (dominio activo, hook desplegado 12/11/2026)
