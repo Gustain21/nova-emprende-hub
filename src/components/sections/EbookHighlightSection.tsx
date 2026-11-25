@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowRight, Info } from "lucide-react";
 import { Link } from "react-router-dom";
-import ebookCover from "@/assets/ebook-cover.jpg";
+import ebookCoverAsset from "@/assets/ebook-cover-sin-autor.png.asset.json";
 import { ebookProduct } from "@/data/products";
 import { isOfferActive, compareAtPrice } from "@/lib/offer";
 import EbookOfferBadge from "@/components/sections/EbookOfferBadge";
@@ -86,7 +86,7 @@ const EbookHighlightSection = () => {
             transition={{ delay: 0.15 }}
             className="min-w-0 rounded-2xl border border-border bg-brand-dark-card/80 p-5 md:p-6"
           >
-            <img src={ebookCover} alt="El Big Bang de los Negocios" className="w-full rounded-xl shadow-2xl mb-6" />
+            <img src={ebookCoverAsset.url} alt="El Big Bang de los Negocios" className="w-full rounded-xl shadow-2xl mb-6" />
             <p className="text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase mb-1">
               Libro principal
             </p>

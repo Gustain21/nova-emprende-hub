@@ -1,7 +1,9 @@
+import ebookCoverAsset from "@/assets/ebook-cover-sin-autor.png.asset.json";
+
 type VideoEntry = { title: string; src: string; poster: string; vertical?: boolean; subtitles?: string };
 
 export const productVideos: Record<string, VideoEntry> = {
-  ebook: { title: "Presentación del libro", src: "/media/ebook.mp4", poster: "/media/ebook-poster.jpg", vertical: true },
+  ebook: { title: "Presentación del libro", src: "/media/ebook.mp4", poster: ebookCoverAsset.url, vertical: true },
   bitacora: { title: "La Bitácora en acción", src: "/media/bitacora.mp4", poster: "/media/bitacora-poster.jpg" },
   prompts: { title: "Así funciona la Guía de Prompts", src: "/media/prompts.mp4", poster: "/media/prompts-poster.jpg" },
   dashboard: {

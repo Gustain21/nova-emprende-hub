@@ -1,5 +1,5 @@
 import { BookOpen, Calendar, Lightbulb, PieChart, FileSpreadsheet } from "lucide-react";
-import ebookCover from "@/assets/ebook-cover.jpg";
+import ebookCoverAsset from "@/assets/ebook-cover-sin-autor.png.asset.json";
 import workbookCover from "@/assets/workbook-cover.png";
 import promptsCover from "@/assets/prompts-cover.png";
 import dashboardCover from "@/assets/dashboard-cover.png";
@@ -52,7 +52,7 @@ export const ebookProduct: Product = {
   // USD (oferta de lanzamiento)
   priceUsd: 19.99,
   originalPriceUsd: 29,
-  image: ebookCover,
+  image: ebookCoverAsset.url,
   type: "ebook",
   iconName: "BookOpen",
   featured: true,
