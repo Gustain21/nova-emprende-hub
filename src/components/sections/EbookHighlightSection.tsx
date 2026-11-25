@@ -58,18 +58,28 @@ const EbookHighlightSection = () => {
               ))}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 mb-6">
-              <Link to="/producto/ebook">
-                <Button variant="cta" size="lg" className="w-full sm:w-auto">
-                  Ver el libro
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-3 mb-6">
+              <Button
+                variant="cta"
+                size="lg"
+                className="h-auto min-h-12 w-full max-w-full min-w-0 whitespace-normal break-words px-4 py-3 text-center leading-snug sm:px-6"
+                asChild
+              >
+                <Link to="/producto/ebook">
+                  <span className="min-w-0">Ver el libro</span>
                   <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-              <a href="#ecosistema">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  Ver herramientas complementarias
-                </Button>
-              </a>
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-auto min-h-12 w-full max-w-full min-w-0 whitespace-normal break-words px-4 py-3 text-center leading-snug sm:px-6"
+                asChild
+              >
+                <a href="#ecosistema">
+                  <span className="min-w-0">Ver herramientas complementarias</span>
+                </a>
+              </Button>
             </div>
 
             <div className="flex items-start gap-2 text-sm text-muted-foreground">

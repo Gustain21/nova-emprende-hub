@@ -30,17 +30,22 @@ const DiagnosticCTA = ({
     return (
       <section className={`border-t border-border bg-brand-dark-card/40 ${className}`}>
         <div className="brand-container py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
-          <div className="max-w-2xl">
+          <div className="min-w-0 max-w-2xl">
             <p className="text-base md:text-lg font-semibold text-foreground mb-1">
               {title}
             </p>
             <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
             <p className="mt-2 text-xs text-muted-foreground">{DIAGNOSTIC_COPY.trust}</p>
           </div>
-          <Button variant="outline" size="lg" className="w-full md:w-auto shrink-0" asChild>
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-auto min-h-12 w-full max-w-full min-w-0 whitespace-normal break-words px-4 py-3 text-center leading-snug sm:px-6 md:w-auto"
+            asChild
+          >
             <a href={DIAGNOSTIC_URL} onClick={handleClick}>
               <Compass className="w-4 h-4" />
-              {cta}
+              <span className="min-w-0">{cta}</span>
             </a>
           </Button>
         </div>
@@ -53,7 +58,7 @@ const DiagnosticCTA = ({
       className={`rounded-2xl border border-brand-gold/25 bg-gradient-to-br from-brand-dark-card to-brand-dark p-7 md:p-10 ${className}`}
     >
       <div className="flex flex-col md:flex-row md:items-center gap-6">
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-gold/10 border border-brand-gold/30 text-xs font-bold text-brand-gold mb-4">
             <Compass className="w-3.5 h-3.5" />
             Diagnóstico gratuito
@@ -66,10 +71,15 @@ const DiagnosticCTA = ({
           </p>
           <p className="mt-3 text-xs md:text-sm text-muted-foreground">{DIAGNOSTIC_COPY.trust}</p>
         </div>
-        <div className="w-full md:w-auto">
-          <Button variant="heroOutline" size="xl" className="w-full md:w-auto" asChild>
+        <div className="w-full min-w-0 md:w-auto md:max-w-full">
+          <Button
+            variant="heroOutline"
+            size="xl"
+            className="h-auto min-h-14 w-full max-w-full min-w-0 whitespace-normal break-words px-4 py-3 text-center leading-snug sm:px-6 md:w-auto"
+            asChild
+          >
             <a href={DIAGNOSTIC_URL} onClick={handleClick}>
-              {cta}
+              <span className="min-w-0">{cta}</span>
               <ArrowRight className="w-5 h-5" />
             </a>
           </Button>
